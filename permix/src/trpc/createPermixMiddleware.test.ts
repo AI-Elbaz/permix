@@ -3,8 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { createPermix } from '../core/createPermix'
 import { createPermixMiddleware } from './createPermixMiddleware'
 
+interface Context {
+  user: {
+    id: string
+  }
+}
+
 describe('createPermixMiddleware', () => {
-  const t = initTRPC.create()
+  const t = initTRPC.context<Context>().create()
 
   interface Post {
     id: string
@@ -20,41 +26,49 @@ describe('createPermixMiddleware', () => {
 
   const { check } = createPermixMiddleware(permix)
 
-  it('should allow access when permission is granted', async () => {
-    await permix.setup({
-      post: {
-        create: true,
-      },
+  it('should allow access when permission is defined', async () => {
+    const protectedProcedure = t.procedure.use(async ({ next }) => {
+      await permix.setup({
+        post: {
+          create: true,
+        },
+      })
+
+      return next()
     })
 
     const router = t.router({
-      createPost: t.procedure
+      createPost: protectedProcedure
         .use(check('post', 'create'))
         .query(() => {
           return { success: true }
         }),
     })
 
-    const result = await t.createCallerFactory(router)({}).createPost()
+    const result = await t.createCallerFactory(router)({ user: { id: '1' } }).createPost()
     expect(result).toEqual({ success: true })
   })
 
   it('should deny access when permission is not granted', async () => {
-    await permix.setup({
-      post: {
-        create: false,
-      },
+    const protectedProcedure = t.procedure.use(async ({ next }) => {
+      await permix.setup({
+        post: {
+          create: false,
+        },
+      })
+
+      return next()
     })
 
     const router = t.router({
-      createPost: t.procedure
+      createPost: protectedProcedure
         .use(check('post', 'create'))
         .query(() => {
           return { success: true }
         }),
     })
 
-    await expect(t.createCallerFactory(router)({}).createPost()).rejects.toThrow('You do not have permission')
+    await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost()).rejects.toThrow('You do not have permission')
   })
 
   it('should work with custom error', async () => {
@@ -67,41 +81,48 @@ describe('createPermixMiddleware', () => {
       unauthorizedError: customError,
     })
 
-    await permix.setup({
-      post: {
-        create: false,
-      },
+    const protectedProcedure = t.procedure.use(async ({ next }) => {
+      await permix.setup({
+        post: {
+          create: false,
+        },
+      })
+
+      return next()
     })
 
     const router = t.router({
-      createPost: t.procedure
+      createPost: protectedProcedure
         .use(check('post', 'create'))
         .query(() => {
           return { success: true }
         }),
     })
 
-    await expect(t.createCallerFactory(router)({}).createPost()).rejects.toThrow('Custom unauthorized message')
+    await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost()).rejects.toThrow('Custom unauthorized message')
   })
 
   it('should chain multiple permissions', async () => {
-    await permix.setup({
-      post: {
-        create: true,
-        read: true,
-      },
+    const protectedProcedure = t.procedure.use(async ({ next }) => {
+      await permix.setup({
+        post: {
+          create: true,
+          read: true,
+        },
+      })
+
+      return next()
     })
 
     const router = t.router({
-      createAndReadPost: t.procedure
-        .use(check('post', 'create'))
-        .use(check('post', 'read'))
+      createAndReadPost: protectedProcedure
+        .use(check('post', ['create', 'read']))
         .query(() => {
           return { success: true }
         }),
     })
 
-    const result = await t.createCallerFactory(router)({}).createAndReadPost()
+    const result = await t.createCallerFactory(router)({ user: { id: '1' } }).createAndReadPost()
     expect(result).toEqual({ success: true })
   })
 })

@@ -5,6 +5,7 @@ import { createPermix } from './createPermix'
 interface Post {
   id: string
   title: string
+  authorId: string
 }
 
 let permix: Permix<{
@@ -74,6 +75,8 @@ describe('createPermix', () => {
     })
 
     expect(permix.check('post', 'read')).toBe(false)
+    // @ts-expect-error action is not defined
+    expect(permix.check('post', 'not-exist')).toBe(false)
   })
 
   it('should return false if entity is not defined', async () => {
@@ -87,7 +90,21 @@ describe('createPermix', () => {
     expect(permix.check('comment', 'create')).toBe(false)
   })
 
-  it('should setup function', async () => {
+  it('should validate permission as function', async () => {
+    await permix.setup({
+      post: {
+        create: post => post.authorId === '1',
+      },
+    })
+
+    const postWhereAuthorIdIs1 = { authorId: '1' } as Post
+    const postWhereAuthorIdIs2 = { authorId: '2' } as Post
+
+    expect(permix.check('post', 'create', postWhereAuthorIdIs1)).toBe(true)
+    expect(permix.check('post', 'create', postWhereAuthorIdIs2)).toBe(false)
+  })
+
+  it('should work with setup as function', async () => {
     await permix.setup(() => ({
       post: {
         create: true,
@@ -182,5 +199,19 @@ describe('createPermix', () => {
     })
 
     expect(callback).toHaveBeenCalled()
+  })
+
+  it('should work without dataType', async () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    await permix.setup({
+      post: { create: true },
+    })
+
+    expect(permix.check('post', 'create')).toBe(true)
   })
 })
