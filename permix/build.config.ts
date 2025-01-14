@@ -1,4 +1,5 @@
 import { defineBuildConfig } from 'unbuild'
+import {optionalDependencies} from './package.json'
 
 export default defineBuildConfig({
   entries: [
@@ -6,7 +7,9 @@ export default defineBuildConfig({
     './src/react/index.ts',
     './src/vue/index.ts',
     './src/trpc/index.ts',
+    './src/express/index.ts',
+    './src/hono/index.ts',
   ],
   declaration: true,
-  externals: ['vue', 'react'],
+  externals: Object.keys(optionalDependencies),
 })

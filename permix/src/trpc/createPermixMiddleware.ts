@@ -26,19 +26,14 @@ export function createPermixMiddleware<TPermix extends Permix<any>>(
     TEntity extends Parameters<TPermix['check']>[0],
     TAction extends Parameters<TPermix['check']>[1],
   >(entity: TEntity, action: TAction) {
-    return async ({ next, ctx }: any) => {
+    return async ({ next }: any) => {
       const hasPermission = permix.check(entity, action)
 
       if (!hasPermission) {
         throw unauthorizedError
       }
 
-      return next({
-        ctx: {
-          ...ctx,
-          permix,
-        },
-      })
+      return next()
     }
   }
 
