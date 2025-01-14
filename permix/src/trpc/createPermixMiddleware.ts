@@ -1,5 +1,5 @@
 import type { Permix } from '../core/createPermix'
-import { initTRPC, TRPCError } from '@trpc/server'
+import { TRPCError } from '@trpc/server'
 
 export interface PermixMiddlewareOptions {
   /**
