@@ -1,4 +1,4 @@
-import { render, renderHook } from '@testing-library/react'
+import { render, renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it } from 'vitest'
 import { createPermix } from '../core/createPermix'
@@ -63,11 +63,12 @@ describe('usePermix', () => {
     })
 
     const TestComponent = () => {
-      const permissions = usePermix(permix)
+      const { check } = usePermix(permix)
+
       return (
         <div>
-          <span data-testid="create">{permissions.check('post', 'create').toString()}</span>
-          <span data-testid="read">{permissions.check('post', 'read').toString()}</span>
+          <span data-testid="create">{check('post', 'create').toString()}</span>
+          <span data-testid="read">{check('post', 'read').toString()}</span>
         </div>
       )
     }
@@ -76,5 +77,17 @@ describe('usePermix', () => {
 
     expect(getByTestId('create')).toHaveTextContent('true')
     expect(getByTestId('read')).toHaveTextContent('false')
+
+    await permix.setup({
+      post: {
+        create: false,
+        read: true,
+      },
+    })
+
+    await waitFor(() => {
+      expect(getByTestId('create')).toHaveTextContent('false')
+      expect(getByTestId('read')).toHaveTextContent('true')
+    })
   })
 })

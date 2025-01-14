@@ -79,5 +79,17 @@ describe('usePermix', () => {
 
     expect(wrapper.get('[data-testid="create"]').text()).toBe('true')
     expect(wrapper.get('[data-testid="read"]').text()).toBe('false')
+
+    await permix.setup({
+      post: {
+        create: false,
+        read: true
+      },
+    })
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('[data-testid="create"]').text()).toBe('false')
+    expect(wrapper.get('[data-testid="read"]').text()).toBe('true')
   })
 })
