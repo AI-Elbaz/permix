@@ -8,7 +8,6 @@ Permix is a lightweight, type-safe permissions management library for JavaScript
 - ⚡ Async permissions setup
 - 🎯 Framework-agnostic core with React and Vue integrations
 - 🔄 Dynamic permission updates
-- 📦 Zero dependencies
 
 ## Installation
 
