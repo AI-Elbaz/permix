@@ -1,7 +1,12 @@
 import { defineBuildConfig } from 'unbuild'
 
 export default defineBuildConfig({
-  entries: ['./src/core/index.ts', './src/react/index.ts', './src/vue/index.ts'],
+  entries: [
+    './src/core/index.ts',
+    './src/react/index.ts',
+    './src/vue/index.ts',
+    './src/trpc/index.ts',
+  ],
   declaration: true,
   externals: ['vue', 'react'],
 })

@@ -1,4 +1,4 @@
-import { hooks } from './hookable'
+import { hooks } from './hooks'
 
 export type GetRules<Permissions extends Record<string, {
   dataType: any
@@ -20,7 +20,7 @@ export type BasePermissions = Record<string, {
 }>
 
 export interface Permix<Permissions extends BasePermissions> {
-  check: <K extends keyof Permissions>(entity: K, action: Permissions[K]['action'], data?: Permissions[K]['dataType']) => boolean
+  check: <K extends keyof Permissions>(entity: K, action: Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
   setup: <Rules extends GetRules<Permissions>>(callback: Rules | (() => Rules | Promise<Rules>)) => Promise<void>
   getRules: () => GetRules<Permissions>
   on: (event: 'setup', callback: () => Promise<void> | void) => void
@@ -42,17 +42,19 @@ export function createPermix<Permissions extends BasePermissions>(): Permix<Perm
         console.warn(`[Permix] Entity not found: "${String(entity)}". This warning is only shown in development mode.`)
       }
 
-      const actionValue = entityObj?.[action]
+      const actionValues = (Array.isArray(action) ? action.map(a => entityObj?.[a]) : [entityObj?.[action]])
 
-      if (process.env.NODE_ENV === 'development' && !actionValue) {
+      if (process.env.NODE_ENV === 'development' && actionValues.length === 0) {
         console.warn(`[Permix] Action not found: "${String(action)}" for entity "${String(entity)}". This warning is only shown in development mode.`)
       }
 
-      if (typeof actionValue === 'function') {
-        return actionValue(data) ?? false
-      }
+      return actionValues.every((action) => {
+        if (typeof action === 'function') {
+          return action(data) ?? false
+        }
 
-      return actionValue ?? false
+        return action ?? false
+      })
     },
     async setup(rules) {
       await hooks.callHook('setup', typeof rules === 'function' ? await rules() : rules)

@@ -1,0 +1,68 @@
+{
+  "name": "permix",
+  "type": "module",
+  "version": "0.0.1",
+  "packageManager": "pnpm@9.15.4",
+  "keywords": [
+    "permissions",
+    "authorization",
+    "acl",
+    "access-control",
+    "typescript",
+    "react",
+    "vue",
+    "type-safe",
+    "rbac",
+    "security",
+    "permissions-management",
+    "frontend",
+    "javascript"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.mjs"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.mjs"
+    },
+    "./vue": {
+      "types": "./dist/vue/index.d.ts",
+      "import": "./dist/vue/index.mjs"
+    },
+    "./trpc": {
+      "types": "./dist/trpc/index.d.ts",
+      "import": "./dist/trpc/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublishOnly": "pnpm run build",
+    "publish": "npm publish",
+    "build": "unbuild",
+    "test": "vitest run",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hookable": "^5.5.3"
+  },
+  "optionalDependencies": {
+    "@trpc/server": ">=10",
+    "react": ">=18",
+    "vue": ">=3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/node": "^22.10.6",
+    "@types/react": "^18.3.18",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^16.5.3",
+    "typescript": "^5.7.3",
+    "unbuild": "^3.3.1",
+    "vitest": "^2.1.8"
+  }
+}
