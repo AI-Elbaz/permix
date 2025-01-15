@@ -2,10 +2,10 @@
   "type": "module",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "publish": "turbo run publish",
-    "build": "turbo run build",
-    "test": "turbo run test",
-    "check-types": "turbo run check-types",
+    "publish": "cd permix && pnpm publish",
+    "build": "cd permix && pnpm build",
+    "test": "cd permix && pnpm test",
+    "check-types": "cd permix && pnpm check-types",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky"
@@ -19,7 +19,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "husky": "^9.1.7",
-    "turbo": "^2.3.3",
+    "npm-run-all2": "^7.0.2",
     "typescript": "^5.7.3"
   }
 }

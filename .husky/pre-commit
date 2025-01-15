@@ -1,1 +1,1 @@
-turbo run test lint check-types
+run-p test lint check-types

@@ -6,4 +6,5 @@ export default antfu({
   rules: {
     'node/prefer-global/process': 'off',
   },
+  ignores: ['**/.source/**'],
 })
