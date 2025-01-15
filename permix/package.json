@@ -4,7 +4,7 @@
   "type": "module",
   "version": "0.2.1",
   "packageManager": "pnpm@9.15.4",
-  "description": "A simple and type-safe permissions library for React, Vue, Nuxt, and more.",
+  "description": "A simple and type-safe permissions library for React, Vue, and more.",
   "author": "Valerii Strilets",
   "license": "MIT",
   "funding": "https://github.com/sponsors/letstri",
@@ -25,7 +25,6 @@
     "typescript",
     "react",
     "vue",
-    "nuxt",
     "type-safe",
     "rbac",
     "security",
@@ -45,10 +44,6 @@
     "./vue": {
       "types": "./dist/vue/index.d.ts",
       "import": "./dist/vue/index.mjs"
-    },
-    "./nuxt": {
-      "types": "./dist/nuxt/index.d.ts",
-      "import": "./dist/nuxt/index.mjs"
     },
     "./trpc": {
       "types": "./dist/trpc/index.d.ts",
@@ -79,18 +74,17 @@
     "@trpc/server": ">=10",
     "express": ">=4",
     "hono": ">=4",
-    "nuxt": ">=3",
     "react": ">=18",
     "vue": ">=3"
   },
   "devDependencies": {
-    "@nuxt/test-utils": "^3.15.4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.6",
     "@types/react": "^18.3.18",
     "@types/supertest": "^6.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^16.5.3",
     "supertest": "^7.0.0",

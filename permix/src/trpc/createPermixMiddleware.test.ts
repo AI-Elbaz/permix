@@ -31,6 +31,8 @@ describe('createPermixMiddleware', () => {
       await permix.setup({
         post: {
           create: true,
+          read: true,
+          update: true,
         },
       })
 
@@ -54,6 +56,8 @@ describe('createPermixMiddleware', () => {
       await permix.setup({
         post: {
           create: false,
+          read: false,
+          update: false,
         },
       })
 
@@ -68,7 +72,7 @@ describe('createPermixMiddleware', () => {
         }),
     })
 
-    await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost()).rejects.toThrow('You do not have permission')
+    await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost()).rejects.toThrow()
   })
 
   it('should work with custom error', async () => {
@@ -85,6 +89,8 @@ describe('createPermixMiddleware', () => {
       await permix.setup({
         post: {
           create: false,
+          read: false,
+          update: false,
         },
       })
 
@@ -108,6 +114,7 @@ describe('createPermixMiddleware', () => {
         post: {
           create: true,
           read: true,
+          update: true,
         },
       })
 

@@ -26,6 +26,8 @@ describe('createPermixMiddleware', () => {
       await permix.setup({
         post: {
           create: true,
+          read: false,
+          update: false,
         },
       })
       next()
@@ -50,6 +52,8 @@ describe('createPermixMiddleware', () => {
       await permix.setup({
         post: {
           create: false,
+          read: false,
+          update: false,
         },
       })
       next()
@@ -78,6 +82,8 @@ describe('createPermixMiddleware', () => {
       await permix.setup({
         post: {
           create: false,
+          read: false,
+          update: false,
         },
       })
       next()

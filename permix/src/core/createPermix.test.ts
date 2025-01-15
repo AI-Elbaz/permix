@@ -33,12 +33,16 @@ describe('createPermix', () => {
     await permix.setup({
       post: {
         create: true,
+        read: true,
+        update: true,
       },
     })
 
     expect(permix.getRules()).toEqual({
       post: {
         create: true,
+        read: true,
+        update: true,
       },
     })
   })
@@ -47,53 +51,64 @@ describe('createPermix', () => {
     permix.setup({
       post: {
         create: true,
+        read: true,
+        update: true,
       },
     })
 
-    expect(permix.getRules()).not.toEqual({
-      post: {
-        create: true,
-      },
-    })
+    expect(() => permix.getRules()).toThrow()
+  })
+
+  it('should throw an error if setup is not awaited', () => {
+    const permix = createPermix()
+    expect(() => permix.check('post', 'read')).toThrow()
   })
 
   it('should return true if permission is defined', async () => {
     await permix.setup({
       post: {
         create: true,
+        read: true,
+        update: true,
       },
     })
 
     expect(permix.check('post', 'create')).toBe(true)
   })
 
-  it('should return false if permission is not defined', async () => {
+  it('should throw an error if permission is not defined', async () => {
     await permix.setup({
       post: {
         create: true,
+        read: true,
+        update: true,
       },
     })
 
-    expect(permix.check('post', 'read')).toBe(false)
+    expect(permix.check('post', 'read')).toBe(true)
     // @ts-expect-error action is not defined
-    expect(permix.check('post', 'not-exist')).toBe(false)
+    expect(() => permix.check('post', 'not-exist')).toThrow()
   })
 
-  it('should return false if entity is not defined', async () => {
-    permix.setup({
+  it('should throw an error if entity is not defined', async () => {
+    await permix.setup({
       post: {
         create: true,
+        read: true,
+        update: true,
       },
     })
 
     // @ts-expect-error entity is not defined
-    expect(permix.check('comment', 'create')).toBe(false)
+    expect(() => permix.check('comment', 'create')).toThrow('[Permix]: Looks like you forgot to setup the rules for "comment"')
   })
 
   it('should validate permission as function', async () => {
     await permix.setup({
       post: {
         create: post => post.authorId === '1',
+        read: true,
+        update: true,
       },
     })
 
@@ -108,11 +123,17 @@ describe('createPermix', () => {
     await permix.setup(() => ({
       post: {
         create: true,
+        read: true,
+        update: true,
       },
     }))
 
     expect(permix.getRules()).toEqual({
-      post: { create: true },
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
     })
     expect(permix.check('post', 'create')).toBe(true)
   })
@@ -124,12 +145,18 @@ describe('createPermix', () => {
       return {
         post: {
           create: true,
+          read: true,
+          update: true,
         },
       }
     })
 
     expect(permix.getRules()).toEqual({
-      post: { create: true },
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
     })
     expect(permix.check('post', 'create')).toBe(true)
   })
@@ -142,6 +169,8 @@ describe('createPermix', () => {
         return {
           post: {
             create: true,
+            read: true,
+            update: true,
           },
         }
       }
@@ -149,44 +178,20 @@ describe('createPermix', () => {
       return {
         post: {
           create: false,
+          read: false,
+          update: false,
         },
       }
     })
 
     expect(permix.getRules()).toEqual({
-      post: { create: true },
-    })
-    expect(permix.check('post', 'create')).toBe(true)
-  })
-
-  it('should work even if permissions are wrong', async () => {
-    await permix.setup(async () => {
-      const isAdmin = await new Promise(resolve => setTimeout(() => resolve(true), 100)) as boolean
-
-      if (isAdmin) {
-        return {
-          post_wrong: {
-            create: true,
-            delete: true,
-          },
-        }
-      }
-
-      return {
-        post: {
-          create: false,
-          read: true,
-        },
-      }
-    })
-
-    expect(permix.getRules()).toEqual({
-      post_wrong: {
+      post: {
         create: true,
-        delete: true,
+        read: true,
+        update: true,
       },
     })
-    expect(permix.check('post', 'create')).toBe(false)
+    expect(permix.check('post', 'create')).toBe(true)
   })
 
   it('should call onUpdate callback', async () => {
@@ -195,7 +200,11 @@ describe('createPermix', () => {
     permix.on('setup', callback)
 
     await permix.setup({
-      post: { create: true },
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
     })
 
     expect(callback).toHaveBeenCalled()

@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { defineComponent } from 'vue'
+import { createApp, defineComponent } from 'vue'
 import { createPermix } from '../core/createPermix'
-import { usePermix } from './usePermix'
+import { permixPlugin, usePermix } from './usePermix'
 
 describe('usePermix', () => {
   it('should work with custom hook', async () => {
@@ -16,12 +17,25 @@ describe('usePermix', () => {
     await permix.setup({
       post: {
         create: true,
+        read: false,
       },
     })
 
-    const usePermissions = () => usePermix(permix)
+    const TestWrapper = defineComponent({
+      template: '<div></div>',
+      setup() {
+        const { check } = usePermix(permix)
+        return { check }
+      },
+    })
 
-    const { check } = usePermissions()
+    const wrapper = mount(TestWrapper, {
+      global: {
+        plugins: [[permixPlugin, { permix }]],
+      },
+    })
+
+    const { check } = wrapper.vm
 
     expect(check('post', 'create')).toBe(true)
     expect(check('post', 'read')).toBe(false)
@@ -38,12 +52,12 @@ describe('usePermix', () => {
     await permix.setup({
       post: {
         create: true,
+        read: false,
       },
     })
 
     const TestComponent = defineComponent({
       setup() {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
         const { check } = usePermix(permix)
         return { check }
       },
@@ -55,7 +69,14 @@ describe('usePermix', () => {
       `,
     })
 
-    const wrapper = mount(TestComponent)
+    const app = createApp({})
+    app.use(permixPlugin, { permix })
+
+    const wrapper = mount(TestComponent, {
+      global: {
+        plugins: [[permixPlugin, { permix }]],
+      },
+    })
 
     expect(wrapper.get('[data-testid="create"]').text()).toBe('true')
     expect(wrapper.get('[data-testid="read"]').text()).toBe('false')

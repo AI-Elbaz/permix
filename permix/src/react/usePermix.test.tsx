@@ -2,7 +2,7 @@ import { render, renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it } from 'vitest'
 import { createPermix } from '../core/createPermix'
-import { usePermix } from './usePermix'
+import { PermixProvider, usePermix } from './usePermix'
 import '@testing-library/jest-dom/vitest'
 
 describe('usePermix', () => {
@@ -17,18 +17,23 @@ describe('usePermix', () => {
     await permix.setup({
       post: {
         create: true,
+        read: false,
       },
     })
 
     const usePermissions = () => usePermix(permix)
 
-    const { result } = renderHook(() => usePermissions())
+    const { result } = renderHook(() => usePermissions(), {
+      wrapper: ({ children }) => (
+        <PermixProvider permix={permix}>{children}</PermixProvider>
+      ),
+    })
 
     expect(result.current.check('post', 'create')).toBe(true)
     expect(result.current.check('post', 'read')).toBe(false)
   })
 
-  it('should work with DOM render', async () => {
+  it('should work with DOM rerender', async () => {
     const permix = createPermix<{
       post: {
         dataType: { id: string }
@@ -39,6 +44,7 @@ describe('usePermix', () => {
     await permix.setup({
       post: {
         create: true,
+        read: false,
       },
     })
 
@@ -53,7 +59,11 @@ describe('usePermix', () => {
       )
     }
 
-    const { getByTestId } = render(<TestComponent />)
+    const { getByTestId } = render(
+      <PermixProvider permix={permix}>
+        <TestComponent />
+      </PermixProvider>,
+    )
 
     expect(getByTestId('create')).toHaveTextContent('true')
     expect(getByTestId('read')).toHaveTextContent('false')

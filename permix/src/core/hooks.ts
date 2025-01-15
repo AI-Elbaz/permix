@@ -1,6 +1,6 @@
-import type { GetRules } from './createPermix'
+import type { PermixRules } from './createPermix'
 import { createHooks } from 'hookable'
 
 export const hooks = createHooks<{
-  setup: (rules: GetRules) => void
+  setup: (rules: PermixRules) => void
 }>()

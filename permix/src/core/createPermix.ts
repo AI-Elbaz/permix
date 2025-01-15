@@ -1,26 +1,28 @@
 import { hooks } from './hooks'
 
-export type GetRules<Permissions extends Record<string, {
+export type PermixRules<Permissions extends Record<string, {
   dataType?: any
   action: string
 }> = Record<string, {
   dataType?: any
   action: string
 }>> = {
-  [Key in keyof Permissions]?: {
-    [Action in Permissions[Key]['action']]?:
+  [Key in keyof Permissions]: {
+    [Action in Permissions[Key]['action']]:
       | boolean
       | ((data: Permissions[Key]['dataType']) => boolean);
   };
 }
 
-export type BasePermissions = Record<string, {
-  dataType?: any
+export interface PermixPermission<T = any> {
+  dataType?: T
   action: string
-}>
+}
 
-export interface PermixOptions<Permissions extends BasePermissions> {
-  initialRules?: GetRules<Permissions>
+export type PermixPermissions = Record<string, PermixPermission>
+
+export interface PermixOptions<Permissions extends PermixPermissions> {
+  initialRules?: PermixRules<Permissions>
 }
 
 /**
@@ -35,7 +37,7 @@ export interface PermixOptions<Permissions extends BasePermissions> {
  * }>()
  * ```
  */
-export interface Permix<Permissions extends BasePermissions> {
+export interface Permix<Permissions extends PermixPermissions> {
   /**
    * Check if an action is allowed for an entity using current rules
    *
@@ -67,7 +69,7 @@ export interface Permix<Permissions extends BasePermissions> {
    * permix.checkWithRules(rules, 'post', 'create')
    * ```
    */
-  checkWithRules: <K extends keyof Permissions>(rules: GetRules<Permissions>, entity: K, action: Permissions[K]['action'] | 'all' | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
+  checkWithRules: <K extends keyof Permissions>(rules: PermixRules<Permissions>, entity: K, action: Permissions[K]['action'] | 'all' | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
 
   /**
    * Set up permission rules
@@ -88,7 +90,7 @@ export interface Permix<Permissions extends BasePermissions> {
    * })
    * ```
    */
-  setup: <Rules extends GetRules<Permissions>>(callback: Rules | (() => Rules | Promise<Rules>)) => Promise<void>
+  setup: <Rules extends PermixRules<Permissions>>(callback: Rules | (() => Rules | Promise<Rules>)) => Promise<void>
 
   /**
    * Get current permission rules
@@ -99,7 +101,7 @@ export interface Permix<Permissions extends BasePermissions> {
    * // returns { post: { create: true, read: false } }
    * ```
    */
-  getRules: () => GetRules<Permissions>
+  getRules: () => PermixRules<Permissions>
 
   /**
    * Register event handler
@@ -122,7 +124,7 @@ export interface Permix<Permissions extends BasePermissions> {
    * // { post: { create: true, read: false } }
    * ```
    */
-  $rules: GetRules<Permissions>
+  $rules: PermixRules<Permissions>
 }
 
 /**
@@ -150,19 +152,34 @@ export interface Permix<Permissions extends BasePermissions> {
  * console.log(permix.check('user', 'read')) // true
  * ```
  */
-export function createPermix<Permissions extends BasePermissions>(options: PermixOptions<Permissions> = {}): Permix<Permissions> {
-  let rules: GetRules<Permissions> = options.initialRules ?? {}
+export function createPermix<Permissions extends PermixPermissions>(options: PermixOptions<Permissions> = {}): Permix<Permissions> {
+  let rules: PermixRules<Permissions> | null = options.initialRules ?? null
 
   hooks.hook('setup', (r) => {
-    rules = r as GetRules<Permissions>
+    rules = r as PermixRules<Permissions>
   })
 
   return {
     checkWithRules(rules, entity, action, data) {
+      if (!rules) {
+        throw new Error('[Permix]: Looks like you forgot to setup the rules')
+      }
+
+      if (!rules[entity]) {
+        throw new Error(`[Permix]: Looks like you forgot to setup the rules for "${String(entity)}"`)
+      }
+
       const entityObj = rules[entity]
+      const actions = Array.isArray(action) ? action : [action]
+      const isEveryActionDefined = actions.every(a => entityObj[a] !== undefined || action === 'all')
+
+      if (!isEveryActionDefined) {
+        throw new Error(`[Permix]: Permission "${String(action)}" is not defined for "${String(entity)}"`)
+      }
+
       const actionValues = action === 'all'
-        ? Object.values(entityObj ?? {})
-        : (Array.isArray(action) ? action.map(a => entityObj?.[a]) : [entityObj?.[action]])
+        ? Object.values(entityObj)
+        : actions.map(a => entityObj[a])
 
       return actionValues.every((action) => {
         if (typeof action === 'function') {
@@ -173,15 +190,21 @@ export function createPermix<Permissions extends BasePermissions>(options: Permi
       })
     },
     check(entity, action, data) {
-      return this.checkWithRules(rules, entity, action, data)
+      return this.checkWithRules(rules!, entity, action, data)
     },
     async setup(rules) {
       await hooks.callHook('setup', typeof rules === 'function' ? await rules() : rules)
     },
-    getRules: () => rules,
+    getRules: () => {
+      if (!rules) {
+        throw new Error('[Permix]: Looks like you forgot to setup the rules')
+      }
+
+      return rules
+    },
     on(event, callback) {
       hooks.hook(event, callback)
     },
-    $rules: rules,
+    $rules: {} as PermixRules<Permissions>,
   } satisfies Permix<Permissions>
 }
