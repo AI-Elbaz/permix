@@ -51,7 +51,7 @@ export interface Permix<Permissions extends BasePermissions> {
    * permix.check('post', 'read', { id: '123' })
    * ```
    */
-  check: <K extends keyof Permissions>(entity: K, action: Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
+  check: <K extends keyof Permissions>(entity: K, action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
 
   /**
    * Check if an action is allowed for an entity using provided rules
@@ -67,7 +67,7 @@ export interface Permix<Permissions extends BasePermissions> {
    * permix.checkWithRules(rules, 'post', 'create')
    * ```
    */
-  checkWithRules: <K extends keyof Permissions>(rules: GetRules<Permissions>, entity: K, action: Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
+  checkWithRules: <K extends keyof Permissions>(rules: GetRules<Permissions>, entity: K, action: Permissions[K]['action'] | 'all' | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
 
   /**
    * Set up permission rules
@@ -160,7 +160,9 @@ export function createPermix<Permissions extends BasePermissions>(options: Permi
   return {
     checkWithRules(rules, entity, action, data) {
       const entityObj = rules[entity]
-      const actionValues = (Array.isArray(action) ? action.map(a => entityObj?.[a]) : [entityObj?.[action]])
+      const actionValues = action === 'all'
+        ? Object.values(entityObj ?? {})
+        : (Array.isArray(action) ? action.map(a => entityObj?.[a]) : [entityObj?.[action]])
 
       return actionValues.every((action) => {
         if (typeof action === 'function') {

@@ -214,4 +214,26 @@ describe('createPermix', () => {
 
     expect(permix.check('post', 'create')).toBe(true)
   })
+
+  it('should check all permissions', async () => {
+    await permix.setup({
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    expect(permix.check('post', 'all')).toBe(true)
+
+    await permix.setup({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+    })
+
+    expect(permix.check('post', 'all')).toBe(false)
+  })
 })
