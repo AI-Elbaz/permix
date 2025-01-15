@@ -1,0 +1,14 @@
+```tsx
+// Use in frontend as you want
+import { usePermix } from 'permix/react' // or vue, nuxt
+import { permix } from './permix'
+
+permix.check('post', 'delete')
+
+const post = await fetchPost()
+
+const { check } = usePermix(permix)
+
+// Reactive checking
+check('post', 'edit', post) // Can I edit this post?
+```

@@ -1,0 +1,14 @@
+```tsx
+// Setup wherever you want
+import { permix } from './permix'
+
+const user = await fetchUser()
+
+await permix.setup({
+  post: {
+    create: true,
+    edit: post => !post.published,
+    delete: user.role === 'admin',
+  },
+})
+```
