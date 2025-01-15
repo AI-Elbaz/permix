@@ -1,7 +1,7 @@
-import type { Permix } from '../core/createPermix'
+import type { BasePermissions, Permix } from '../core/createPermix'
 import { useState } from 'nuxt/app'
 
-export function usePermix<T extends Record<string, { dataType: any, action: string }>>(
+export function usePermix<T extends BasePermissions>(
   permix: Permix<T>,
 ) {
   const rules = useState('permix-rules', () => permix.getRules())

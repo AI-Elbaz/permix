@@ -1,9 +1,9 @@
 'use client'
 
-import type { Permix } from '../core/createPermix'
+import type { BasePermissions, Permix } from '../core/createPermix'
 import { useCallback, useEffect, useState } from 'react'
 
-export function usePermix<T extends Record<string, { dataType: any, action: string }>>(
+export function usePermix<T extends BasePermissions>(
   permix: Permix<T>,
 ) {
   const [rules, setRules] = useState(permix.getRules())

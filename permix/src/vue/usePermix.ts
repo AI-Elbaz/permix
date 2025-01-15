@@ -1,7 +1,7 @@
-import type { Permix } from '../core/createPermix'
+import type { BasePermissions, Permix } from '../core/createPermix'
 import { ref } from 'vue'
 
-export function usePermix<T extends Record<string, { dataType: any, action: string }>>(
+export function usePermix<T extends BasePermissions>(
   permix: Permix<T>,
 ) {
   const rules = ref(permix.getRules())
