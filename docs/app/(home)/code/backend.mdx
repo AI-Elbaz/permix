@@ -3,13 +3,13 @@
 import { createPermixMiddleware } from 'permix/express' // or trpc, hono
 import { permix } from './permix'
 
-permix.check('post', 'delete')
 
 const { check } = createPermixMiddleware(permix)
 
 // Express
 app.post('/', check('post', 'delete'), () => {
-  // Or here
+  const post = await db.getPost()
+
   permix.check('post', 'edit', post) // Can I edit this post?
 })
 ```
