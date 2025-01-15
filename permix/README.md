@@ -53,7 +53,7 @@ export default async function Home() {
 
   return (
     <div>
-      Can I create a post?
+      Can I delete a user?
       {' '}
       {permix.check('user', 'delete') ? 'Yes' : 'No'}
     </div>
@@ -68,7 +68,7 @@ export default function Home() {
 
   return (
     <div>
-      Can I create a post?
+      Can I delete a user?
       {' '}
       {permix.check('user', 'delete') ? 'Yes' : 'No'}
     </div>

@@ -7,8 +7,8 @@ export default function ClientPage() {
 
   return (
     <div>
-      Can I create a post?
-      {check('post', 'create') ? 'Yes' : 'No'}
+      Can I delete a user?
+      {check('user', 'delete') ? 'Yes' : 'No'}
     </div>
   )
 }
