@@ -1,10 +1,10 @@
 import { hooks } from './hooks'
 
 export type PermixRules<Permissions extends Record<string, {
-  dataType?: any
+  dataType?: unknown
   action: string
 }> = Record<string, {
-  dataType?: any
+  dataType?: unknown
   action: string
 }>> = {
   [Key in keyof Permissions]: {
@@ -14,7 +14,7 @@ export type PermixRules<Permissions extends Record<string, {
   };
 }
 
-export interface PermixPermission<T = any> {
+export interface PermixPermission<T = unknown> {
   dataType?: T
   action: string
 }
