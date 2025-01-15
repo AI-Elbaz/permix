@@ -22,6 +22,11 @@ export interface PermixPermission<T = unknown> {
 export type PermixPermissions = Record<string, PermixPermission>
 
 export interface PermixOptions<Permissions extends PermixPermissions> {
+  /**
+   * Initial rules object.
+   *
+   * Useful if you want to setup immediately all rules without `setup` method.
+   */
   initialRules?: PermixRules<Permissions>
 }
 
@@ -44,13 +49,16 @@ export interface Permix<Permissions extends PermixPermissions> {
    * @example
    * ```ts
    * // Single action check
-   * permix.check('post', 'create') // returns true/false
+   * permix.check('post', 'create') // returns true if allowed
    *
    * // Multiple actions check
-   * permix.check('post', ['create', 'read']) // returns true if ALL actions are allowed
+   * permix.check('post', ['create', 'read']) // returns true if both actions are allowed
    *
    * // With data
-   * permix.check('post', 'read', { id: '123' })
+   * permix.check('post', 'read', { id: '123' }) // returns true if allowed exactly with this post
+   *
+   * // All actions check
+   * permix.check('post', 'all') // returns true if ALL actions are allowed
    * ```
    */
   check: <K extends keyof Permissions>(entity: K, action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
