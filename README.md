@@ -2,6 +2,8 @@
 
 Permix is a lightweight, framework-agnostic, type-safe permissions management library for JavaScript applications on the client and server sides.
 
+> Highly inspired by [Web Dev Simplified](https://www.youtube.com/watch?v=5GG-VUvruzE)
+
 ## Documentation
 
 You can find the documentation [here](https://permix.letstri.dev).

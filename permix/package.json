@@ -11,7 +11,7 @@
   "homepage": "https://permix.letstri.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/letstri/permix.git",
+    "url": "git+https://github.com/letstri/permix.git",
     "directory": "permix"
   },
   "bugs": {
