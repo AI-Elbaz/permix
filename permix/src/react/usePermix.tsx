@@ -1,5 +1,3 @@
-'use client'
-
 import type { Permix, PermixPermissions, PermixRules } from '../core/createPermix'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
