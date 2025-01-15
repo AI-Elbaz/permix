@@ -9,6 +9,6 @@ const post = await fetchPost()
 
 const { check } = usePermix(permix)
 
-// Reactive checking
+// Reactively checks permissions even after new setups
 check('post', 'edit', post) // Can I edit this post?
 ```
