@@ -1,8 +1,22 @@
 {
   "name": "permix",
+  "displayName": "Permix",
   "type": "module",
   "version": "0.1.0",
   "packageManager": "pnpm@9.15.4",
+  "description": "A simple and type-safe permissions library for React, Vue, Nuxt, and more.",
+  "author": "Valerii Strilets",
+  "license": "MIT",
+  "funding": "https://github.com/sponsors/letstri",
+  "homepage": "https://permix.letstri.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/letstri/permix.git",
+    "directory": "permix"
+  },
+  "bugs": {
+    "url": "https://github.com/letstri/permix/issues"
+  },
   "keywords": [
     "permissions",
     "authorization",
