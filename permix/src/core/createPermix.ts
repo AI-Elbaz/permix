@@ -19,6 +19,10 @@ export type BasePermissions = Record<string, {
   action: string
 }>
 
+export interface PermixOptions<Permissions extends BasePermissions> {
+  initialRules?: GetRules<Permissions>
+}
+
 /**
  * Interface for the Permix permission manager
  * @example
@@ -146,8 +150,8 @@ export interface Permix<Permissions extends BasePermissions> {
  * console.log(permix.check('user', 'read')) // true
  * ```
  */
-export function createPermix<Permissions extends BasePermissions>(): Permix<Permissions> {
-  let rules: GetRules<Permissions> = {}
+export function createPermix<Permissions extends BasePermissions>(options: PermixOptions<Permissions> = {}): Permix<Permissions> {
+  let rules: GetRules<Permissions> = options.initialRules ?? {}
 
   hooks.hook('setup', (r) => {
     rules = r as GetRules<Permissions>
@@ -156,16 +160,7 @@ export function createPermix<Permissions extends BasePermissions>(): Permix<Perm
   return {
     checkWithRules(rules, entity, action, data) {
       const entityObj = rules[entity]
-
-      if (process.env.NODE_ENV === 'development' && !entityObj) {
-        console.warn(`[Permix] Entity not found: "${String(entity)}". This warning is only shown in development mode.`)
-      }
-
       const actionValues = (Array.isArray(action) ? action.map(a => entityObj?.[a]) : [entityObj?.[action]])
-
-      if (process.env.NODE_ENV === 'development' && actionValues.length === 0) {
-        console.warn(`[Permix] Action not found: "${String(action)}" for entity "${String(entity)}". This warning is only shown in development mode.`)
-      }
 
       return actionValues.every((action) => {
         if (typeof action === 'function') {

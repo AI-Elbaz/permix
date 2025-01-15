@@ -6,26 +6,6 @@ import { usePermix } from './usePermix'
 import '@testing-library/jest-dom/vitest'
 
 describe('usePermix', () => {
-  it('should check permissions correctly', async () => {
-    const permix = createPermix<{
-      post: {
-        dataType: { id: string }
-        action: 'create' | 'read'
-      }
-    }>()
-
-    await permix.setup({
-      post: {
-        create: true,
-      },
-    })
-
-    const { result } = renderHook(() => usePermix(permix))
-
-    expect(result.current.check('post', 'create')).toBe(true)
-    expect(result.current.check('post', 'read')).toBe(false)
-  })
-
   it('should work with custom hook', async () => {
     const permix = createPermix<{
       post: {

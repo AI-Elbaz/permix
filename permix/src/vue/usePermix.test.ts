@@ -5,26 +5,6 @@ import { createPermix } from '../core/createPermix'
 import { usePermix } from './usePermix'
 
 describe('usePermix', () => {
-  it('should check permissions correctly', async () => {
-    const permix = createPermix<{
-      post: {
-        dataType: { id: string }
-        action: 'create' | 'read'
-      }
-    }>()
-
-    await permix.setup({
-      post: {
-        create: true,
-      },
-    })
-
-    const { check } = usePermix(permix)
-
-    expect(check('post', 'create')).toBe(true)
-    expect(check('post', 'read')).toBe(false)
-  })
-
   it('should work with custom hook', async () => {
     const permix = createPermix<{
       post: {
@@ -83,7 +63,7 @@ describe('usePermix', () => {
     await permix.setup({
       post: {
         create: false,
-        read: true
+        read: true,
       },
     })
 

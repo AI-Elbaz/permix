@@ -1,3 +1,5 @@
+'use client'
+
 import type { Permix } from '../core/createPermix'
 import { useCallback, useEffect, useState } from 'react'
 
