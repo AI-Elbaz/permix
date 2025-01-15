@@ -5,7 +5,6 @@ import { permix } from './permix'
 
 const { check } = createPermixMiddleware(permix)
 
-// Express
 app.post('/', check('post', 'delete'), () => {
   const post = await db.getPost()
 
