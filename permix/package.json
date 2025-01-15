@@ -67,7 +67,7 @@
     "dist"
   ],
   "scripts": {
-    "prepublishOnly": "pnpm run build",
+    "prepublishOnly": "run-p test build",
     "publish": "npm publish",
     "build": "unbuild",
     "test": "vitest run",
