@@ -68,7 +68,6 @@
   ],
   "scripts": {
     "prepublishOnly": "run-p test build",
-    "publish": "npm publish",
     "build": "unbuild",
     "test": "vitest run",
     "check-types": "tsc --noEmit"
