@@ -80,4 +80,4 @@ More examples can be found in the [examples](./examples) directory.
 
 ## License
 
-MIT License - see the [LICENSE](./LICENSE) file for details
+MIT License - see the [LICENSE](../LICENSE) file for details
