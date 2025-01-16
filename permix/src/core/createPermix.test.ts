@@ -8,9 +8,19 @@ interface Post {
   authorId: string
 }
 
+interface Comment {
+  id: string
+  content: string
+  postId: string
+}
+
 let permix: Permix<{
   post: {
     dataType: Post
+    action: 'create' | 'read'
+  }
+  comment: {
+    dataType: Comment
     action: 'create' | 'read' | 'update'
   }
 }>
@@ -20,6 +30,10 @@ describe('createPermix', () => {
     permix = createPermix<{
       post: {
         dataType: Post
+        action: 'create' | 'read'
+      }
+      comment: {
+        dataType: Comment
         action: 'create' | 'read' | 'update'
       }
     }>()
@@ -34,12 +48,20 @@ describe('createPermix', () => {
       post: {
         create: true,
         read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
         update: true,
       },
     })
 
     expect(permix.getJSON()).toEqual({
       post: {
+        create: true,
+        read: true,
+      },
+      comment: {
         create: true,
         read: true,
         update: true,
@@ -50,6 +72,10 @@ describe('createPermix', () => {
   it('shouldn\'t work if setup is no awaited', async () => {
     permix.setup({
       post: {
+        create: true,
+        read: true,
+      },
+      comment: {
         create: true,
         read: true,
         update: true,
@@ -69,6 +95,10 @@ describe('createPermix', () => {
       post: {
         create: true,
         read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
         update: true,
       },
     })
@@ -79,6 +109,10 @@ describe('createPermix', () => {
   it('should throw an error if permission is not defined', async () => {
     await permix.setup({
       post: {
+        create: true,
+        read: true,
+      },
+      comment: {
         create: true,
         read: true,
         update: true,
@@ -95,18 +129,26 @@ describe('createPermix', () => {
       post: {
         create: true,
         read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
         update: true,
       },
     })
 
     // @ts-expect-error entity is not defined
-    expect(permix.check('comment', 'create')).toBe(false)
+    expect(permix.check('user', 'create')).toBe(false)
   })
 
   it('should validate permission as function', async () => {
     await permix.setup({
       post: {
         create: post => post.authorId === '1',
+        read: true,
+      },
+      comment: {
+        create: true,
         read: true,
         update: true,
       },
@@ -124,12 +166,20 @@ describe('createPermix', () => {
       post: {
         create: true,
         read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
         update: true,
       },
     }))
 
     expect(permix.getJSON()).toEqual({
       post: {
+        create: true,
+        read: true,
+      },
+      comment: {
         create: true,
         read: true,
         update: true,
@@ -146,6 +196,10 @@ describe('createPermix', () => {
         post: {
           create: true,
           read: true,
+        },
+        comment: {
+          create: true,
+          read: true,
           update: true,
         },
       }
@@ -153,6 +207,10 @@ describe('createPermix', () => {
 
     expect(permix.getJSON()).toEqual({
       post: {
+        create: true,
+        read: true,
+      },
+      comment: {
         create: true,
         read: true,
         update: true,
@@ -170,6 +228,10 @@ describe('createPermix', () => {
           post: {
             create: true,
             read: true,
+          },
+          comment: {
+            create: true,
+            read: true,
             update: true,
           },
         }
@@ -179,6 +241,10 @@ describe('createPermix', () => {
         post: {
           create: false,
           read: false,
+        },
+        comment: {
+          create: false,
+          read: false,
           update: false,
         },
       }
@@ -186,6 +252,10 @@ describe('createPermix', () => {
 
     expect(permix.getJSON()).toEqual({
       post: {
+        create: true,
+        read: true,
+      },
+      comment: {
         create: true,
         read: true,
         update: true,
@@ -201,6 +271,10 @@ describe('createPermix', () => {
 
     await permix.setup({
       post: {
+        create: true,
+        read: true,
+      },
+      comment: {
         create: true,
         read: true,
         update: true,
@@ -229,6 +303,10 @@ describe('createPermix', () => {
       post: {
         create: true,
         read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
         update: true,
       },
     })
@@ -239,7 +317,11 @@ describe('createPermix', () => {
       post: {
         create: true,
         read: false,
-        update: true,
+      },
+      comment: {
+        create: true,
+        read: false,
+        update: false,
       },
     })
 
@@ -324,7 +406,7 @@ describe('createPermix', () => {
       }
     }>()
 
-    const permissions = permix.definePermissions({
+    const permissions = permix.template({
       post: {
         create: true,
       },
@@ -342,23 +424,23 @@ describe('createPermix', () => {
   })
 
   it('should throw an error if permissions are not valid', () => {
-    expect(() => permix.definePermissions({
+    expect(() => permix.template({
       // @ts-expect-error create isn't valid
       post: { create: 1 },
     })).toThrow()
-    expect(() => permix.definePermissions({
+    expect(() => permix.template({
       // @ts-expect-error create isn't valid
       post: { create: 'string' },
     })).toThrow()
-    expect(() => permix.definePermissions({
+    expect(() => permix.template({
       // @ts-expect-error create isn't valid
       post: { create: [] },
     })).toThrow()
-    expect(() => permix.definePermissions({
+    expect(() => permix.template({
       // @ts-expect-error create isn't valid
       post: { create: {} },
     })).toThrow()
-    expect(() => permix.definePermissions({
+    expect(() => permix.template({
       // @ts-expect-error create isn't valid
       post: { create: null },
     })).toThrow()

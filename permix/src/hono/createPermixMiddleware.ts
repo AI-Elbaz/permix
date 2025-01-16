@@ -1,5 +1,5 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import type { Permix } from '../core/createPermix'
+import type { Permix, PermixPermissions } from '../core/createPermix'
 
 export interface PermixHonoOptions {
   /**
@@ -8,21 +8,15 @@ export interface PermixHonoOptions {
   onUnauthorized?: (c: Context) => Response | Promise<Response>
 }
 
-export function createPermixMiddleware<TPermix extends Permix<any>>(
-  permix: TPermix,
+export function createPermixMiddleware<T extends PermixPermissions>(
+  permix: Permix<T>,
   options: PermixHonoOptions = {},
 ) {
   const {
     onUnauthorized = c => c.json({ error: 'Forbidden' }, 403),
   } = options
 
-  /**
-   * Check permission for specific entity and action
-   */
-  function check<
-    TEntity extends Parameters<TPermix['check']>[0],
-    TAction extends Parameters<TPermix['check']>[1],
-  >(entity: TEntity, action: TAction): MiddlewareHandler {
+  const check = <K extends keyof T>(entity: K, action: 'all' | T[K]['action'] | T[K]['action'][]): MiddlewareHandler => {
     return async (c, next) => {
       const hasPermission = permix.check(entity, action)
 

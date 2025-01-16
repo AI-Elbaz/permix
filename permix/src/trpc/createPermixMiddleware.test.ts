@@ -22,9 +22,17 @@ describe('createPermixMiddleware', () => {
       dataType: Post
       action: 'create' | 'read' | 'update'
     }
+    user: {
+      action: 'delete'
+    }
   }>()
 
   const { check } = createPermixMiddleware(permix)
+
+  it('should throw ts and js error', () => {
+    // @ts-expect-error should throw
+    expect(() => check('post', 'delete')()).toThrow()
+  })
 
   it('should allow access when permission is defined', async () => {
     const protectedProcedure = t.procedure.use(async ({ next }) => {
@@ -33,6 +41,9 @@ describe('createPermixMiddleware', () => {
           create: true,
           read: true,
           update: true,
+        },
+        user: {
+          delete: true,
         },
       })
 
@@ -58,6 +69,9 @@ describe('createPermixMiddleware', () => {
           create: false,
           read: false,
           update: false,
+        },
+        user: {
+          delete: false,
         },
       })
 
@@ -92,6 +106,9 @@ describe('createPermixMiddleware', () => {
           read: false,
           update: false,
         },
+        user: {
+          delete: false,
+        },
       })
 
       return next()
@@ -115,6 +132,9 @@ describe('createPermixMiddleware', () => {
           create: true,
           read: true,
           update: true,
+        },
+        user: {
+          delete: true,
         },
       })
 

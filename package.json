@@ -3,10 +3,10 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "publish": "cd permix && pnpm publish",
-    "build": "cd permix && pnpm build",
-    "test": "cd permix && pnpm test",
-    "check-types": "cd permix && pnpm check-types",
+    "publish": "cd permix && pnpm run publish",
+    "build": "cd permix && pnpm run build",
+    "test": "cd permix && pnpm run test",
+    "check-types": "cd permix && pnpm run check-types",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky"

@@ -1,12 +1,10 @@
 import { hooks } from './hooks'
 import { isPermissionsValid, isPermissionsValidJson } from './utils'
 
-export interface PermixPermission<T = unknown> {
+export type PermixPermissions<T = unknown> = Record<string, {
   dataType?: T
   action: string
-}
-
-export type PermixPermissions = Record<string, PermixPermission>
+}>
 
 export type PermixJSON<Permissions extends PermixPermissions = PermixPermissions> = {
   [Key in keyof Permissions]: {
@@ -102,7 +100,7 @@ export interface Permix<Permissions extends PermixPermissions> {
    * })
    * ```
    */
-  setup: <Rules extends PermixSetup<Permissions>>(callback: Rules | (() => Rules | Promise<Rules>)) => Promise<void>
+  setup: <Rules extends PermixSetup<Permissions>>(callback: Rules | (() => (Rules | Promise<Rules>))) => Promise<void>
 
   /**
    * Get current permissions in JSON format
@@ -138,7 +136,7 @@ export interface Permix<Permissions extends PermixPermissions> {
    * // Some file where you want to define setup without permix instance
    * import { permix } from './permix'
    *
-   * const adminPermissions = permix.definePermissions({
+   * const adminPermissions = permix.template({
    *   post: {
    *     create: true,
    *     read: false
@@ -149,7 +147,7 @@ export interface Permix<Permissions extends PermixPermissions> {
    * await permix.setup(adminPermissions)
    * ```
    */
-  definePermissions: (permissions: PermixSetup<Permissions>) => PermixSetup<Permissions>
+  template: (permissions: PermixSetup<Permissions>) => PermixSetup<Permissions>
 }
 
 export interface PermixInternal<Permissions extends PermixPermissions> extends Permix<Permissions> {
@@ -239,9 +237,9 @@ export function createPermix<Permissions extends PermixPermissions>(options: Per
     on(event, callback) {
       hooks.hook(event, callback)
     },
-    definePermissions: (permissions) => {
+    template: (permissions) => {
       if (!isPermissionsValid(permissions)) {
-        throw new Error('[Permix]: Permissions are not valid.')
+        throw new Error('[Permix]: Permissions in template are not valid.')
       }
 
       return permissions
@@ -253,15 +251,17 @@ export function createPermix<Permissions extends PermixPermissions>(options: Per
       checkWithPermissions(permissions, entity, action, data) {
         if (!permissions) {
           console.error('[Permix]: Permissions were not defined. Check if you have called `setup` method before using any `check` method.')
+          return false
         }
 
         if (!permissions[entity]) {
-          console.warn(`[Permix]: Permissions for entity "${String(entity)}" is not defined.`)
+          console.warn(`[Permix]: Permissions for entity "${String(entity)}" is not defined. Will return false.`)
+          return false
         }
 
-        const entityObj = permissions[entity] ?? {}
+        const entityObj = permissions[entity]
         const actions = Array.isArray(action) ? action : [action]
-        const isEveryActionDefined = actions.every(a => entityObj[a] !== undefined || action === 'all')
+        const isEveryActionDefined = actions.every(a => entityObj[a] !== undefined || a === 'all')
 
         if (!isEveryActionDefined) {
           console.warn(`[Permix]: Permissions for entity "${String(entity)}" was defined, but some actions are missing.`)

@@ -14,9 +14,29 @@ describe('createPermixMiddleware', () => {
       dataType: Post
       action: 'create' | 'read' | 'update'
     }
+    user: {
+      action: 'delete'
+    }
   }>()
 
   const { check } = createPermixMiddleware(permix)
+
+  it('should throw ts error', async () => {
+    const app = new Hono()
+
+    // @ts-expect-error should throw
+    app.post('/posts', check('post', 'delete'), (c) => {
+      return c.json({ success: true })
+    })
+
+    const res = await app.request('/posts', {
+      method: 'POST',
+      body: JSON.stringify({ title: 'Test Post' }),
+    })
+
+    expect(res.status).toBe(403)
+    expect(await res.json()).toEqual({ error: 'Forbidden' })
+  })
 
   it('should allow access when permission is granted', async () => {
     const app = new Hono()
@@ -27,6 +47,9 @@ describe('createPermixMiddleware', () => {
           create: true,
           read: false,
           update: false,
+        },
+        user: {
+          delete: false,
         },
       })
       await next()
@@ -54,6 +77,9 @@ describe('createPermixMiddleware', () => {
           create: false,
           read: false,
           update: false,
+        },
+        user: {
+          delete: false,
         },
       })
       await next()
@@ -85,6 +111,9 @@ describe('createPermixMiddleware', () => {
           create: false,
           read: false,
           update: false,
+        },
+        user: {
+          delete: false,
         },
       })
       await next()

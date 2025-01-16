@@ -15,7 +15,6 @@ export default defineBuildConfig({
   externals: [...Object.keys(optionalDependencies)],
   hooks: {
     'build:done': async () => {
-      // add to file `dist/react/index.mjs` directive on the top of the file: 'use client'
       const file = await readFile('./dist/react/index.mjs', 'utf-8')
       await writeFile('./dist/react/index.mjs', `'use client';\n\n${file}`)
     },

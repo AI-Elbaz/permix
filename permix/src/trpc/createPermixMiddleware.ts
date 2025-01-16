@@ -1,4 +1,5 @@
-import type { Permix } from '../core/createPermix'
+import type { MiddlewareFunction } from '@trpc/server'
+import type { Permix, PermixPermissions } from '../core/createPermix'
 import { TRPCError } from '@trpc/server'
 
 export interface PermixMiddlewareOptions {
@@ -8,8 +9,8 @@ export interface PermixMiddlewareOptions {
   unauthorizedError?: TRPCError
 }
 
-export function createPermixMiddleware<TPermix extends Permix<any>>(
-  permix: TPermix,
+export function createPermixMiddleware<T extends PermixPermissions>(
+  permix: Permix<T>,
   options: PermixMiddlewareOptions = {},
 ) {
   const {
@@ -19,14 +20,8 @@ export function createPermixMiddleware<TPermix extends Permix<any>>(
     }),
   } = options
 
-  /**
-   * Creates a middleware that checks for specific permission
-   */
-  function check<
-    TEntity extends Parameters<TPermix['check']>[0],
-    TAction extends Parameters<TPermix['check']>[1],
-  >(entity: TEntity, action: TAction) {
-    return async ({ next }: any) => {
+  const check = <K extends keyof T>(entity: K, action: 'all' | T[K]['action'] | T[K]['action'][]) => {
+    const middleware: MiddlewareFunction<any, any> = ({ next }) => {
       const hasPermission = permix.check(entity, action)
 
       if (!hasPermission) {
@@ -35,6 +30,8 @@ export function createPermixMiddleware<TPermix extends Permix<any>>(
 
       return next()
     }
+
+    return middleware
   }
 
   return { check }

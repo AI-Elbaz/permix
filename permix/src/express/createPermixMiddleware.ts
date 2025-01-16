@@ -1,5 +1,5 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
-import type { Permix } from '../core/createPermix'
+import type { Permix, PermixPermissions } from '../core/createPermix'
 
 export interface PermixExpressOptions {
   /**
@@ -8,21 +8,15 @@ export interface PermixExpressOptions {
   onUnauthorized?: (req: Request, res: Response, next: NextFunction) => void
 }
 
-export function createPermixMiddleware<TPermix extends Permix<any>>(
-  permix: TPermix,
+export function createPermixMiddleware<T extends PermixPermissions>(
+  permix: Permix<T>,
   options: PermixExpressOptions = {},
 ) {
   const {
     onUnauthorized = (_, res) => res.status(403).json({ error: 'Forbidden' }),
   } = options
 
-  /**
-   * Check permission for specific entity and action
-   */
-  function check<
-    TEntity extends Parameters<TPermix['check']>[0],
-    TAction extends Parameters<TPermix['check']>[1],
-  >(entity: TEntity, action: TAction): RequestHandler {
+  const check = <K extends keyof T>(entity: K, action: 'all' | T[K]['action'] | T[K]['action'][]): RequestHandler => {
     return (req: Request, res: Response, next: NextFunction) => {
       const hasPermission = permix.check(entity, action)
 
