@@ -38,7 +38,7 @@ describe('createPermix', () => {
       },
     })
 
-    expect(permix.getRules()).toEqual({
+    expect(permix.getJSON()).toEqual({
       post: {
         create: true,
         read: true,
@@ -56,12 +56,12 @@ describe('createPermix', () => {
       },
     })
 
-    expect(() => permix.getRules()).toThrow()
+    expect(permix.getJSON()).toEqual({})
   })
 
   it('should throw an error if setup is not awaited', () => {
     const permix = createPermix()
-    expect(() => permix.check('post', 'read')).toThrow()
+    expect(permix.check('post', 'read')).toBe(false)
   })
 
   it('should return true if permission is defined', async () => {
@@ -87,7 +87,7 @@ describe('createPermix', () => {
 
     expect(permix.check('post', 'read')).toBe(true)
     // @ts-expect-error action is not defined
-    expect(() => permix.check('post', 'not-exist')).toThrow()
+    expect(permix.check('post', 'not-exist')).toBe(false)
   })
 
   it('should throw an error if entity is not defined', async () => {
@@ -100,7 +100,7 @@ describe('createPermix', () => {
     })
 
     // @ts-expect-error entity is not defined
-    expect(() => permix.check('comment', 'create')).toThrow('[Permix]: Looks like you forgot to setup the rules for "comment"')
+    expect(permix.check('comment', 'create')).toBe(false)
   })
 
   it('should validate permission as function', async () => {
@@ -128,7 +128,7 @@ describe('createPermix', () => {
       },
     }))
 
-    expect(permix.getRules()).toEqual({
+    expect(permix.getJSON()).toEqual({
       post: {
         create: true,
         read: true,
@@ -151,7 +151,7 @@ describe('createPermix', () => {
       }
     })
 
-    expect(permix.getRules()).toEqual({
+    expect(permix.getJSON()).toEqual({
       post: {
         create: true,
         read: true,
@@ -184,7 +184,7 @@ describe('createPermix', () => {
       }
     })
 
-    expect(permix.getRules()).toEqual({
+    expect(permix.getJSON()).toEqual({
       post: {
         create: true,
         read: true,
@@ -244,5 +244,86 @@ describe('createPermix', () => {
     })
 
     expect(permix.check('post', 'all')).toBe(false)
+  })
+
+  it('should work with initial permissions and without setup', () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>({
+      initialPermissions: {
+        post: {
+          create: true,
+        },
+      },
+    })
+
+    expect(permix.check('post', 'create')).toBe(true)
+  })
+
+  it('should throw an error if initial permissions are not valid JSON', () => {
+    expect(() => createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>({
+      // @ts-expect-error initialPermissions is not valid JSON
+      initialPermissions: 'not-valid-json',
+    })).toThrow()
+    expect(() => createPermix<{
+      post: {
+        dataType: { id: string }
+        action: 'create'
+      }
+    }>({
+      initialPermissions: {
+        post: {
+          // @ts-expect-error `create` is not valid JSON
+          create: post => post.id === '1',
+        },
+      },
+    })).toThrow()
+
+    expect(() => createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>({
+      initialPermissions: {
+        post: {
+          create: true,
+        },
+      },
+    })).not.toThrow()
+  })
+
+  it('should return JSON permissions without setup', async () => {
+    const permix = createPermix<{
+      post: {
+        dataType: { id: string }
+        action: 'create'
+      }
+    }>({
+      initialPermissions: {
+        post: {
+          create: true,
+        },
+      },
+    })
+
+    expect(permix.getJSON()).toEqual({
+      post: { create: true },
+    })
+  })
+
+  it('should infer setup type', () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    expect(permix.$inferSetup).toEqual({})
   })
 })
