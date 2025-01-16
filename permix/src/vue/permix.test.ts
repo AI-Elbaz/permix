@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createApp, defineComponent } from 'vue'
 import { createPermix } from '../core/createPermix'
-import { permixPlugin, usePermix } from './usePermix'
+import { permixPlugin, usePermix } from './index'
 
 describe('usePermix', () => {
   it('should work with custom hook', async () => {

@@ -2,7 +2,7 @@ import { render, renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it } from 'vitest'
 import { createPermix } from '../core/createPermix'
-import { PermixProvider, usePermix } from './usePermix'
+import { PermixProvider, usePermix } from './index'
 import '@testing-library/jest-dom/vitest'
 
 describe('usePermix', () => {
