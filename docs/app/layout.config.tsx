@@ -12,11 +12,11 @@ export const baseOptions: BaseLayoutProps = {
   nav: {
     title: 'Permix',
   },
-  // links: [
-  //   {
-  //     text: 'Documentation',
-  //     url: '/docs',
-  //     active: 'nested-url',
-  //   },
-  // ],
+  links: [
+    {
+      text: 'Documentation',
+      url: '/docs',
+      active: 'nested-url',
+    },
+  ],
 }

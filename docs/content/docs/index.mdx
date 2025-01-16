@@ -1,13 +1,117 @@
 ---
-title: Hello World
-description: Your first document
+title: Introduction
+description: A type-safe permission management you've always needed
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+## Idea
 
-## What is Next?
+The idea to create a new permissions library emerged after another attempt to combine CASL for both client and server without losing type-safety. This experience inspired me to create Permix, which allows developers to implement permissions for frontend and backend applications written on TypeScript using a single source of truth across the entire app.
 
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.vercel.app" />
-</Cards>
+## DX
+
+When creating Permix, I wanted to simplify DX as much as possible without losing type-safety and provide the necessary functionality.
+
+That is why you only need to write the following code to get started:
+
+```ts
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'read'
+  }
+}>()
+
+await permix.setup({
+  post: {
+    read: true,
+  }
+})
+
+permix.check('post', 'read') // true
+```
+
+It looks too simple, so here's a more interesting example:
+
+```ts
+// You can take types from your database
+interface User {
+  id: string
+  role: 'editor' | 'user'
+}
+
+interface Post {
+  id: string
+  title: string
+  authorId: string
+  published: boolean
+}
+
+interface Comment {
+  id: string
+  content: string
+  authorId: string
+}
+
+// Create Permix to describe your permissions
+const permix = createPermix<{
+  post: {
+    dataType: Post
+    action: 'create' | 'read' | 'update' | 'delete'
+  }
+  comment: {
+    dataType: Comment
+    action: 'create' | 'read' | 'update'
+  }
+}>()
+
+// Define permissions for different users
+const editorPermissions = permix.template({
+  post: {
+    create: true,
+    read: true,
+    update: post => !post.published,
+    delete: post => !post.published,
+  },
+  comment: {
+    create: false,
+    read: true,
+    update: false,
+  },
+})
+
+const userPermissions = permix.template(({ id: userId }: User) => ({
+  post: {
+    create: false,
+    read: true,
+    update: false,
+    delete: false,
+  },
+  comment: {
+    create: true,
+    read: true,
+    update: comment => comment.authorId === userId,
+  },
+}))
+
+// Setup permissions for signed in user
+function setupPermix() {
+  const user = await getUser()
+  const permissionsMap = {
+    editor: () => editorPermissions(),
+    user: () => userPermissions(user),
+  }
+
+  return permix.setup(permissionsMap[user.role]())
+}
+
+// Call setupPermix where you need to setup permissions
+await setupPermix()
+
+// Check if a user has permission to do something
+permix.check('post', 'create')
+
+const comment = await getComment()
+
+permix.check('comment', 'update', comment)
+```

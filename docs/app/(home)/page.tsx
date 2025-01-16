@@ -1,15 +1,14 @@
 import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock'
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
-import BackendCode from './code/backend.mdx'
-import FrontendCode from './code/frontend.mdx'
 import InitCode from './code/init.mdx'
 import SetupCode from './code/setup.mdx'
+import UsageCode from './code/usage.mdx'
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       <div className="container grid grid-cols-1 lg:grid-cols-2 mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="pt-24">
+        <div className="pt-6 lg:pt-24">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
             <span className="block">Permix</span>
           </h1>
@@ -18,7 +17,7 @@ export default function Home() {
           </p>
         </div>
         <div>
-          <Tabs items={['Init', 'Setup', 'Frontend', 'Backend']}>
+          <Tabs items={['Init', 'Setup', 'Usage']}>
             <Tab value="Init">
               <CodeBlock>
                 <Pre>
@@ -33,17 +32,10 @@ export default function Home() {
                 </Pre>
               </CodeBlock>
             </Tab>
-            <Tab value="Frontend">
+            <Tab value="Usage">
               <CodeBlock>
                 <Pre>
-                  <FrontendCode />
-                </Pre>
-              </CodeBlock>
-            </Tab>
-            <Tab value="Backend">
-              <CodeBlock>
-                <Pre>
-                  <BackendCode />
+                  <UsageCode />
                 </Pre>
               </CodeBlock>
             </Tab>
