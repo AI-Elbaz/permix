@@ -147,7 +147,7 @@ export interface Permix<Permissions extends PermixPermissions> {
    * await permix.setup(adminPermissions)
    * ```
    */
-  template: (permissions: PermixSetup<Permissions>) => PermixSetup<Permissions>
+  template: <T = void>(permissions: PermixSetup<Permissions> | ((param: T) => PermixSetup<Permissions>)) => (param: T) => PermixSetup<Permissions>
 }
 
 export interface PermixInternal<Permissions extends PermixPermissions> extends Permix<Permissions> {
@@ -238,11 +238,27 @@ export function createPermix<Permissions extends PermixPermissions>(options: Per
       hooks.hook(event, callback)
     },
     template: (permissions) => {
-      if (!isPermissionsValid(permissions)) {
-        throw new Error('[Permix]: Permissions in template are not valid.')
+      function validate(p: PermixSetup<Permissions>) {
+        if (!isPermissionsValid(p)) {
+          throw new Error('[Permix]: Permissions in template are not valid.')
+        }
       }
 
-      return permissions
+      if (typeof permissions !== 'function') {
+        validate(permissions)
+      }
+
+      if (typeof permissions === 'function') {
+        return (param) => {
+          const p = permissions(param)
+
+          validate(p)
+
+          return p
+        }
+      }
+
+      return () => permissions
     },
     _: {
       getPermissions: () => {

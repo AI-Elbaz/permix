@@ -399,7 +399,7 @@ describe('createPermix', () => {
     })
   })
 
-  it('should define permissions', async () => {
+  it('should define permissions with template', async () => {
     const permix = createPermix<{
       post: {
         action: 'create'
@@ -412,13 +412,29 @@ describe('createPermix', () => {
       },
     })
 
-    expect(permissions).toEqual({
+    expect(permissions()).toEqual({
       post: {
         create: true,
       },
     })
 
-    await permix.setup(permissions)
+    await permix.setup(permissions())
+
+    expect(permix.check('post', 'create')).toBe(true)
+  })
+
+  it('should define permissions with template and param', async () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    const permissions = permix.template(({ userId }: { userId: string }) => ({
+      post: { create: userId === '1' },
+    }))
+
+    await permix.setup(permissions({ userId: '1' }))
 
     expect(permix.check('post', 'create')).toBe(true)
   })
@@ -444,5 +460,9 @@ describe('createPermix', () => {
       // @ts-expect-error create isn't valid
       post: { create: null },
     })).toThrow()
+    // @ts-expect-error create isn't valid
+    expect(() => permix.template(() => ({
+      post: { create: null },
+    }))()).toThrow()
   })
 })
