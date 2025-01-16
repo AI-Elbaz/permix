@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { createApp, defineComponent } from 'vue'
+import { createApp, defineComponent, ref } from 'vue'
 import { createPermix } from '../core/createPermix'
 import { permixPlugin, usePermix } from './index'
 
-describe('usePermix', () => {
+describe('permix vue', () => {
   it('should work with custom hook', async () => {
     const permix = createPermix<{
       post: {
@@ -41,7 +41,7 @@ describe('usePermix', () => {
     expect(check('post', 'read')).toBe(false)
   })
 
-  it('should work in component', async () => {
+  it('should work with DOM rerender', async () => {
     const permix = createPermix<{
       post: {
         dataType: { id: string }
@@ -51,7 +51,7 @@ describe('usePermix', () => {
 
     await permix.setup({
       post: {
-        create: true,
+        create: post => post.id === '1',
         read: false,
       },
     })
@@ -59,11 +59,14 @@ describe('usePermix', () => {
     const TestComponent = defineComponent({
       setup() {
         const { check } = usePermix(permix)
-        return { check }
+
+        const post = ref({ id: '1' })
+
+        return { check, post }
       },
       template: `
         <div>
-          <span data-testid="create">{{ check('post', 'create') }}</span>
+          <span data-testid="create">{{ check('post', 'create', post) }}</span>
           <span data-testid="read">{{ check('post', 'read') }}</span>
         </div>
       `,
@@ -83,7 +86,7 @@ describe('usePermix', () => {
 
     await permix.setup({
       post: {
-        create: false,
+        create: post => post.id === '2',
         read: true,
       },
     })

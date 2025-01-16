@@ -1,20 +1,24 @@
-import type { Permix, PermixPermissions, PermixRules } from '../core/createPermix'
+import type { Permix, PermixInternal, PermixPermissions, PermixSetup } from '../core/createPermix'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
-const PermixContext = createContext<PermixRules<any> | null>(null)
+const PermixContext = createContext<PermixSetup<any> | null>(null)
 
-export function PermixProvider({ children, permix }: { children: React.ReactNode, permix: Permix<any> }) {
-  const [rules, setRules] = useState(permix.getRules())
+export function PermixProvider({
+  children,
+  permix,
+}: { children: React.ReactNode, permix: Permix<any> }) {
+  const _permix = permix as PermixInternal<any>
+  const [setup, setSetup] = useState(_permix._.getSetup())
 
   useEffect(() => {
-    permix.on('setup', () => {
-      setRules(permix.getRules())
+    _permix.on('setup', () => {
+      setSetup(_permix._.getSetup())
     })
-  }, [permix])
+  }, [_permix])
 
   return (
     // eslint-disable-next-line react/no-context-provider
-    <PermixContext.Provider value={rules}>
+    <PermixContext.Provider value={setup}>
       {children}
     </PermixContext.Provider>
   )
@@ -24,18 +28,16 @@ export function PermixProvider({ children, permix }: { children: React.ReactNode
 export function usePermix<T extends PermixPermissions>(
   permix: Permix<T>,
 ) {
-  const rules = useContext(PermixContext)
+  const _permix = permix as PermixInternal<any>
+  const setup = useContext(PermixContext)
 
-  if (!rules) {
+  if (!setup) {
     throw new Error('[Permix]: Looks like you forgot to wrap your app with <PermixProvider>')
   }
 
-  const check = useCallback(
-    <K extends keyof T>(entity: K, action: T[K]['action']) => {
-      return permix.checkWithRules(rules, entity, action)
-    },
-    [rules, permix],
-  )
+  const check: typeof permix.check = useCallback((entity, action, data) => {
+    return _permix._.checkWithSetup(setup, entity, action, data)
+  }, [setup, _permix])
 
   return { check }
 }

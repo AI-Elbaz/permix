@@ -5,7 +5,7 @@ import { createPermix } from '../core/createPermix'
 import { PermixProvider, usePermix } from './index'
 import '@testing-library/jest-dom/vitest'
 
-describe('usePermix', () => {
+describe('permix react', () => {
   it('should work with custom hook', async () => {
     const permix = createPermix<{
       post: {
@@ -43,7 +43,7 @@ describe('usePermix', () => {
 
     await permix.setup({
       post: {
-        create: true,
+        create: post => post.id === '1',
         read: false,
       },
     })
@@ -51,9 +51,11 @@ describe('usePermix', () => {
     const TestComponent = () => {
       const { check } = usePermix(permix)
 
+      const post = { id: '1' }
+
       return (
         <div>
-          <span data-testid="create">{check('post', 'create').toString()}</span>
+          <span data-testid="create">{check('post', 'create', post).toString()}</span>
           <span data-testid="read">{check('post', 'read').toString()}</span>
         </div>
       )
@@ -70,7 +72,7 @@ describe('usePermix', () => {
 
     await permix.setup({
       post: {
-        create: false,
+        create: post => post.id === '2',
         read: true,
       },
     })

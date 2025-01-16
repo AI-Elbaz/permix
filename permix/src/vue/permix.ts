@@ -1,30 +1,37 @@
 import type { InjectionKey, Plugin, Ref } from 'vue'
-import type { Permix, PermixPermissions, PermixRules } from '../core/createPermix'
+import type { Permix, PermixInternal, PermixPermissions, PermixSetup } from '../core/createPermix'
 import { inject, ref } from 'vue'
 
-const PERMIX_RULES_KEY: InjectionKey<Ref<PermixRules<any>>> = Symbol('permix-rules')
+const PERMIX_SETUP_KEY: InjectionKey<Ref<PermixSetup<any> | null>> = Symbol('permix-setup')
 
 export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) => {
-  const rules = ref(permix.getRules())
+  if (!permix) {
+    throw new Error('[Permix]: Looks like you forgot to provide the permix instance to the plugin')
+  }
 
-  app.provide(PERMIX_RULES_KEY, rules)
+  const _permix = permix as PermixInternal<any>
 
-  permix.on('setup', async () => {
-    rules.value = permix.getRules()
+  const setup = ref(_permix._.getSetup())
+
+  app.provide(PERMIX_SETUP_KEY, setup)
+
+  _permix.on('setup', async () => {
+    setup.value = _permix._.getSetup()
   })
 }
 
 export function usePermix<T extends PermixPermissions>(
   permix: Permix<T>,
 ) {
-  const rules = inject(PERMIX_RULES_KEY)
+  const _permix = permix as PermixInternal<any>
+  const setup = inject(PERMIX_SETUP_KEY)
 
-  if (!rules) {
+  if (!setup) {
     throw new Error('[Permix]: Looks like you forgot to install the plugin')
   }
 
-  const check = <K extends keyof T>(entity: K, action: T[K]['action']) => {
-    return permix.checkWithRules(rules.value, entity, action)
+  const check: typeof permix.check = (entity, action, data) => {
+    return _permix._.checkWithSetup(setup.value!, entity, action, data)
   }
 
   return { check }
