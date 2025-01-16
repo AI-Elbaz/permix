@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "publish": "cd permix && pnpm run publish",
+    "publish": "cd permix && pnpm publish",
     "build": "cd permix && pnpm run build",
     "test": "cd permix && pnpm run test",
     "check-types": "cd permix && pnpm run check-types",
