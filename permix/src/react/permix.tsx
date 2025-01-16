@@ -3,16 +3,16 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 
 const PermixContext = createContext<PermixSetup<any> | null>(null)
 
-export function PermixProvider({
+export function PermixProvider<Permissions extends PermixPermissions>({
   children,
   permix,
-}: { children: React.ReactNode, permix: Permix<any> }) {
+}: { children: React.ReactNode, permix: Permix<Permissions> }) {
   const _permix = permix as PermixInternal<any>
-  const [setup, setSetup] = useState(_permix._.getSetup())
+  const [setup, setSetup] = useState(_permix._.getPermissions())
 
   useEffect(() => {
     _permix.on('setup', () => {
-      setSetup(_permix._.getSetup())
+      setSetup(_permix._.getPermissions())
     })
   }, [_permix])
 
@@ -36,7 +36,7 @@ export function usePermix<T extends PermixPermissions>(
   }
 
   const check: typeof permix.check = useCallback((entity, action, data) => {
-    return _permix._.checkWithSetup(setup, entity, action, data)
+    return _permix._.checkWithPermissions(setup, entity, action, data)
   }, [setup, _permix])
 
   return { check }

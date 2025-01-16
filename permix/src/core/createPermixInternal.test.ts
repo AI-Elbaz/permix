@@ -41,7 +41,7 @@ describe('createPermixInternal', () => {
     expect(permix.getJSON()).toEqual({
       post: { create: true, read: true, update: true },
     })
-    expect(permix._.checkWithSetup(permix._.getSetup(), 'post', 'create')).toBe(true)
+    expect(permix._.checkWithPermissions(permix._.getPermissions(), 'post', 'create')).toBe(true)
   })
 
   it('should return JSON permissions with setup', async () => {
@@ -60,7 +60,7 @@ describe('createPermixInternal', () => {
     expect(permix.getJSON()).toEqual({
       post: { create: false, read: true, update: true },
     })
-    expect(permix._.getSetup()).toEqual({
+    expect(permix._.getPermissions()).toEqual({
       post: { create: validatePost, read: true, update: true },
     })
   })

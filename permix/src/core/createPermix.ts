@@ -1,5 +1,5 @@
 import { hooks } from './hooks'
-import { isObjectValidJson } from './utils'
+import { isPermissionsValid, isPermissionsValidJson } from './utils'
 
 export interface PermixPermission<T = unknown> {
   dataType?: T
@@ -131,25 +131,25 @@ export interface Permix<Permissions extends PermixPermissions> {
   on: (event: 'setup', callback: () => Promise<void> | void) => void
 
   /**
-   * Get setup type to define in different place
+   * Define permissions in different place to setup them later
    *
    * @example
    * ```ts
    * // Some file where you want to define setup without permix instance
    * import { permix } from './permix'
    *
-   * const setupDefinedInDifferentFile = {
+   * const adminPermissions = permix.definePermissions({
    *   post: {
    *     create: true,
    *     read: false
    *   }
-   * } satisfies typeof permix.$inferSetup
+   * })
    *
    * // Now you can use setup
-   * await permix.setup(setupDefinedInDifferentFile)
+   * await permix.setup(adminPermissions)
    * ```
    */
-  $inferSetup: PermixSetup<Permissions>
+  definePermissions: (permissions: PermixSetup<Permissions>) => PermixSetup<Permissions>
 }
 
 export interface PermixInternal<Permissions extends PermixPermissions> extends Permix<Permissions> {
@@ -165,20 +165,20 @@ export interface PermixInternal<Permissions extends PermixPermissions> extends P
      * await permix.setup({
      *   post: { create: true, delete: post => !post.isPublished }
      * })
-     * const permissions = permix._.getSetup()
+     * const permissions = permix._.getPermissions()
      * // returns { post: { create: true, delete: post => !post.isPublished } }
      * ```
      */
-    getSetup: () => PermixSetup<Permissions>
+    getPermissions: () => PermixSetup<Permissions>
     /**
      * Check if an action is allowed for an entity using provided permissions
      *
      * @example
      * ```ts
-     * permix._.checkWithSetup(permix._.getSetup(), 'post', 'create')
+     * permix._.checkWithPermissions(permix._.getPermissions(), 'post', 'create')
      * ```
      */
-    checkWithSetup: <K extends keyof Permissions>(setup: PermixSetup<Permissions>, entity: K, action: Permissions[K]['action'] | 'all' | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
+    checkWithPermissions: <K extends keyof Permissions>(setup: PermixSetup<Permissions>, entity: K, action: Permissions[K]['action'] | 'all' | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
   }
 }
 
@@ -208,31 +208,29 @@ export interface PermixInternal<Permissions extends PermixPermissions> extends P
  * ```
  */
 export function createPermix<Permissions extends PermixPermissions>(options: PermixOptions<Permissions> = {}): Permix<Permissions> {
-  if (options.initialPermissions && !isObjectValidJson(options.initialPermissions)) {
+  if (options.initialPermissions && !isPermissionsValidJson(options.initialPermissions)) {
     throw new Error('[Permix]: Initial permissions are not valid JSON.')
   }
 
-  let setup: Partial<PermixSetup<Permissions>> = options.initialPermissions ?? {}
-  let isSetupCalled = false
+  let permissions: Partial<PermixSetup<Permissions>> = options.initialPermissions ?? {}
 
   hooks.hook('setup', (r) => {
-    setup = r as PermixSetup<Permissions>
-    isSetupCalled = true
+    permissions = r as PermixSetup<Permissions>
   })
 
   const permix = {
     check(entity, action, data) {
-      return this._.checkWithSetup(setup as PermixSetup<Permissions>, entity, action, data)
+      return this._.checkWithPermissions(permissions as PermixSetup<Permissions>, entity, action, data)
     },
-    async setup(setup) {
-      await hooks.callHook('setup', typeof setup === 'function' ? await setup() : setup)
+    async setup(permissions) {
+      await hooks.callHook('setup', typeof permissions === 'function' ? await permissions() : permissions)
     },
     getJSON: () => {
       const processedSetup = {} as PermixJSON<Permissions>
-      for (const entity in setup) {
+      for (const entity in permissions) {
         processedSetup[entity] = {} as any
-        for (const action in setup[entity]) {
-          const value = setup[entity][action]
+        for (const action in permissions[entity]) {
+          const value = permissions[entity][action]
           processedSetup[entity][action] = typeof value === 'function' ? false : value as boolean
         }
       }
@@ -241,29 +239,32 @@ export function createPermix<Permissions extends PermixPermissions>(options: Per
     on(event, callback) {
       hooks.hook(event, callback)
     },
-    $inferSetup: {} as PermixSetup<Permissions>,
+    definePermissions: (permissions) => {
+      if (!isPermissionsValid(permissions)) {
+        throw new Error('[Permix]: Permissions are not valid.')
+      }
+
+      return permissions
+    },
     _: {
-      getSetup: () => {
-        return setup as PermixSetup<Permissions>
+      getPermissions: () => {
+        return permissions as PermixSetup<Permissions>
       },
-      checkWithSetup(setup, entity, action, data) {
-        if (!setup) {
-          console.error('[Permix]: Setup was not called. Check if you have setup the permissions before using any `check` method.')
-        }
-        else if (options.initialPermissions && !isSetupCalled) {
-          console.warn('[Permix]: You have provided initial permissions, but you have not called `setup` method. Check if you have setup the permissions before using any `check` method.')
+      checkWithPermissions(permissions, entity, action, data) {
+        if (!permissions) {
+          console.error('[Permix]: Permissions were not defined. Check if you have called `setup` method before using any `check` method.')
         }
 
-        if (!setup[entity]) {
-          console.warn(`[Permix]: Setup for entity "${String(entity)}" is not defined.`)
+        if (!permissions[entity]) {
+          console.warn(`[Permix]: Permissions for entity "${String(entity)}" is not defined.`)
         }
 
-        const entityObj = setup[entity] ?? {}
+        const entityObj = permissions[entity] ?? {}
         const actions = Array.isArray(action) ? action : [action]
         const isEveryActionDefined = actions.every(a => entityObj[a] !== undefined || action === 'all')
 
         if (!isEveryActionDefined) {
-          console.warn(`[Permix]: Setup for entity "${String(entity)}" was defined, but some actions are missing.`)
+          console.warn(`[Permix]: Permissions for entity "${String(entity)}" was defined, but some actions are missing.`)
         }
 
         const actionValues = action === 'all'

@@ -317,13 +317,50 @@ describe('createPermix', () => {
     })
   })
 
-  it('should infer setup type', () => {
+  it('should define permissions', async () => {
     const permix = createPermix<{
       post: {
         action: 'create'
       }
     }>()
 
-    expect(permix.$inferSetup).toEqual({})
+    const permissions = permix.definePermissions({
+      post: {
+        create: true,
+      },
+    })
+
+    expect(permissions).toEqual({
+      post: {
+        create: true,
+      },
+    })
+
+    await permix.setup(permissions)
+
+    expect(permix.check('post', 'create')).toBe(true)
+  })
+
+  it('should throw an error if permissions are not valid', () => {
+    expect(() => permix.definePermissions({
+      // @ts-expect-error create isn't valid
+      post: { create: 1 },
+    })).toThrow()
+    expect(() => permix.definePermissions({
+      // @ts-expect-error create isn't valid
+      post: { create: 'string' },
+    })).toThrow()
+    expect(() => permix.definePermissions({
+      // @ts-expect-error create isn't valid
+      post: { create: [] },
+    })).toThrow()
+    expect(() => permix.definePermissions({
+      // @ts-expect-error create isn't valid
+      post: { create: {} },
+    })).toThrow()
+    expect(() => permix.definePermissions({
+      // @ts-expect-error create isn't valid
+      post: { create: null },
+    })).toThrow()
   })
 })

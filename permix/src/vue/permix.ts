@@ -11,12 +11,12 @@ export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) =
 
   const _permix = permix as PermixInternal<any>
 
-  const setup = ref(_permix._.getSetup())
+  const setup = ref(_permix._.getPermissions())
 
   app.provide(PERMIX_SETUP_KEY, setup)
 
   _permix.on('setup', async () => {
-    setup.value = _permix._.getSetup()
+    setup.value = _permix._.getPermissions()
   })
 }
 
@@ -31,7 +31,7 @@ export function usePermix<T extends PermixPermissions>(
   }
 
   const check: typeof permix.check = (entity, action, data) => {
-    return _permix._.checkWithSetup(setup.value!, entity, action, data)
+    return _permix._.checkWithPermissions(setup.value!, entity, action, data)
   }
 
   return { check }

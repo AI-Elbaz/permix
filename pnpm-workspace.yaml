@@ -1,3 +1,4 @@
 packages:
   - permix
   - docs
+  - examples/*
