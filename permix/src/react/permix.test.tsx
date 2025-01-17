@@ -82,4 +82,37 @@ describe('permix react', () => {
       expect(getByTestId('read')).toHaveTextContent('true')
     })
   })
+
+  it('should check isReady', async () => {
+    const permix = createPermix<{
+      post: {
+        dataType: { id: string }
+        action: 'create' | 'read'
+      }
+    }>()
+
+    const TestComponent = () => {
+      const { isReady } = usePermix(permix)
+      return <div>{isReady.toString()}</div>
+    }
+
+    const { container } = render(
+      <PermixProvider permix={permix}>
+        <TestComponent />
+      </PermixProvider>,
+    )
+
+    expect(container.firstChild).toHaveTextContent('false')
+
+    await permix.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    await waitFor(() => {
+      expect(container.firstChild).toHaveTextContent('true')
+    })
+  })
 })

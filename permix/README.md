@@ -8,75 +8,27 @@ You can find the documentation [here](https://permix.letstri.dev).
 
 ## Example
 
-Here is an example of how to use Permix in a Next.js application:
+To quick start you only need to write the following code:
 
-```tsx
-// lib/permix.ts
+```ts
 import { createPermix } from 'permix'
-import { usePermix } from 'permix/react'
 
-export const permix = createPermix<{
+const permix = createPermix<{
   post: {
-    dataType: { id: string, title: string, authorId: string, role: 'admin' | 'user' }
-    action: 'create' | 'update' | 'delete'
+    action: 'read'
   }
 }>()
 
-export async function setupPermix(role: 'admin' | 'user') {
-  await permix.setup({
-    post: {
-      create: true,
-    },
-    user: {
-      delete: role === 'admin',
-    },
-  })
+await permix.setup({
+  post: {
+    read: true,
+  }
+})
 
-  return permix
-}
-
-export function usePermissions() {
-  return usePermix(permix)
-}
-
-// lib/permix-server.ts
-export async function setupPermixServer() {
-  const headersStore = await headers()
-  const user = someFunctionToGetUserFromHeaders(headersStore)
-
-  return setupPermix(user.role)
-}
-
-// app/page.tsx
-export default async function Home() {
-  const permix = await setupPermixServer()
-
-  return (
-    <div>
-      Can I delete a user?
-      {' '}
-      {permix.check('user', 'delete') ? 'Yes' : 'No'}
-    </div>
-  )
-}
-
-// app/client/page.tsx
-'use client'
-
-export default function Home() {
-  const { check } = usePermissions()
-
-  return (
-    <div>
-      Can I delete a user?
-      {' '}
-      {permix.check('user', 'delete') ? 'Yes' : 'No'}
-    </div>
-  )
-}
+permix.check('post', 'read') // true
 ```
 
-More examples can be found in the [examples](./examples) directory.
+Permix has other powerful features, so here's check out the docs or the [examples](../examples) directory.
 
 ## License
 

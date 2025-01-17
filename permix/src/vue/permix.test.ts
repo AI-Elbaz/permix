@@ -96,4 +96,40 @@ describe('permix vue', () => {
     expect(wrapper.get('[data-testid="create"]').text()).toBe('false')
     expect(wrapper.get('[data-testid="read"]').text()).toBe('true')
   })
+
+  it('should check isReady', async () => {
+    const permix = createPermix<{
+      post: {
+        dataType: { id: string }
+        action: 'create' | 'read'
+      }
+    }>()
+
+    const TestWrapper = defineComponent({
+      setup() {
+        const { isReady } = usePermix(permix)
+        return { isReady }
+      },
+      template: '<div>{{ isReady }}</div>',
+    })
+
+    const wrapper = mount(TestWrapper, {
+      global: {
+        plugins: [[permixPlugin, { permix }]],
+      },
+    })
+
+    expect(wrapper.get('div').text()).toBe('false')
+
+    await permix.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('div').text()).toBe('true')
+  })
 })

@@ -129,6 +129,10 @@ export interface PermixInternal<Permissions extends PermixPermissions> extends P
    */
   _: {
     /**
+     * Check if the setup was called
+     */
+    isReady: boolean
+    /**
      * Get latest setup state
      *
      * @example
@@ -180,9 +184,11 @@ export interface PermixInternal<Permissions extends PermixPermissions> extends P
  */
 export function createPermix<Permissions extends PermixPermissions>(): Permix<Permissions> {
   let permissions: Partial<PermixSetup<Permissions>> = {}
+  let isReady = false
 
   hooks.hook('setup', (r) => {
     permissions = r as PermixSetup<Permissions>
+    isReady = true
   })
 
   const permix = {
@@ -230,27 +236,17 @@ export function createPermix<Permissions extends PermixPermissions>(): Permix<Pe
       return () => permissions
     },
     _: {
+      isReady,
       getPermissions: () => {
         return permissions as PermixSetup<Permissions>
       },
       checkWithPermissions(permissions, entity, action, data) {
-        if (!permissions) {
-          console.error('[Permix]: Permissions were not defined. Check if you have called `setup` method before using any `check` method.')
-          return false
-        }
-
         if (!permissions[entity]) {
-          console.warn(`[Permix]: Permissions for entity "${String(entity)}" is not defined. Will return false.`)
           return false
         }
 
         const entityObj = permissions[entity]
         const actions = Array.isArray(action) ? action : [action]
-        const isEveryActionDefined = actions.every(a => entityObj[a] !== undefined || a === 'all')
-
-        if (!isEveryActionDefined) {
-          console.warn(`[Permix]: Permissions for entity "${String(entity)}" was defined, but some actions are missing.`)
-        }
 
         const actionValues = action === 'all'
           ? Object.values(entityObj)

@@ -1,8 +1,8 @@
 import type { InjectionKey, Plugin, Ref } from 'vue'
 import type { Permix, PermixInternal, PermixPermissions, PermixSetup } from '../core/createPermix'
-import { inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 
-const PERMIX_SETUP_KEY: InjectionKey<Ref<PermixSetup<any> | null>> = Symbol('permix-setup')
+const PERMIX_CONTEXT_KEY: InjectionKey<Ref<{ permissions: PermixSetup<any> | null, isReady: boolean }>> = Symbol('permix-setup')
 
 export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) => {
   if (!permix) {
@@ -11,12 +11,12 @@ export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) =
 
   const _permix = permix as PermixInternal<any>
 
-  const setup = ref(_permix._.getPermissions())
+  const context = ref({ permissions: _permix._.getPermissions(), isReady: _permix._.isReady })
 
-  app.provide(PERMIX_SETUP_KEY, setup)
+  app.provide(PERMIX_CONTEXT_KEY, context)
 
   _permix.on('setup', async () => {
-    setup.value = _permix._.getPermissions()
+    context.value = { permissions: _permix._.getPermissions(), isReady: true }
   })
 }
 
@@ -24,15 +24,15 @@ export function usePermix<T extends PermixPermissions>(
   permix: Permix<T>,
 ) {
   const _permix = permix as PermixInternal<any>
-  const setup = inject(PERMIX_SETUP_KEY)
+  const context = inject(PERMIX_CONTEXT_KEY)
 
-  if (!setup) {
+  if (!context) {
     throw new Error('[Permix]: Looks like you forgot to install the plugin')
   }
 
   const check: typeof permix.check = (entity, action, data) => {
-    return _permix._.checkWithPermissions(setup.value!, entity, action, data)
+    return _permix._.checkWithPermissions(context.value.permissions!, entity, action, data)
   }
 
-  return { check }
+  return { check, isReady: computed(() => context.value.isReady) }
 }

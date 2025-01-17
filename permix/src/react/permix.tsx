@@ -1,18 +1,18 @@
 import type { Permix, PermixInternal, PermixPermissions, PermixSetup } from '../core/createPermix'
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import * as React from 'react'
 
-const PermixContext = createContext<PermixSetup<any> | null>(null)
+const PermixContext = React.createContext<{ permissions: PermixSetup<any>, isReady: boolean } | null>(null)
 
 export function PermixProvider<Permissions extends PermixPermissions>({
   children,
   permix,
 }: { children: React.ReactNode, permix: Permix<Permissions> }) {
   const _permix = permix as PermixInternal<any>
-  const [setup, setSetup] = useState(_permix._.getPermissions())
+  const [setup, setSetup] = React.useState({ permissions: _permix._.getPermissions(), isReady: _permix._.isReady })
 
-  useEffect(() => {
+  React.useEffect(() => {
     _permix.on('setup', () => {
-      setSetup(_permix._.getPermissions())
+      setSetup({ permissions: _permix._.getPermissions(), isReady: true })
     })
   }, [_permix])
 
@@ -29,15 +29,15 @@ export function usePermix<T extends PermixPermissions>(
   permix: Permix<T>,
 ) {
   const _permix = permix as PermixInternal<any>
-  const setup = useContext(PermixContext)
+  const context = React.useContext(PermixContext)
 
-  if (!setup) {
+  if (!context) {
     throw new Error('[Permix]: Looks like you forgot to wrap your app with <PermixProvider>')
   }
 
-  const check: typeof permix.check = useCallback((entity, action, data) => {
-    return _permix._.checkWithPermissions(setup, entity, action, data)
-  }, [setup, _permix])
+  const check: typeof permix.check = React.useCallback((entity, action, data) => {
+    return _permix._.checkWithPermissions(context.permissions, entity, action, data)
+  }, [context.permissions, _permix])
 
-  return { check }
+  return { check, isReady: context.isReady }
 }
