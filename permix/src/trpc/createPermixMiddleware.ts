@@ -1,12 +1,8 @@
 import type { MiddlewareFunction, ProcedureParams } from '@trpc/server'
-import type { Permix, PermixPermissions, PermixSetupReturn } from '../core/createPermix'
+import type { Permix, PermixPermissions } from '../core/createPermix'
 import { TRPCError } from '@trpc/server'
 
 export interface PermixMiddlewareOptions<T extends PermixPermissions> {
-  /**
-   * Setup function to set up the permix permissions
-   */
-  setup?: PermixSetupReturn
   /**
    * Custom error to throw when permission is denied
    */
