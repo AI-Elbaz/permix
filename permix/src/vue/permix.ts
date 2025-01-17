@@ -1,5 +1,5 @@
 import type { InjectionKey, Plugin, Ref } from 'vue'
-import type { Permix, PermixInternal, PermixPermissions, PermixSetup } from '../core/createPermix'
+import type { Permix, PermixDefinition, PermixInternal, PermixSetup } from '../core/createPermix'
 import { computed, inject, ref } from 'vue'
 
 const PERMIX_CONTEXT_KEY: InjectionKey<Ref<{ permissions: PermixSetup<any> | null, isReady: boolean }>> = Symbol('permix-setup')
@@ -20,7 +20,7 @@ export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) =
   })
 }
 
-export function usePermix<T extends PermixPermissions>(
+export function usePermix<T extends PermixDefinition>(
   permix: Permix<T>,
 ) {
   const _permix = permix as PermixInternal<any>

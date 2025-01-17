@@ -1,14 +1,14 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
-import type { Permix, PermixPermissions } from '../core/createPermix'
+import type { Permix, PermixDefinition } from '../core/createPermix'
 
-export interface PermixExpressOptions<T extends PermixPermissions> {
+export interface PermixExpressOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
   onUnauthorized?: (params: { req: Request, res: Response, next: NextFunction, entity: keyof T, actions: T[keyof T]['action'][] }) => void
 }
 
-export function createPermixMiddleware<T extends PermixPermissions>(
+export function createPermixMiddleware<T extends PermixDefinition>(
   permix: Permix<T>,
   options: PermixExpressOptions<T> = {},
 ) {

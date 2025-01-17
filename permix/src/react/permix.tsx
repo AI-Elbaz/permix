@@ -1,9 +1,9 @@
-import type { Permix, PermixInternal, PermixPermissions, PermixSetup } from '../core/createPermix'
+import type { Permix, PermixDefinition, PermixInternal, PermixSetup } from '../core/createPermix'
 import * as React from 'react'
 
 const PermixContext = React.createContext<{ permissions: PermixSetup<any>, isReady: boolean } | null>(null)
 
-export function PermixProvider<Permissions extends PermixPermissions>({
+export function PermixProvider<Permissions extends PermixDefinition>({
   children,
   permix,
 }: { children: React.ReactNode, permix: Permix<Permissions> }) {
@@ -25,7 +25,7 @@ export function PermixProvider<Permissions extends PermixPermissions>({
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function usePermix<T extends PermixPermissions>(
+export function usePermix<T extends PermixDefinition>(
   permix: Permix<T>,
 ) {
   const _permix = permix as PermixInternal<any>

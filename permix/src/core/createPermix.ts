@@ -1,7 +1,7 @@
 import { hooks } from './hooks'
 import { isPermissionsValid } from './utils'
 
-export type PermixPermissions = Record<string, {
+export type PermixDefinition = Record<string, {
   dataType?: unknown
   action: string
 }>
@@ -10,14 +10,14 @@ const setupSymbol = Symbol('setup')
 
 export type PermixSetupReturn = Promise<typeof setupSymbol>
 
-export type PermixJSON<Permissions extends PermixPermissions = PermixPermissions> = {
+export type PermixJSON<Permissions extends PermixDefinition = PermixDefinition> = {
   [Key in keyof Permissions]: {
     [Action in Permissions[Key]['action']]:
       | boolean
   };
 }
 
-export type PermixSetup<Permissions extends PermixPermissions = PermixPermissions> = {
+export type PermixSetup<Permissions extends PermixDefinition = PermixDefinition> = {
   [Key in keyof Permissions]: {
     [Action in Permissions[Key]['action']]:
       | boolean
@@ -37,7 +37,7 @@ export type PermixSetup<Permissions extends PermixPermissions = PermixPermission
  * }>()
  * ```
  */
-export interface Permix<Permissions extends PermixPermissions> {
+export interface Permix<Permissions extends PermixDefinition> {
   /**
    * Check if an action is allowed for an entity using current permissions
    *
@@ -127,7 +127,7 @@ export interface Permix<Permissions extends PermixPermissions> {
   template: <T = void>(permissions: PermixSetup<Permissions> | ((param: T) => PermixSetup<Permissions>)) => (param: T) => PermixSetup<Permissions>
 }
 
-export interface PermixInternal<Permissions extends PermixPermissions> extends Permix<Permissions> {
+export interface PermixInternal<Permissions extends PermixDefinition> extends Permix<Permissions> {
   /**
    * @internal
    */
@@ -186,7 +186,7 @@ export interface PermixInternal<Permissions extends PermixPermissions> extends P
  * console.log(permix.check('user', 'read')) // true
  * ```
  */
-export function createPermix<Permissions extends PermixPermissions>(): Permix<Permissions> {
+export function createPermix<Permissions extends PermixDefinition>(): Permix<Permissions> {
   let permissions: Partial<PermixSetup<Permissions>> = {}
   let isReady = false
 
@@ -272,4 +272,4 @@ export function createPermix<Permissions extends PermixPermissions>(): Permix<Pe
   return permix as Permix<Permissions>
 }
 
-export const createPermixInternal = createPermix as <Permissions extends PermixPermissions>() => PermixInternal<Permissions>
+export const createPermixInternal = createPermix as <Permissions extends PermixDefinition>() => PermixInternal<Permissions>

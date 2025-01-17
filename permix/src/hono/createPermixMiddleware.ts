@@ -1,14 +1,14 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import type { Permix, PermixPermissions } from '../core/createPermix'
+import type { Permix, PermixDefinition } from '../core/createPermix'
 
-export interface PermixHonoOptions<T extends PermixPermissions> {
+export interface PermixHonoOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
   onUnauthorized?: (params: { c: Context, entity: keyof T, actions: T[keyof T]['action'][] }) => Response | Promise<Response>
 }
 
-export function createPermixMiddleware<T extends PermixPermissions>(
+export function createPermixMiddleware<T extends PermixDefinition>(
   permix: Permix<T>,
   options: PermixHonoOptions<T> = {},
 ) {

@@ -1,15 +1,15 @@
 import type { MiddlewareFunction, ProcedureParams } from '@trpc/server'
-import type { Permix, PermixPermissions } from '../core/createPermix'
+import type { Permix, PermixDefinition } from '../core/createPermix'
 import { TRPCError } from '@trpc/server'
 
-export interface PermixMiddlewareOptions<T extends PermixPermissions> {
+export interface PermixMiddlewareOptions<T extends PermixDefinition> {
   /**
    * Custom error to throw when permission is denied
    */
   unauthorizedError?: TRPCError | ((params: { entity: keyof T, actions: T[keyof T]['action'][] }) => TRPCError)
 }
 
-export function createPermixMiddleware<T extends PermixPermissions>(
+export function createPermixMiddleware<T extends PermixDefinition>(
   permix: Permix<T>,
   options: PermixMiddlewareOptions<T> = {},
 ) {
