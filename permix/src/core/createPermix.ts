@@ -1,5 +1,5 @@
 import { hooks } from './hooks'
-import { isPermissionsValid, isPermissionsValidJson } from './utils'
+import { isPermissionsValid } from './utils'
 
 export type PermixPermissions<T = unknown> = Record<string, {
   dataType?: T
@@ -19,33 +19,6 @@ export type PermixSetup<Permissions extends PermixPermissions = PermixPermission
       | boolean
       | ((data: Permissions[Key]['dataType']) => boolean);
   };
-}
-
-export interface PermixOptions<Permissions extends PermixPermissions> {
-  /**
-   * Initial permissions object.
-   *
-   * @description
-   * Useful if you want to setup immediately all permissions before `setup` method.
-   * But do not forget to call `setup` method after that.
-   *
-   * @example
-   * ```ts
-   * const permix = createPermix<{
-   *   post: {
-   *     dataType: { id: string }
-   *     action: 'create' | 'read'
-   *   }
-   * }>({
-   *   post: { create: true, read: false }
-   * })
-   *
-   * await permix.setup({
-   *   post: { create: true, read: false }
-   * })
-   * ```
-   */
-  initialPermissions?: PermixJSON<Permissions>
 }
 
 /**
@@ -205,12 +178,8 @@ export interface PermixInternal<Permissions extends PermixPermissions> extends P
  * console.log(permix.check('user', 'read')) // true
  * ```
  */
-export function createPermix<Permissions extends PermixPermissions>(options: PermixOptions<Permissions> = {}): Permix<Permissions> {
-  if (options.initialPermissions && !isPermissionsValidJson(options.initialPermissions)) {
-    throw new Error('[Permix]: Initial permissions are not valid JSON.')
-  }
-
-  let permissions: Partial<PermixSetup<Permissions>> = options.initialPermissions ?? {}
+export function createPermix<Permissions extends PermixPermissions>(): Permix<Permissions> {
+  let permissions: Partial<PermixSetup<Permissions>> = {}
 
   hooks.hook('setup', (r) => {
     permissions = r as PermixSetup<Permissions>
@@ -301,4 +270,4 @@ export function createPermix<Permissions extends PermixPermissions>(options: Per
   return permix as Permix<Permissions>
 }
 
-export const createPermixInternal = createPermix as <Permissions extends PermixPermissions>(options?: PermixOptions<Permissions>) => PermixInternal<Permissions>
+export const createPermixInternal = createPermix as <Permissions extends PermixPermissions>() => PermixInternal<Permissions>
