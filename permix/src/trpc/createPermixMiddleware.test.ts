@@ -1,5 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server'
 import { describe, expect, it } from 'vitest'
+import { z } from 'zod'
 import { createPermix } from '../core/createPermix'
 import { createPermixMiddleware } from './createPermixMiddleware'
 
@@ -151,5 +152,44 @@ describe('createPermixMiddleware', () => {
 
     const result = await t.createCallerFactory(router)({ user: { id: '1' } }).createAndReadPost()
     expect(result).toEqual({ success: true })
+  })
+
+  it('should save types for context and input', async () => {
+    const protectedProcedure = t.procedure.use(async ({ next }) => {
+      await permix.setup({
+        post: {
+          create: true,
+          read: true,
+          update: true,
+        },
+        user: {
+          delete: true,
+        },
+      })
+
+      return next()
+    })
+
+    const router = t.router({
+      createAndReadPost: protectedProcedure
+        .use(check('post', 'read'))
+        .input(z.object({
+          userId: z.string(),
+        }))
+        .query(({ ctx, input }) => {
+          return {
+            // @ts-expect-error user.id is string
+            userId: ctx.user.id * 1,
+            // @ts-expect-error userId is string
+            inputUserId: input.userId * 1,
+          }
+        }),
+    })
+
+    const result = await t.createCallerFactory(router)({ user: { id: '1' } }).createAndReadPost({ userId: '1' })
+    expect(result).toEqual({
+      userId: 1,
+      inputUserId: 1,
+    })
   })
 })
