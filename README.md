@@ -28,7 +28,7 @@ await permix.setup({
 permix.check('post', 'read') // true
 ```
 
-Permix has other powerful features, so here's check out the [docs](https://permix.letstri.dev) or the [examples](./examples) directory.
+Permix has other powerful features, so here's check out the [docs](https://permix.letstri.dev/docs) or the [examples](./examples) directory.
 
 ## License
 
