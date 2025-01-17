@@ -100,7 +100,7 @@ describe('createPermixMiddleware', () => {
 
   it('should work with custom error handler', async () => {
     const { check } = createPermixMiddleware(permix, {
-      onUnauthorized: c => c.json({ error: 'Custom error' }, 401),
+      onUnauthorized: ({ c }) => c.json({ error: 'Custom error' }, 401),
     })
 
     const app = new Hono()
@@ -130,5 +130,39 @@ describe('createPermixMiddleware', () => {
 
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({ error: 'Custom error' })
+  })
+
+  it('should work with custom error and params', async () => {
+    const { check } = createPermixMiddleware(permix, {
+      onUnauthorized: ({ c, entity, actions }) => c.json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }, 401),
+    })
+
+    const app = new Hono()
+
+    app.use('*', async (c, next) => {
+      await permix.setup({
+        post: {
+          create: false,
+          read: false,
+          update: false,
+        },
+        user: {
+          delete: false,
+        },
+      })
+      await next()
+    })
+
+    app.post('/posts', check('post', 'create'), (c) => {
+      return c.json({ success: true })
+    })
+
+    const res = await app.request('/posts', {
+      method: 'POST',
+      body: JSON.stringify({ title: 'Test Post' }),
+    })
+
+    expect(res.status).toBe(401)
+    expect(await res.json()).toEqual({ error: 'You do not have permission to create a post' })
   })
 })

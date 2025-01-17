@@ -126,6 +126,51 @@ describe('createPermixMiddleware', () => {
     await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost()).rejects.toThrow('Custom unauthorized message')
   })
 
+  it('should work with custom error and params', async () => {
+    const { check } = createPermixMiddleware(permix, {
+      unauthorizedError: ({ entity, actions }) => {
+        if (entity === 'post' && actions.includes('create')) {
+          return new TRPCError({
+            code: 'FORBIDDEN',
+            message: `You do not have permission to ${actions.join('/')} a ${entity}`,
+          })
+        }
+
+        return new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'You do not have permission to perform this action',
+        })
+      },
+    })
+
+    const protectedProcedure = t.procedure.use(async ({ next }) => {
+      await permix.setup({
+        post: {
+          create: false,
+          read: false,
+          update: false,
+        },
+        user: {
+          delete: false,
+        },
+      })
+
+      return next()
+    })
+
+    const router = t.router({
+      createPost: protectedProcedure
+        .use(check('post', 'create'))
+        .query(() => {
+          return { success: true }
+        }),
+    })
+
+    await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost())
+      .rejects
+      .toThrow('You do not have permission to create a post')
+  })
+
   it('should chain multiple permissions', async () => {
     const protectedProcedure = t.procedure.use(async ({ next }) => {
       await permix.setup({

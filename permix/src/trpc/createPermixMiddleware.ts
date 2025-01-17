@@ -1,17 +1,21 @@
 import type { MiddlewareFunction, ProcedureParams } from '@trpc/server'
-import type { Permix, PermixPermissions } from '../core/createPermix'
+import type { Permix, PermixPermissions, PermixSetupReturn } from '../core/createPermix'
 import { TRPCError } from '@trpc/server'
 
-export interface PermixMiddlewareOptions {
+export interface PermixMiddlewareOptions<T extends PermixPermissions> {
+  /**
+   * Setup function to set up the permix permissions
+   */
+  setup?: PermixSetupReturn
   /**
    * Custom error to throw when permission is denied
    */
-  unauthorizedError?: TRPCError
+  unauthorizedError?: TRPCError | ((params: { entity: keyof T, actions: T[keyof T]['action'][] }) => TRPCError)
 }
 
 export function createPermixMiddleware<T extends PermixPermissions>(
   permix: Permix<T>,
-  options: PermixMiddlewareOptions = {},
+  options: PermixMiddlewareOptions<T> = {},
 ) {
   const {
     unauthorizedError = new TRPCError({
@@ -25,7 +29,28 @@ export function createPermixMiddleware<T extends PermixPermissions>(
       const hasPermission = permix.check(entity, action)
 
       if (!hasPermission) {
-        throw unauthorizedError
+        let error: TRPCError
+
+        if (typeof unauthorizedError === 'function') {
+          error = unauthorizedError({
+            entity,
+            actions: Array.isArray(action) ? action : [action],
+          })
+        }
+        else {
+          error = unauthorizedError
+        }
+
+        if (!(error instanceof TRPCError)) {
+          console.error('unauthorizedError is not TRPCError')
+
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'You do not have permission to perform this action',
+          })
+        }
+
+        throw error
       }
 
       return next()

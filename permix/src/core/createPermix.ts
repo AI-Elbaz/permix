@@ -1,10 +1,14 @@
 import { hooks } from './hooks'
 import { isPermissionsValid } from './utils'
 
-export type PermixPermissions<T = unknown> = Record<string, {
-  dataType?: T
+export type PermixPermissions = Record<string, {
+  dataType?: unknown
   action: string
 }>
+
+const setupSymbol = Symbol('setup')
+
+export type PermixSetupReturn = Promise<typeof setupSymbol>
 
 export type PermixJSON<Permissions extends PermixPermissions = PermixPermissions> = {
   [Key in keyof Permissions]: {
@@ -73,7 +77,7 @@ export interface Permix<Permissions extends PermixPermissions> {
    * })
    * ```
    */
-  setup: <Rules extends PermixSetup<Permissions>>(callback: Rules | (() => (Rules | Promise<Rules>))) => Promise<void>
+  setup: <Rules extends PermixSetup<Permissions>>(callback: Rules | (() => (Rules | Promise<Rules>))) => PermixSetupReturn
 
   /**
    * Get current permissions in JSON format
@@ -197,6 +201,8 @@ export function createPermix<Permissions extends PermixPermissions>(): Permix<Pe
     },
     async setup(permissions) {
       await hooks.callHook('setup', typeof permissions === 'function' ? await permissions() : permissions)
+
+      return Promise.resolve(setupSymbol)
     },
     getJSON: () => {
       const processedSetup = {} as PermixJSON<Permissions>
