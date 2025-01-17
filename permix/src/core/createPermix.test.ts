@@ -85,7 +85,7 @@ describe('createPermix', () => {
     expect(permix.getJSON()).toEqual({})
   })
 
-  it('should throw an error if setup is not awaited', () => {
+  it('should to be false if setup is not awaited', () => {
     const permix = createPermix()
     expect(permix.check('post', 'read')).toBe(false)
   })
@@ -106,7 +106,7 @@ describe('createPermix', () => {
     expect(permix.check('post', 'create')).toBe(true)
   })
 
-  it('should throw an error if permission is not defined', async () => {
+  it('should return false if permission is not defined', async () => {
     await permix.setup({
       post: {
         create: true,
@@ -124,7 +124,7 @@ describe('createPermix', () => {
     expect(permix.check('post', 'not-exist')).toBe(false)
   })
 
-  it('should throw an error if entity is not defined', async () => {
+  it('should return false if entity is not defined', async () => {
     await permix.setup({
       post: {
         create: true,
@@ -159,6 +159,25 @@ describe('createPermix', () => {
 
     expect(permix.check('post', 'create', postWhereAuthorIdIs1)).toBe(true)
     expect(permix.check('post', 'create', postWhereAuthorIdIs2)).toBe(false)
+  })
+
+  it('should work with async check', async () => {
+    setTimeout(async () => {
+      await permix.setup({
+        post: {
+          create: true,
+          read: true,
+        },
+        comment: {
+          create: true,
+          read: true,
+          update: true,
+        },
+      })
+    }, 100)
+
+    expect(permix.check('post', 'create')).toBe(false)
+    expect(await permix.checkAsync('post', 'create')).toBe(true)
   })
 
   it('should work with setup as function', async () => {

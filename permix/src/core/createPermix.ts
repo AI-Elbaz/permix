@@ -59,6 +59,25 @@ export interface Permix<Permissions extends PermixDefinition> {
   check: <K extends keyof Permissions>(entity: K, action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
 
   /**
+   * Similar to `check`, but returns a Promise that resolves once `setup` is called.
+   * This ensures permissions are ready before checking them.
+   *
+   * @example
+   * ```ts
+   * // Wait for permissions to be ready
+   * const canCreate = await permix.checkAsync('post', 'create') // Promise<true>
+   *
+   * // Multiple actions
+   * const canCreateAndRead = await permix.checkAsync('post', ['create', 'read'])
+   *
+   * // Even if you call setup after checking
+   * await permix.setup({ post: { create: true } })
+   * const canCreate = await permix.checkAsync('post', 'create') // Promise<true>
+   * ```
+   */
+  checkAsync: <K extends keyof Permissions>(entity: K, action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => Promise<boolean>
+
+  /**
    * Set up permissions
    *
    * @example
@@ -189,14 +208,25 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
 export function createPermix<Permissions extends PermixDefinition>(): Permix<Permissions> {
   let permissions: Partial<PermixSetup<Permissions>> = {}
   let isReady = false
+  let resolve: () => void
+
+  const _promise = new Promise((res) => {
+    resolve = () => res(undefined)
+  })
 
   hooks.hook('setup', (r) => {
     permissions = r as PermixSetup<Permissions>
     isReady = true
+    resolve()
   })
 
   const permix = {
     check(entity, action, data) {
+      return this._.checkWithPermissions(permissions as PermixSetup<Permissions>, entity, action, data)
+    },
+    async checkAsync(entity, action, data) {
+      await _promise
+
       return this._.checkWithPermissions(permissions as PermixSetup<Permissions>, entity, action, data)
     },
     async setup(permissions) {
