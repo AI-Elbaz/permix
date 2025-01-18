@@ -2,7 +2,7 @@
   "name": "permix",
   "displayName": "Permix",
   "type": "module",
-  "version": "0.7.2-beta.2",
+  "version": "0.7.2",
   "private": false,
   "packageManager": "pnpm@9.15.4",
   "description": "A simple and type-safe permissions library for React, Vue, and more.",
