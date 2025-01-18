@@ -18,6 +18,6 @@ jobs:
         with:
           version: 8
       - run: pnpm i
-      - run: pnpm run publish --provenance --access public
+      - run: pnpm run publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
