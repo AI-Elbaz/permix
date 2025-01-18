@@ -1,5 +1,6 @@
 import { source } from '@/lib/source'
 import { Popup, PopupContent, PopupTrigger } from 'fumadocs-twoslash/ui'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 import defaultMdxComponents from 'fumadocs-ui/mdx'
 import {
   DocsBody,
@@ -27,6 +28,8 @@ export default async function Page(props: {
         <MDX
           components={{
             ...defaultMdxComponents,
+            Tab,
+            Tabs,
             Popup,
             PopupContent,
             PopupTrigger,

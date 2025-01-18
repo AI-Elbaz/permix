@@ -9,12 +9,12 @@
     "guide/check",
     "guide/template",
     "guide/events",
-    "---Adapters---",
-    "adapters/react",
-    "adapters/vue",
-    "adapters/trpc",
-    "adapters/express",
-    "adapters/hono",
+    "---Integrations---",
+    "integrations/react",
+    "integrations/vue",
+    "integrations/trpc",
+    "integrations/express",
+    "integrations/hono",
     "------",
     "[Examples](https://github.com/letstri/permix/tree/main/examples)"
   ]

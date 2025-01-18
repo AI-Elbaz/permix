@@ -1,0 +1,87 @@
+---
+title: React
+description: Learn how to use Permix with React applications
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Overview
+
+Permix provides official React integration through the `PermixProvider` component and `usePermix` hook. This allows you to manage permissions reactively in your React app.
+
+<Steps>
+
+<Step>
+
+## Setup
+
+First, wrap your application with the `PermixProvider`:
+
+```tsx
+import { PermixProvider } from 'permix/react'
+import { permix } from './lib/permix'
+
+function App() {
+  return (
+    <PermixProvider permix={permix}>
+      <YourApp />
+    </PermixProvider>
+  )
+}
+```
+
+<Callout>
+Remember to always pass the same Permix instance to both the `PermixProvider` and `usePermix` hook to maintain type safety.
+</Callout>
+
+</Step>
+
+<Step>
+
+## Usage
+
+Use the `usePermix` hook in your components to check permissions:
+
+```tsx
+import { usePermix } from 'permix/react'
+import { permix } from './lib/permix'
+
+function PostEditor({ post }) {
+  const { check, isReady } = usePermix(permix)
+
+  if (!isReady) {
+    return <div>Loading permissions...</div>
+  }
+
+  const canEdit = check('post', 'edit', post)
+
+  return (
+    <div>
+      {canEdit ? (
+        <button>Edit Post</button>
+      ) : (
+        <p>You don't have permission to edit this post</p>
+      )}
+    </div>
+  )
+}
+```
+
+### Custom hook
+
+To avoid importing the `usePermix` hook and Permix instance in every component, you can create a custom hook:
+
+```tsx
+import { usePermix } from 'permix/react'
+import { permix } from './lib/permix'
+
+export function usePermissions() {
+  return usePermix(permix)
+}
+```
+
+
+</Step>
+
+</Steps>
+
