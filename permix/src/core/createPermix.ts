@@ -99,20 +99,6 @@ export interface Permix<Permissions extends PermixDefinition> {
   setup: <Rules extends PermixSetup<Permissions>>(callback: Rules | (() => (Rules | Promise<Rules>))) => PermixSetupReturn
 
   /**
-   * Get current permissions in JSON format
-   *
-   * @example
-   * ```ts
-   * permix.setup({
-   *   post: { create: true, delete: post => !post.isPublished }
-   * })
-   * const permissions = permix.getJSON()
-   * // returns { post: { create: true, delete: false } }
-   * ```
-   */
-  getJSON: () => PermixJSON<Permissions> | null
-
-  /**
    * Register event handler
    *
    * @example
@@ -155,6 +141,7 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
      * Check if the setup was called
      */
     isReady: boolean
+
     /**
      * Get latest setup state
      *
@@ -168,6 +155,7 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
      * ```
      */
     getPermissions: () => PermixSetup<Permissions>
+
     /**
      * Check if an action is allowed for an entity using provided permissions
      *
@@ -177,6 +165,20 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
      * ```
      */
     checkWithPermissions: <K extends keyof Permissions>(setup: PermixSetup<Permissions>, entity: K, action: Permissions[K]['action'] | 'all' | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
+
+    /**
+     * Get current permissions in JSON format
+     *
+     * @example
+     * ```ts
+     * permix.setup({
+     *   post: { create: true, delete: post => !post.isPublished }
+     * })
+     * const permissions = permix.getJSON()
+     * // returns { post: { create: true, delete: false } }
+     * ```
+     */
+    getJSON: () => PermixJSON<Permissions> | null
   }
 }
 
@@ -234,17 +236,6 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 
       return Promise.resolve(setupSymbol)
     },
-    getJSON: () => {
-      const processedSetup = {} as PermixJSON<Permissions>
-      for (const entity in permissions) {
-        processedSetup[entity] = {} as any
-        for (const action in permissions[entity]) {
-          const value = permissions[entity][action]
-          processedSetup[entity][action] = typeof value === 'function' ? false : value as boolean
-        }
-      }
-      return processedSetup
-    },
     on(event, callback) {
       hooks.hook(event, callback)
     },
@@ -295,6 +286,17 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 
           return action ?? false
         })
+      },
+      getJSON: () => {
+        const processedSetup = {} as PermixJSON<Permissions>
+        for (const entity in permissions) {
+          processedSetup[entity] = {} as any
+          for (const action in permissions[entity]) {
+            const value = permissions[entity][action]
+            processedSetup[entity][action] = typeof value === 'function' ? false : value as boolean
+          }
+        }
+        return processedSetup
       },
     },
   } satisfies PermixInternal<Permissions>

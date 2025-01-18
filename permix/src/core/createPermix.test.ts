@@ -56,17 +56,7 @@ describe('createPermix', () => {
       },
     })
 
-    expect(permix.getJSON()).toEqual({
-      post: {
-        create: true,
-        read: true,
-      },
-      comment: {
-        create: true,
-        read: true,
-        update: true,
-      },
-    })
+    expect(permix.check('post', 'read')).toBe(true)
   })
 
   it('shouldn\'t work if setup is no awaited', async () => {
@@ -82,7 +72,7 @@ describe('createPermix', () => {
       },
     })
 
-    expect(permix.getJSON()).toEqual({})
+    expect(permix.check('post', 'read')).toBe(false)
   })
 
   it('should to be false if setup is not awaited', () => {
@@ -178,6 +168,20 @@ describe('createPermix', () => {
 
     expect(permix.check('post', 'create')).toBe(false)
     expect(await permix.checkAsync('post', 'create')).toBe(true)
+
+    await permix.setup({
+      post: {
+        create: false,
+        read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    expect(permix.check('post', 'create')).toBe(false)
   })
 
   it('should work with setup as function', async () => {
@@ -193,17 +197,6 @@ describe('createPermix', () => {
       },
     }))
 
-    expect(permix.getJSON()).toEqual({
-      post: {
-        create: true,
-        read: true,
-      },
-      comment: {
-        create: true,
-        read: true,
-        update: true,
-      },
-    })
     expect(permix.check('post', 'create')).toBe(true)
   })
 
@@ -224,17 +217,6 @@ describe('createPermix', () => {
       }
     })
 
-    expect(permix.getJSON()).toEqual({
-      post: {
-        create: true,
-        read: true,
-      },
-      comment: {
-        create: true,
-        read: true,
-        update: true,
-      },
-    })
     expect(permix.check('post', 'create')).toBe(true)
   })
 
@@ -269,17 +251,6 @@ describe('createPermix', () => {
       }
     })
 
-    expect(permix.getJSON()).toEqual({
-      post: {
-        create: true,
-        read: true,
-      },
-      comment: {
-        create: true,
-        read: true,
-        update: true,
-      },
-    })
     expect(permix.check('post', 'create')).toBe(true)
   })
 

@@ -38,7 +38,7 @@ describe('createPermixInternal', () => {
       },
     })
 
-    expect(permix.getJSON()).toEqual({
+    expect(permix._.getJSON()).toEqual({
       post: { create: true, read: true, update: true },
     })
     expect(permix._.checkWithPermissions(permix._.getPermissions(), 'post', 'create')).toBe(true)
@@ -57,7 +57,7 @@ describe('createPermixInternal', () => {
       },
     })
 
-    expect(permix.getJSON()).toEqual({
+    expect(permix._.getJSON()).toEqual({
       post: { create: false, read: true, update: true },
     })
     expect(permix._.getPermissions()).toEqual({
