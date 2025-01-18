@@ -3,6 +3,18 @@
     "---Getting Started---",
     "index",
     "quick-start",
+    "---Guide---",
+    "guide/instance",
+    "guide/setup",
+    "guide/check",
+    "guide/template",
+    "guide/events",
+    "---Adapters---",
+    "adapters/react",
+    "adapters/vue",
+    "adapters/trpc",
+    "adapters/express",
+    "adapters/hono",
     "------",
     "[Examples](https://github.com/letstri/permix/tree/main/examples)"
   ]

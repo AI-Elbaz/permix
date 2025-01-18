@@ -1,5 +1,108 @@
 ---
 title: Template
+description: Learn how to define permissions using templates
 ---
 
-hello
+## Overview
+
+Permix provides a `template` method that allows you to define permissions in a separate location from where they are set up. This is useful for organizing permission definitions and reusing them across different parts of your application.
+
+## Basic Usage
+
+The simplest way to use templates is to define static permissions:
+
+```ts
+const adminPermissions = permix.template({
+  post: {
+    create: true,
+    read: true
+  }
+})
+
+// Later, use the template to setup permissions
+await permix.setup(adminPermissions())
+```
+
+## Dynamic Templates
+
+Templates can accept parameters to create dynamic permissions based on runtime values:
+
+```ts
+interface User {
+  id: string
+  role: string
+}
+
+const userPermissions = permix.template(({ id: userId }: User) => ({
+  post: {
+    create: true,
+    read: true,
+    update: post => post.authorId === userId
+  }
+}))
+
+// Use with specific user data
+const user = await getUser()
+await permix.setup(userPermissions(user))
+```
+
+## Type Safety
+
+Templates maintain full type safety from your Permix instance definition:
+
+```ts twoslash
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'create'
+  }
+}>()
+
+// @errors: 2353
+// This will throw an error
+const invalidTemplate = permix.template({
+  post: {
+    edit: true
+  }
+})
+```
+
+## Role-Based Example
+
+Templates are particularly useful for role-based permission systems:
+
+```ts
+const editorPermissions = permix.template({
+  post: {
+    create: true,
+    read: true,
+    update: post => !post.published,
+    delete: post => !post.published
+  }
+})
+
+const userPermissions = permix.template(({ id: userId }: User) => ({
+  post: {
+    create: false,
+    read: true,
+    update: post => post.authorId === userId,
+    delete: false
+  }
+}))
+
+// Setup based on user role
+function setupPermissions() {
+  const user = await getUser()
+  const permissionsMap = {
+    editor: () => editorPermissions(),
+    user: () => userPermissions(user)
+  }
+
+  return permix.setup(permissionsMap[user.role]())
+}
+```
+
+<Callout>
+Templates are validated when they are created, ensuring your permission definitions are correct before runtime.
+</Callout>

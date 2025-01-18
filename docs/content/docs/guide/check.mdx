@@ -1,5 +1,96 @@
 ---
 title: Checking
+description: Learn how to check permissions in your application
 ---
 
-hello
+## Overview
+
+Permix provides two methods for checking permissions: `check` and `checkAsync`. Both methods return a boolean indicating whether the action is allowed.
+
+## `check`
+
+The `check` method allows you to verify if certain actions are permitted. It returns a boolean indicating whether the action is allowed.
+
+```ts
+permix.check('post', 'create') // returns true/false
+```
+
+## Array
+
+You can check multiple actions at once by passing an array of actions. All actions must be permitted for the check to return true.
+
+```ts
+// Check if both create and read are allowed
+permix.check('post', ['create', 'read']) // returns true if both are allowed
+```
+
+## All
+
+Use the special 'all' keyword to verify if all possible actions for an entity are permitted.
+
+```ts
+// Check if all actions are allowed for posts
+permix.check('post', 'all') // returns true only if all actions are permitted
+```
+
+## `checkAsync`
+
+When you need to ensure permissions are ready before checking, use `checkAsync`. This is useful when permissions might be set up asynchronously.
+
+<Callout>
+In most cases you should use `check` instead of `checkAsync`. `checkAsync` is useful when you need to ensure permissions are ready before checking, for example in route middleware.
+</Callout>
+
+```ts
+setTimeout(async () => {
+  await permix.setup({
+    post: { create: true }
+  })
+}, 1000)
+
+await permix.checkAsync('post', 'create') // waits for setup
+```
+
+## Data-Based
+
+You can define permissions that depend on the data being accessed:
+
+```ts
+await permix.setup({
+  post: {
+    // Only allow updates if user is the author
+    update: post => post.authorId === currentUserId,
+    // Static permission
+    read: true
+  }
+})
+
+// Check with data
+const post = { id: '1', authorId: 'user1' }
+
+permix.check('post', 'update', post) // true if currentUserId === 'user1'
+```
+
+<Callout type="warn">
+You still can check permissions without providing the data, but it will return `false` in this case.
+</Callout>
+
+## Type Safety
+
+Permix provides full type safety for your permissions:
+
+```ts twoslash
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'create' | 'update'
+  }
+}>()
+
+// @errors: 2345
+// This will cause a TypeScript error but will return false
+permix.check('post', 'invalid-action')
+
+permix.check('invalid-entity', 'create')
+```

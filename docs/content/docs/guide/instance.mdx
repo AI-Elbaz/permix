@@ -1,5 +1,131 @@
 ---
 title: Instance
+description: Learn how to create a new Permix instance
 ---
 
-hello
+## Overview
+
+Instance is the main entry point for Permix that will check permissions in every returned method. To create an instance, you need to use the `createPermix` function.
+
+### TypeScript
+
+Permix is built with TypeScript, providing type safety and validation. Using TypeScript enables autocompletion and compile-time checks for your permission definitions.
+
+```ts twoslash title="/lib/permix.ts"
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'create' | 'edit'
+  }
+}>()
+```
+
+### JavaScript
+
+Not using TypeScript? Permix works perfectly fine even with plain JavaScript.
+
+```js title="/lib/permix.js"
+const permix = createPermix()
+```
+
+## Generic type
+
+Permix instance do not accept any parameters to configure something, only generic type that looks like this:
+
+```ts twoslash
+import type { PermixDefinition } from 'permix'
+//            ^?
+
+
+
+
+
+
+
+
+
+
+```
+
+<Callout type="warn">
+You shouldn't use `PermixDefinition` type directly, it's used internally by Permix.
+</Callout>
+
+### `action`
+
+Union type of all actions you want to check on the entity.
+
+```ts twoslash title="/lib/permix.ts"
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'create' | 'edit'
+//  ^^^^^^
+  }
+}>()
+```
+
+### `dataType`
+
+<Callout>
+Not required, but recommended.
+</Callout>
+
+To define a type of your entities, you can pass the `dataType` property to a generic type. This is useful if you want to check permissions on a specific entity otherwise the type will be `unknown`.
+
+```ts twoslash title="/lib/permix.ts"
+import { createPermix } from 'permix'
+
+interface Post {
+  id: string
+  author: string
+  content: string
+}
+
+const permix = createPermix<{
+  post: {
+    dataType: Post
+//  ^^^^^^^^
+    action: 'create' | 'edit'
+  }
+}>()
+
+await permix.setup({
+  post: {
+    create: true,
+    edit: post => post.author === 'John Doe'
+//        ^^^^
+  }
+})
+
+const somePost: Post = {
+  id: '1',
+  author: 'John Doe',
+  content: 'Hello World'
+}
+
+const canEdit = permix.check('post', 'edit', somePost)
+```
+
+## Return type
+
+Each Permix instance provides a list of methods to manage and check permissions. These methods are documented in detail on their separate pages.
+
+```ts twoslash title="/lib/permix.ts"
+import { createPermix } from 'permix'
+
+const permix = createPermix()
+
+// @noErrors
+permix.
+//     ^|
+
+
+
+
+
+
+
+```

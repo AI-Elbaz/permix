@@ -1,5 +1,119 @@
 ---
 title: Setup
+description: Learn how to setup permissions in your project
 ---
 
-hello
+## Overview
+
+After creating Permix instance, you need to define permissions with `setup` method. You can call `setup` in any time with any permissions and Permix will replace the previous permissions.
+
+<Callout type="warn">
+You always should describe all permissions in the `setup` method that was defined in the Permix generic type.
+</Callout>
+
+<Callout>
+For role separation, you can use the [`template`](/docs/guide/template) method.
+</Callout>
+
+### Object definition
+
+```ts
+const permix = createPermix<{
+  post: {
+    action: 'create'
+  }
+  comment: {
+    action: 'create' | 'update'
+  }
+}>()
+
+await permix.setup({
+  post: {
+    create: true,
+  },
+  comment: {
+    create: true,
+    update: true,
+  }
+})
+```
+
+### Callback definition
+
+The `setup` method is an async function that requires awaiting due to event handlers. For cases where direct awaiting isn't possible, you can pass a callback function to `setup` to handle async operations internally.
+
+```ts
+permix.setup(async () => {
+  // Fetch user, role, etc.
+  const user = await fetchUser()
+
+  return {
+    post: {
+      create: true,
+    },
+    comment: {
+      create: true,
+      update: comment => comment.authorId === user.id
+    }
+  }
+})
+```
+
+## Type-Based
+
+When creating a Permix instance, you can define entities that will be used in the `setup` method for each related entity. This allows you to check permissions for specific data entities. So instead of `boolean` you can use functions to check permissions.
+
+```ts twoslash
+import { createPermix } from 'permix'
+
+interface Post {
+  id: string
+  authorId: string
+}
+
+const permix = createPermix<{
+  post: {
+    dataType: Post
+//  ^^^^^^^^
+    action: 'update'
+  }
+  comment: {
+    action: 'update'
+  }
+}>()
+
+// @noErrors
+await permix.setup({
+  post: {
+    update: post => post.
+//                       ^|
+  }
+  comment: {
+    update: comment => c
+//          ^?
+  }
+})
+```
+
+### unknown
+
+If you cannot define entity types in the Permix instance, the types will be `unknown` by default, but you can still define them later in the `setup` method.
+
+This approach is not recommended as it reduces type safety and IDE support.
+
+```ts twoslash
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  comment: {
+    action: 'update'
+  }
+}>()
+
+// @noErrors
+await permix.setup({
+  comment: {
+    update: (comment: { authorId: string }) => comment.authorId === user.id
+  }
+})
+```
