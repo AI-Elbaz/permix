@@ -2,8 +2,9 @@ name: npm-publish
 
 on:
   workflow_dispatch:
+
 jobs:
-  build:
+  check-and-publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,8 +20,17 @@ jobs:
         with:
           version: 9
       - run: pnpm i --frozen-lockfile
-      - run: npm config set sign-git-tag true
-      - run: pnpm run publish
+      - name: Check version and publish if needed
+        run: |
+          cd permix
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          NPM_VERSION=$(npm view permix version 2>/dev/null || echo "0.0.0")
+          if [ "$PACKAGE_VERSION" != "$NPM_VERSION" ]; then
+            npm config set sign-git-tag true
+            pnpm run publish
+          else
+            echo "Package version $PACKAGE_VERSION is already published"
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
