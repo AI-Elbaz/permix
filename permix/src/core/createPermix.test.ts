@@ -43,6 +43,10 @@ describe('createPermix', () => {
     expect(createPermix).toBeDefined()
   })
 
+  it('should throw a TS error if permissions are not defined', () => {
+    createPermix()
+  })
+
   it('should setup rules', async () => {
     await permix.setup({
       post: {
@@ -76,7 +80,6 @@ describe('createPermix', () => {
   })
 
   it('should to be false if setup is not awaited', () => {
-    const permix = createPermix()
     expect(permix.check('post', 'read')).toBe(false)
   })
 
@@ -257,7 +260,7 @@ describe('createPermix', () => {
   it('should call onUpdate callback', async () => {
     const callback = vi.fn()
 
-    permix.on('setup', callback)
+    permix.hook('setup', callback)
 
     await permix.setup({
       post: {

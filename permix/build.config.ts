@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { defineBuildConfig } from 'unbuild'
-import { optionalDependencies } from './package.json'
+import { dependencies, optionalDependencies } from './package.json'
 
 export default defineBuildConfig({
   entries: [
@@ -12,7 +12,10 @@ export default defineBuildConfig({
     './src/hono/index.ts',
   ],
   declaration: true,
-  externals: [...Object.keys(optionalDependencies)],
+  externals: [
+    ...Object.keys(dependencies),
+    ...Object.keys(optionalDependencies),
+  ],
   hooks: {
     'build:done': async () => {
       const file = await readFile('./dist/react/index.mjs', 'utf-8')

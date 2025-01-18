@@ -11,7 +11,7 @@ export function PermixProvider<Permissions extends PermixDefinition>({
   const [setup, setSetup] = React.useState({ permissions: _permix._.getPermissions(), isReady: _permix._.isReady })
 
   React.useEffect(() => {
-    _permix.on('setup', () => {
+    _permix.hook('setup', () => {
       setSetup({ permissions: _permix._.getPermissions(), isReady: true })
     })
   }, [_permix])

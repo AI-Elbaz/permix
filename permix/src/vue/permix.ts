@@ -15,7 +15,7 @@ export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) =
 
   app.provide(PERMIX_CONTEXT_KEY, context)
 
-  _permix.on('setup', async () => {
+  _permix.hook('setup', async () => {
     context.value = { permissions: _permix._.getPermissions(), isReady: true }
   })
 }

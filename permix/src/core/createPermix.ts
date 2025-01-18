@@ -39,7 +39,9 @@ export type PermixSetup<Permissions extends PermixDefinition = PermixDefinition>
  */
 export interface Permix<Permissions extends PermixDefinition> {
   /**
-   * Check if an action is allowed for an entity using current permissions
+   * Check if an action is allowed for an entity using current permissions.
+   *
+   * @link https://permix.letstri.dev/docs/guide/check
    *
    * @example
    * ```ts
@@ -62,6 +64,8 @@ export interface Permix<Permissions extends PermixDefinition> {
    * Similar to `check`, but returns a Promise that resolves once `setup` is called.
    * This ensures permissions are ready before checking them.
    *
+   * @link https://permix.letstri.dev/docs/guide/check
+   *
    * @example
    * ```ts
    * // Wait for permissions to be ready
@@ -78,7 +82,9 @@ export interface Permix<Permissions extends PermixDefinition> {
   checkAsync: <K extends keyof Permissions>(entity: K, action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => Promise<boolean>
 
   /**
-   * Set up permissions
+   * Set up permissions.
+   *
+   * @link https://permix.letstri.dev/docs/guide/setup
    *
    * @example
    * ```ts
@@ -99,7 +105,9 @@ export interface Permix<Permissions extends PermixDefinition> {
   setup: <Rules extends PermixSetup<Permissions>>(callback: Rules | (() => (Rules | Promise<Rules>))) => PermixSetupReturn
 
   /**
-   * Register event handler
+   * Register event handler.
+   *
+   * @link https://permix.letstri.dev/docs/guide/events
    *
    * @example
    * ```ts
@@ -108,10 +116,17 @@ export interface Permix<Permissions extends PermixDefinition> {
    * })
    * ```
    */
-  on: (event: 'setup', callback: () => Promise<void> | void) => void
+  hook: (event: 'setup', callback: () => Promise<void> | void) => void
 
   /**
-   * Define permissions in different place to setup them later
+   * Similar to `hook`, but will be called only once.
+   */
+  hookOnce: (event: 'setup', callback: () => Promise<void> | void) => void
+
+  /**
+   * Define permissions in different place to setup them later.
+   *
+   * @link https://permix.letstri.dev/docs/guide/template
    *
    * @example
    * ```ts
@@ -185,6 +200,8 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
 /**
  * Create a Permix instance
  *
+ * @link https://permix.letstri.dev/docs/guide/instance
+ *
  * @example
  * ```ts
  * const permix = createPermix<{
@@ -236,9 +253,8 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 
       return Promise.resolve(setupSymbol)
     },
-    on(event, callback) {
-      hooks.hook(event, callback)
-    },
+    hook: hooks.hook,
+    hookOnce: hooks.hookOnce,
     template: (permissions) => {
       function validate(p: PermixSetup<Permissions>) {
         if (!isPermissionsValid(p)) {
