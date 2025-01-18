@@ -9,6 +9,11 @@ export interface PermixMiddlewareOptions<T extends PermixDefinition> {
   unauthorizedError?: TRPCError | ((params: { entity: keyof T, actions: T[keyof T]['action'][] }) => TRPCError)
 }
 
+/**
+ * Create a middleware function that checks permissions for TRPC routes.
+ *
+ * @link https://permix.letstri.dev/docs/integrations/trpc
+ */
 export function createPermixMiddleware<T extends PermixDefinition>(
   permix: Permix<T>,
   options: PermixMiddlewareOptions<T> = {},

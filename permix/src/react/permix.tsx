@@ -3,6 +3,11 @@ import * as React from 'react'
 
 const PermixContext = React.createContext<{ permissions: PermixSetup<any>, isReady: boolean } | null>(null)
 
+/**
+ * Provider that provides the Permix context to your React components.
+ *
+ * @link https://permix.letstri.dev/docs/integrations/react
+ */
 export function PermixProvider<Permissions extends PermixDefinition>({
   children,
   permix,
@@ -24,6 +29,11 @@ export function PermixProvider<Permissions extends PermixDefinition>({
   )
 }
 
+/**
+ * Hook that provides the Permix context to your React components.
+ *
+ * @link https://permix.letstri.dev/docs/integrations/react
+ */
 // eslint-disable-next-line react-refresh/only-export-components
 export function usePermix<T extends PermixDefinition>(
   permix: Permix<T>,

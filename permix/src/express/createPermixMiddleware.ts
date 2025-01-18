@@ -8,6 +8,11 @@ export interface PermixExpressOptions<T extends PermixDefinition> {
   onUnauthorized?: (params: { req: Request, res: Response, next: NextFunction, entity: keyof T, actions: T[keyof T]['action'][] }) => void
 }
 
+/**
+ * Create a middleware function that checks permissions for Express routes.
+ *
+ * @link https://permix.letstri.dev/docs/integrations/express
+ */
 export function createPermixMiddleware<T extends PermixDefinition>(
   permix: Permix<T>,
   options: PermixExpressOptions<T> = {},

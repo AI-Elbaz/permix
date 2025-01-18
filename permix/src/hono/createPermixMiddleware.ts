@@ -8,6 +8,11 @@ export interface PermixHonoOptions<T extends PermixDefinition> {
   onUnauthorized?: (params: { c: Context, entity: keyof T, actions: T[keyof T]['action'][] }) => Response | Promise<Response>
 }
 
+/**
+ * Create a middleware function that checks permissions for Hono routes.
+ *
+ * @link https://permix.letstri.dev/docs/integrations/hono
+ */
 export function createPermixMiddleware<T extends PermixDefinition>(
   permix: Permix<T>,
   options: PermixHonoOptions<T> = {},

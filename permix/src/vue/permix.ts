@@ -4,6 +4,11 @@ import { computed, inject, ref } from 'vue'
 
 const PERMIX_CONTEXT_KEY: InjectionKey<Ref<{ permissions: PermixSetup<any> | null, isReady: boolean }>> = Symbol('permix-setup')
 
+/**
+ * Vue plugin that provides the Permix context to your application.
+ *
+ * @link https://permix.letstri.dev/docs/integrations/vue
+ */
 export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) => {
   if (!permix) {
     throw new Error('[Permix]: Looks like you forgot to provide the permix instance to the plugin')
@@ -20,6 +25,11 @@ export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) =
   })
 }
 
+/**
+ * Composable that provides the Permix context to your Vue components.
+ *
+ * @link https://permix.letstri.dev/docs/integrations/vue
+ */
 export function usePermix<T extends PermixDefinition>(
   permix: Permix<T>,
 ) {
