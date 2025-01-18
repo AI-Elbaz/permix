@@ -14,10 +14,13 @@ jobs:
         with:
           node-version: 22.x
           registry-url: 'https://registry.npmjs.org'
+          provenance: true
       - uses: pnpm/action-setup@v2
         with:
           version: 9
       - run: pnpm i --frozen-lockfile
+      - run: npm config set sign-git-tag true
       - run: pnpm run publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
