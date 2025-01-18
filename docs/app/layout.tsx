@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { RootProvider } from 'fumadocs-ui/provider'
 import { Inter } from 'next/font/google'
 import './global.css'
+import 'fumadocs-twoslash/twoslash.css'
 
 const inter = Inter({
   subsets: ['latin'],

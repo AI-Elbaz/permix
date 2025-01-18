@@ -1,0 +1,109 @@
+---
+title: Quick Start
+description: A quick start guide to start using Permix and validating your permissions
+icon: RiPlayLargeLine
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Try Permix
+
+Want to explore Permix before installing? Try our interactive sandbox environment where you can experiment with type-safe permissions management right in your browser.
+
+[Try Permix Sandbox](https://stackblitz.com/edit/permix-sandbox?file=src%2Fmain.ts&terminal=dev)
+
+## Installation
+
+<Steps>
+
+  <Step>
+
+  ## Install Permix
+
+  Typically you'll need to install Permix using your package manager.
+
+  <Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+
+  ```bash tab
+  npm install permix
+  ```
+
+  ```bash tab
+  pnpm add permix
+  ```
+
+  ```bash tab
+  yarn add permix
+  ```
+
+  ```bash tab
+  bun add permix
+  ```
+
+  </Tabs>
+
+  </Step>
+
+  <Step>
+
+  ## Create an instance
+
+  To create a base instance, you need to provide a schema as a generic type to `createPermix` function that defines your permissions.
+
+  ```ts title="/lib/permix.ts"
+  import { createPermix } from 'permix'
+
+  export const permix = createPermix<{
+    post: {
+      action: 'create' | 'read' | 'update' | 'delete'
+    }
+  }>()
+  ```
+
+  Learn more about features and configuration of instances in the [instance guide](/docs/guide/instance).
+
+  </Step>
+
+  <Step>
+
+  ## Setup your permissions
+
+  You can setup your permissions by calling `setup` method on your instance in any place you want.
+
+  ```ts
+  import { permix } from './lib/permix'
+
+  await permix.setup({
+    post: {
+      create: true,
+      read: true,
+      update: true,
+      delete: false,
+    },
+  })
+  ```
+
+  </Step>
+
+  <Step>
+
+  ## Usage
+
+  After setup, you can use `check` method to check available permissions.
+
+  ```ts
+  permix.check('post', 'create') // true
+  ```
+
+  </Step>
+
+  <Step>
+
+  ## Finish
+
+  You've now got a basic setup of Permix.
+
+  </Step>
+
+</Steps>

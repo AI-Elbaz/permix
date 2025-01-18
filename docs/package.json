@@ -9,12 +9,16 @@
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
+    "@remixicon/react": "^4.6.0",
     "fumadocs-core": "14.7.4",
     "fumadocs-mdx": "11.3.1",
+    "fumadocs-twoslash": "^2.0.2",
     "fumadocs-ui": "14.7.4",
     "next": "15.1.4",
+    "permix": "workspace:*",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "twoslash": "^0.2.12"
   },
   "devDependencies": {
     "@types/mdx": "^2.0.13",
