@@ -1,10 +1,12 @@
-name: npm-publish
+name: Build and publish
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  check-and-publish:
+  build-and-publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -27,7 +29,7 @@ jobs:
           NPM_VERSION=$(npm view permix version 2>/dev/null || echo "0.0.0")
           if [ "$PACKAGE_VERSION" != "$NPM_VERSION" ]; then
             npm config set sign-git-tag true
-            pnpm run publish
+            pnpm publish
           else
             echo "Package version $PACKAGE_VERSION is already published"
           fi
