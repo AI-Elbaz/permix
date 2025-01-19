@@ -1,1 +1,1 @@
-export { PermixProvider, usePermix } from './permix'
+export { PermixHydrate, PermixProvider, usePermix } from './permix'

@@ -2,7 +2,8 @@ import { render, renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it } from 'vitest'
 import { createPermix } from '../core/createPermix'
-import { PermixProvider, usePermix } from './index'
+import { dehydrate } from '../core/hydration'
+import { PermixHydrate, PermixProvider, usePermix } from './index'
 import '@testing-library/jest-dom/vitest'
 
 describe('permix react', () => {
@@ -114,5 +115,36 @@ describe('permix react', () => {
     await waitFor(() => {
       expect(container.firstChild).toHaveTextContent('true')
     })
+  })
+
+  it('should hydrate state correctly', async () => {
+    const permix = createPermix<{
+      post: {
+        dataType: { id: string }
+        action: 'create' | 'read'
+      }
+    }>()
+
+    await permix.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    const TestComponent = () => {
+      const { isReady } = usePermix(permix)
+      return <div data-testid="ready-state">{isReady.toString()}</div>
+    }
+
+    const { getByTestId } = render(
+      <PermixProvider permix={permix}>
+        <PermixHydrate state={dehydrate(permix)}>
+          <TestComponent />
+        </PermixHydrate>
+      </PermixProvider>,
+    )
+
+    expect(getByTestId('ready-state')).toHaveTextContent('true')
   })
 })

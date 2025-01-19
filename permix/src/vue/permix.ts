@@ -17,7 +17,7 @@ export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) =
 
   validatePermix(permix)
 
-  const context = ref({ state: permix._.getState(), isReady: permix._.isReady })
+  const context = ref({ state: permix._.getState(), isReady: permix._.isReady() })
 
   app.provide(PERMIX_CONTEXT_KEY, context)
 

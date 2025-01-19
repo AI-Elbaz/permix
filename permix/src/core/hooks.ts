@@ -3,4 +3,5 @@ import { createHooks } from 'hookable'
 
 export const hooks = createHooks<{
   setup: (state: PermixState) => void
+  ready: () => void
 }>()

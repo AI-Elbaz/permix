@@ -116,7 +116,7 @@ export interface Permix<Permissions extends PermixDefinition> {
    * })
    * ```
    */
-  hook: (event: 'setup', callback: () => Promise<void> | void) => () => void
+  hook: typeof hooks.hook
 
   /**
    * Similar to `hook`, but will be called only once.
@@ -130,7 +130,7 @@ export interface Permix<Permissions extends PermixDefinition> {
    * })
    * ```
    */
-  hookOnce: (event: 'setup', callback: () => Promise<void> | void) => () => void
+  hookOnce: typeof hooks.hookOnce
 
   /**
    * Define permissions in different place to setup them later.
@@ -166,7 +166,7 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
     /**
      * Check if the setup was called
      */
-    isReady: boolean
+    isReady: () => boolean
 
     /**
      * Get latest setup state
@@ -215,6 +215,11 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
      * ```
      */
     getStateJSON: () => PermixStateJSON<Permissions>
+
+    /**
+     * Call a hook
+     */
+    callHook: typeof hooks.callHook
   }
 }
 
@@ -254,10 +259,14 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
     resolve = () => res(undefined)
   })
 
-  hooks.hook('setup', (r) => {
+  hooks.hook('setup', async (r) => {
     state = r as PermixState<Permissions>
-    isReady = true
+    await hooks.callHook('ready')
     resolve()
+  })
+
+  hooks.hook('ready', () => {
+    isReady = true
   })
 
   const permix = {
@@ -299,7 +308,7 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
     },
     [permixSymbol]: true,
     _: {
-      isReady,
+      isReady: () => isReady,
       getState: () => {
         return state as PermixState<Permissions>
       },
@@ -316,6 +325,7 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
       },
       setState(s) {
         state = s as PermixState<Permissions>
+        isReady = true
       },
       checkWithState(state, entity, action, data) {
         if (!state[entity]) {
@@ -337,6 +347,7 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
           return action ?? false
         })
       },
+      callHook: hooks.callHook,
     },
   } satisfies PermixInternal<Permissions>
 
