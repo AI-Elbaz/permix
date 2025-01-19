@@ -1,0 +1,190 @@
+---
+title: Role-based permissions
+---
+
+This example demonstrates how to implement role-based permissions in a any application.
+
+<Steps>
+
+<Step>
+
+## Setup
+
+Before you start, you need to install `permix` package. Just read [Quick Start](/docs/quick-start) guide.
+
+</Step>
+
+<Step>
+
+## Integration
+
+Not necessary, but you can use any integration to check permissions. In this example we will use [`react` integration](/docs/integrations/react).
+
+</Step>
+
+<Step>
+
+## Prepare Permix
+
+Small preparation with vanilla Permix instance and `usePermix` hook for React.
+
+<Tabs items={['/lib/permix.ts', '/hooks/use-permix.ts']}>
+
+<Tab value="/lib/permix.ts">
+
+```ts
+import { createPermix } from 'permix'
+
+// First, define the permissions for each entity
+// We'll add role-based access control in the next step
+export const permix = createPermix<{
+  post: {
+    action: 'create' | 'read' | 'update' | 'delete'
+  },
+  user: {
+    action: 'create' | 'read' | 'update' | 'delete'
+  }
+}>()
+
+// ...
+```
+
+</Tab>
+
+<Tab value="/hooks/use-permix.ts">
+
+```ts
+import { usePermix } from 'permix/react'
+import { permix } from './permix'
+
+// This trick is useful when you want to import only one hook
+// to avoid importing `permix` instance in your components.
+export const usePermissions = () => usePermix(permix)
+```
+
+</Tab>
+
+</Tabs>
+
+</Step>
+
+<Step>
+
+## Define roles templates
+
+To define roles templates, you can use `template` method.
+
+<Callout>
+Read more about templates in the [`template` guide](/docs/guide/template).
+</Callout>
+
+```ts title="/lib/permissions.ts"
+export const adminPermissions = permix.template({
+  post: {
+    create: true,
+    read: true,
+    update: true,
+    delete: true
+  },
+  user: {
+    create: true,
+    read: true,
+    update: true,
+    delete: true
+  }
+})
+
+export const userPermissions = permix.template({
+  post: {
+    read: true,
+    update: true,
+    delete: false,
+    create: false
+  },
+  user: {
+    read: true,
+    update: true,
+    delete: false,
+    create: false
+  }
+})
+```
+
+</Step>
+
+<Step>
+
+## Apply role
+
+And now you can apply a role to the user.
+
+```ts title="/lib/setup-permissions.ts"
+import { permix } from './permix'
+import { adminPermissions, userPermissions } from './permissions'
+
+export async function setupPermissions() {
+  const user = await getUser()
+
+  const rolesMap = {
+    admin: () => adminPermissions(),
+    user: () => userPermissions(user)
+  }
+
+  await permix.setup(rolesMap[user.role])
+}
+```
+
+```tsx title="/app.tsx"
+import { setupPermissions } from './lib/setup-permissions'
+
+export default function App() {
+  useEffect(() => {
+    setupPermissions()
+  }, [])
+
+  return <div>Hello World</div>
+}
+```
+
+</Step>
+
+<Step>
+
+## Usage
+
+Now you can use `usePermissions` hook to check permissions in your components.
+
+```tsx title="PostCreate.tsx"
+import { usePermissions } from './hooks/use-permix'
+
+export default function PostCreate() {
+  const { check } = usePermissions()
+
+  return (
+    <div>
+      Can I create a post? {check('post', 'create') ? 'Yes' : 'No'}
+    </div>
+  )
+}
+```
+
+If you don't need reactivity, you still can use `check` method from `permix` instance.
+
+```tsx title="PostCreate.tsx"
+import { permix } from './permix'
+
+export default function PostCreate() {
+  function handleCreatePost() {
+    if (!permix.check('post', 'create')) return
+
+    // ...
+  }
+
+  return <button onClick={handleCreatePost}>Create a post</button>
+}
+```
+
+</Step>
+
+</Steps>
+

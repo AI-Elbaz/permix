@@ -15,7 +15,9 @@
     "integrations/trpc",
     "integrations/express",
     "integrations/hono",
-    "------",
-    "[Examples](https://github.com/letstri/permix/tree/main/examples)"
+    "---Examples---",
+    "examples/role-based",
+    "examples/enum-based",
+    "[Repository examples](https://github.com/letstri/permix/tree/main/examples)"
   ]
 }

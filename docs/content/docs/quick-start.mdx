@@ -4,8 +4,6 @@ description: A quick start guide to start using Permix and validating your permi
 icon: RiPlayLargeLine
 ---
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-
 ## Try Permix
 
 Want to explore Permix before installing? Try our interactive sandbox environment where you can experiment with type-safe permissions management right in your browser.
@@ -16,100 +14,100 @@ Want to explore Permix before installing? Try our interactive sandbox environmen
 
 <Steps>
 
-  <Step>
+<Step>
 
-  ### Install Permix
+### Install Permix
 
-  Typically you'll need to install Permix using your package manager.
+Typically you'll need to install Permix using your package manager.
 
-  <Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
 
-  ```bash tab
-  npm install permix
-  ```
+```bash tab
+npm install permix
+```
 
-  ```bash tab
-  pnpm add permix
-  ```
+```bash tab
+pnpm add permix
+```
 
-  ```bash tab
-  yarn add permix
-  ```
+```bash tab
+yarn add permix
+```
 
-  ```bash tab
-  bun add permix
-  ```
+```bash tab
+bun add permix
+```
 
-  </Tabs>
+</Tabs>
 
-  </Step>
+</Step>
 
-  <Step>
+<Step>
 
-  ### Create an instance
+### Create an instance
 
-  To create a base instance, you need to provide a schema as a generic type to `createPermix` function that defines your permissions.
+To create a base instance, you need to provide a schema as a generic type to `createPermix` function that defines your permissions.
 
-  ```ts title="/lib/permix.ts"
-  import { createPermix } from 'permix'
+```ts title="/lib/permix.ts"
+import { createPermix } from 'permix'
 
-  export const permix = createPermix<{
-    post: {
-      action: 'create' | 'read' | 'update' | 'delete'
-    }
-  }>()
-  ```
+export const permix = createPermix<{
+  post: {
+    action: 'create' | 'read' | 'update' | 'delete'
+  }
+}>()
+```
 
-  Learn more about features and configuration of instances in the [instance guide](/docs/guide/instance).
+Learn more about features and configuration of instances in the [instance guide](/docs/guide/instance).
 
-  </Step>
+</Step>
 
-  <Step>
+<Step>
 
-  ### Setup your permissions
+### Setup your permissions
 
-  You can setup your permissions by calling `setup` method on your instance in any place you want.
+You can setup your permissions by calling `setup` method on your instance in any place you want.
 
-  ```ts
-  import { permix } from './lib/permix'
+```ts
+import { permix } from './lib/permix'
 
-  await permix.setup({
-    post: {
-      create: true,
-      read: true,
-      update: true,
-      delete: false,
-    },
-  })
-  ```
+await permix.setup({
+  post: {
+    create: true,
+    read: true,
+    update: true,
+    delete: false,
+  },
+})
+```
 
-  </Step>
+</Step>
 
-  <Step>
+<Step>
 
-  ### Check permissions
+### Check permissions
 
-  After setup, you can use `check` method to check available permissions.
+After setup, you can use `check` method to check available permissions.
 
-  ```ts
-  permix.check('post', 'create') // true
-  ```
+```ts
+permix.check('post', 'create') // true
+```
 
-  </Step>
+</Step>
 
-  <Step>
+<Step>
 
-  ### Finish
+### Finish
 
-  That's it! 🎉
+That's it! 🎉
 
-  You've now got a basic setup of Permix. The next step is to learn more about 3 core concepts of Permix:
+You've now got a basic setup of Permix. The next step is to learn more about 3 core concepts of Permix:
 
-  - [Instance](/docs/guide/instance)
-  - [Setup](/docs/guide/setup)
-  - [Check](/docs/guide/check)
-  - Of course, do not hesitate to read other guide pages.
+- [Instance](/docs/guide/instance)
+- [Setup](/docs/guide/setup)
+- [Check](/docs/guide/check)
+- Of course, do not hesitate to read other guide pages.
 
-  </Step>
+</Step>
 
 </Steps>
