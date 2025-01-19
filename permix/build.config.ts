@@ -6,7 +6,6 @@ export default defineBuildConfig({
   entries: [
     './src/core/index.ts',
     './src/react/index.ts',
-    './src/next/index.ts',
     './src/vue/index.ts',
     './src/trpc/index.ts',
     './src/express/index.ts',

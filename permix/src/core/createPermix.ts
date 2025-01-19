@@ -8,7 +8,7 @@ export type PermixDefinition = Record<string, {
 
 const permixSymbol = Symbol.for('permix')
 
-export type PermixJSON<Permissions extends PermixDefinition = PermixDefinition> = {
+export type PermixStateJSON<Permissions extends PermixDefinition = PermixDefinition> = {
   [Key in keyof Permissions]: {
     [Action in Permissions[Key]['action']]:
       | boolean
@@ -214,7 +214,7 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
      * // returns { post: { create: true, delete: false } }
      * ```
      */
-    getStateJSON: () => PermixJSON<Permissions>
+    getStateJSON: () => PermixStateJSON<Permissions>
   }
 }
 
@@ -304,7 +304,7 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
         return state as PermixState<Permissions>
       },
       getStateJSON: () => {
-        const processedSetup = {} as PermixJSON<Permissions>
+        const processedSetup = {} as PermixStateJSON<Permissions>
         for (const entity in state) {
           processedSetup[entity] = {} as any
           for (const action in state[entity]) {

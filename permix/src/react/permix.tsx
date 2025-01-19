@@ -1,7 +1,13 @@
+import type { Permix, PermixDefinition, PermixState } from '../core/createPermix'
 import * as React from 'react'
-import { type Permix, type PermixDefinition, type PermixState, validatePermix } from '../core/createPermix'
+import { validatePermix } from '../core/createPermix'
 
-export const PermixContext = React.createContext<{ state: PermixState<any>, isReady: boolean }>(null!)
+// eslint-disable-next-line react-refresh/only-export-components
+export const PermixContext = React.createContext<{
+  permix: Permix<any>
+  isReady: boolean
+  state: PermixState<any>
+}>(null!)
 
 /**
  * Provider that provides the Permix context to your React components.
@@ -14,17 +20,24 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 }: { children: React.ReactNode, permix: Permix<Permissions> }) {
   validatePermix(permix)
 
-  const [setup, setSetup] = React.useState({ state: permix._.getState(), isReady: permix._.isReady })
+  const [permixLocal, setPermixLocal] = React.useState(permix)
+  const [isReady, setIsReady] = React.useState(permix._.isReady)
+  const [state, setState] = React.useState(permix._.getState())
 
   React.useEffect(() => {
     return permix.hook('setup', () => {
-      setSetup({ state: permix._.getState(), isReady: true })
+      setPermixLocal(permix)
+      if (!isReady)
+        setIsReady(true)
+      setState(permix._.getState())
     })
   }, [permix])
 
+  const value = React.useMemo(() => ({ permix: permixLocal, isReady, state }), [permixLocal, isReady, state])
+
   return (
     // eslint-disable-next-line react/no-context-provider
-    <PermixContext.Provider value={setup}>
+    <PermixContext.Provider value={value}>
       {children}
     </PermixContext.Provider>
   )
@@ -47,9 +60,13 @@ export function usePermix<T extends PermixDefinition>(
     throw new Error('[Permix]: Looks like you forgot to wrap your app with <PermixProvider>')
   }
 
-  const check: typeof permix.check = React.useCallback((entity, action, data) => {
-    return permix._.checkWithState(context.state, entity, action, data)
-  }, [context.state, permix])
+  const { permix: permixContext, isReady, state } = context
 
-  return { check, isReady: context.isReady }
+  validatePermix(permixContext)
+
+  const check: typeof permix.check = React.useCallback((entity, action, data) => {
+    return permix._.checkWithState(state, entity, action, data)
+  }, [state, permix])
+
+  return { check, isReady }
 }

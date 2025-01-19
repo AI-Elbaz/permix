@@ -42,10 +42,6 @@
       "types": "./dist/react/index.d.ts",
       "import": "./dist/react/index.mjs"
     },
-    "./next": {
-      "types": "./dist/next/index.d.ts",
-      "import": "./dist/next/index.mjs"
-    },
     "./vue": {
       "types": "./dist/vue/index.d.ts",
       "import": "./dist/vue/index.mjs"
