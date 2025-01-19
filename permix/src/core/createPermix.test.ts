@@ -361,6 +361,32 @@ describe('createPermix', () => {
     expect(permix.check('post', 'create')).toBe(true)
   })
 
+  it('should work with enum based permissions', async () => {
+    enum PostPermission {
+      Create = 'create',
+      Read = 'read',
+      Update = 'update',
+      Delete = 'delete',
+    }
+
+    const permix = createPermix<{
+      post: {
+        action: PostPermission
+      }
+    }>()
+
+    await permix.setup({
+      post: {
+        [PostPermission.Create]: true,
+        [PostPermission.Read]: true,
+        [PostPermission.Update]: true,
+        [PostPermission.Delete]: true,
+      },
+    })
+
+    expect(permix.check('post', PostPermission.Create)).toBe(true)
+  })
+
   it('should throw an error if permissions are not valid', () => {
     expect(() => permix.template({
       // @ts-expect-error create isn't valid

@@ -6,9 +6,7 @@ export type PermixDefinition = Record<string, {
   action: string
 }>
 
-const setupSymbol = Symbol('setup')
-
-export type PermixSetupReturn = Promise<typeof setupSymbol>
+const permixSymbol = Symbol.for('permix')
 
 export type PermixJSON<Permissions extends PermixDefinition = PermixDefinition> = {
   [Key in keyof Permissions]: {
@@ -17,7 +15,7 @@ export type PermixJSON<Permissions extends PermixDefinition = PermixDefinition> 
   };
 }
 
-export type PermixSetup<Permissions extends PermixDefinition = PermixDefinition> = {
+export type PermixState<Permissions extends PermixDefinition = PermixDefinition> = {
   [Key in keyof Permissions]: {
     [Action in Permissions[Key]['action']]:
       | boolean
@@ -102,12 +100,14 @@ export interface Permix<Permissions extends PermixDefinition> {
    * })
    * ```
    */
-  setup: <Rules extends PermixSetup<Permissions>>(callback: Rules | (() => (Rules | Promise<Rules>))) => PermixSetupReturn
+  setup: <Rules extends PermixState<Permissions>>(callback: Rules | (() => (Rules | Promise<Rules>))) => Promise<void>
 
   /**
    * Register event handler.
    *
    * @link https://permix.letstri.dev/docs/guide/events
+   *
+   * @returns Function to remove the hook
    *
    * @example
    * ```ts
@@ -116,12 +116,21 @@ export interface Permix<Permissions extends PermixDefinition> {
    * })
    * ```
    */
-  hook: (event: 'setup', callback: () => Promise<void> | void) => void
+  hook: (event: 'setup', callback: () => Promise<void> | void) => () => void
 
   /**
    * Similar to `hook`, but will be called only once.
+   *
+   * @returns Function to remove the hook
+   *
+   * @example
+   * ```ts
+   * permix.hookOnce('setup', () => {
+   *   console.log('Permissions were updated')
+   * })
+   * ```
    */
-  hookOnce: (event: 'setup', callback: () => Promise<void> | void) => void
+  hookOnce: (event: 'setup', callback: () => Promise<void> | void) => () => void
 
   /**
    * Define permissions in different place to setup them later.
@@ -144,7 +153,9 @@ export interface Permix<Permissions extends PermixDefinition> {
    * await permix.setup(adminPermissions)
    * ```
    */
-  template: <T = void>(permissions: PermixSetup<Permissions> | ((param: T) => PermixSetup<Permissions>)) => (param: T) => PermixSetup<Permissions>
+  template: <T = void>(permissions: PermixState<Permissions> | ((param: T) => PermixState<Permissions>)) => (param: T) => PermixState<Permissions>
+
+  [permixSymbol]: true
 }
 
 export interface PermixInternal<Permissions extends PermixDefinition> extends Permix<Permissions> {
@@ -165,21 +176,31 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
      * await permix.setup({
      *   post: { create: true, delete: post => !post.isPublished }
      * })
-     * const permissions = permix._.getPermissions()
+     * const permissions = permix._.getState()
      * // returns { post: { create: true, delete: post => !post.isPublished } }
      * ```
      */
-    getPermissions: () => PermixSetup<Permissions>
+    getState: () => PermixState<Permissions>
+
+    /**
+     * Set new permissions state
+     *
+     * @example
+     * ```ts
+     * permix._.setState({ post: { create: true, delete: post => !post.isPublished } })
+     * ```
+     */
+    setState: (state: PermixState<Permissions>) => void
 
     /**
      * Check if an action is allowed for an entity using provided permissions
      *
      * @example
      * ```ts
-     * permix._.checkWithPermissions(permix._.getPermissions(), 'post', 'create')
+     * permix._.checkWithState(permix._.getState(), 'post', 'create')
      * ```
      */
-    checkWithPermissions: <K extends keyof Permissions>(setup: PermixSetup<Permissions>, entity: K, action: Permissions[K]['action'] | 'all' | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
+    checkWithState: <K extends keyof Permissions>(state: PermixState<Permissions>, entity: K, action: Permissions[K]['action'] | 'all' | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
 
     /**
      * Get current permissions in JSON format
@@ -189,11 +210,11 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
      * permix.setup({
      *   post: { create: true, delete: post => !post.isPublished }
      * })
-     * const permissions = permix.getJSON()
+     * const permissions = permix.getStateJSON()
      * // returns { post: { create: true, delete: false } }
      * ```
      */
-    getJSON: () => PermixJSON<Permissions> | null
+    getStateJSON: () => PermixJSON<Permissions>
   }
 }
 
@@ -225,7 +246,7 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
  * ```
  */
 export function createPermix<Permissions extends PermixDefinition>(): Permix<Permissions> {
-  let permissions: Partial<PermixSetup<Permissions>> = {}
+  let state: Partial<PermixState<Permissions>> = {}
   let isReady = false
   let resolve: () => void
 
@@ -234,29 +255,27 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
   })
 
   hooks.hook('setup', (r) => {
-    permissions = r as PermixSetup<Permissions>
+    state = r as PermixState<Permissions>
     isReady = true
     resolve()
   })
 
   const permix = {
     check(entity, action, data) {
-      return this._.checkWithPermissions(permissions as PermixSetup<Permissions>, entity, action, data)
+      return this._.checkWithState(state as PermixState<Permissions>, entity, action, data)
     },
     async checkAsync(entity, action, data) {
       await _promise
 
-      return this._.checkWithPermissions(permissions as PermixSetup<Permissions>, entity, action, data)
+      return this._.checkWithState(state as PermixState<Permissions>, entity, action, data)
     },
     async setup(permissions) {
       await hooks.callHook('setup', typeof permissions === 'function' ? await permissions() : permissions)
-
-      return Promise.resolve(setupSymbol)
     },
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
     template: (permissions) => {
-      function validate(p: PermixSetup<Permissions>) {
+      function validate(p: PermixState<Permissions>) {
         if (!isPermissionsValid(p)) {
           throw new Error('[Permix]: Permissions in template are not valid.')
         }
@@ -278,17 +297,32 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 
       return () => permissions
     },
+    [permixSymbol]: true,
     _: {
       isReady,
-      getPermissions: () => {
-        return permissions as PermixSetup<Permissions>
+      getState: () => {
+        return state as PermixState<Permissions>
       },
-      checkWithPermissions(permissions, entity, action, data) {
-        if (!permissions[entity]) {
+      getStateJSON: () => {
+        const processedSetup = {} as PermixJSON<Permissions>
+        for (const entity in state) {
+          processedSetup[entity] = {} as any
+          for (const action in state[entity]) {
+            const value = state[entity][action]
+            processedSetup[entity][action] = typeof value === 'function' ? false : value as boolean
+          }
+        }
+        return processedSetup
+      },
+      setState(s) {
+        state = s as PermixState<Permissions>
+      },
+      checkWithState(state, entity, action, data) {
+        if (!state[entity]) {
           return false
         }
 
-        const entityObj = permissions[entity]
+        const entityObj = state[entity]
         const actions = Array.isArray(action) ? action : [action]
 
         const actionValues = action === 'all'
@@ -303,21 +337,14 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
           return action ?? false
         })
       },
-      getJSON: () => {
-        const processedSetup = {} as PermixJSON<Permissions>
-        for (const entity in permissions) {
-          processedSetup[entity] = {} as any
-          for (const action in permissions[entity]) {
-            const value = permissions[entity][action]
-            processedSetup[entity][action] = typeof value === 'function' ? false : value as boolean
-          }
-        }
-        return processedSetup
-      },
     },
   } satisfies PermixInternal<Permissions>
 
   return permix as Permix<Permissions>
 }
 
-export const createPermixInternal = createPermix as <Permissions extends PermixDefinition>() => PermixInternal<Permissions>
+export function validatePermix<Permissions extends PermixDefinition>(permix: Permix<Permissions>): asserts permix is PermixInternal<Permissions> {
+  if (!(permix as PermixInternal<Permissions>)[permixSymbol]) {
+    throw new Error('[Permix]: Permix is not valid')
+  }
+}

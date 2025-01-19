@@ -1,7 +1,7 @@
-import type { Permix, PermixDefinition, PermixInternal, PermixSetup } from '../core/createPermix'
 import * as React from 'react'
+import { type Permix, type PermixDefinition, type PermixState, validatePermix } from '../core/createPermix'
 
-const PermixContext = React.createContext<{ permissions: PermixSetup<any>, isReady: boolean } | null>(null)
+export const PermixContext = React.createContext<{ state: PermixState<any>, isReady: boolean }>(null!)
 
 /**
  * Provider that provides the Permix context to your React components.
@@ -12,14 +12,15 @@ export function PermixProvider<Permissions extends PermixDefinition>({
   children,
   permix,
 }: { children: React.ReactNode, permix: Permix<Permissions> }) {
-  const _permix = permix as PermixInternal<any>
-  const [setup, setSetup] = React.useState({ permissions: _permix._.getPermissions(), isReady: _permix._.isReady })
+  validatePermix(permix)
+
+  const [setup, setSetup] = React.useState({ state: permix._.getState(), isReady: permix._.isReady })
 
   React.useEffect(() => {
-    _permix.hook('setup', () => {
-      setSetup({ permissions: _permix._.getPermissions(), isReady: true })
+    return permix.hook('setup', () => {
+      setSetup({ state: permix._.getState(), isReady: true })
     })
-  }, [_permix])
+  }, [permix])
 
   return (
     // eslint-disable-next-line react/no-context-provider
@@ -38,7 +39,8 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 export function usePermix<T extends PermixDefinition>(
   permix: Permix<T>,
 ) {
-  const _permix = permix as PermixInternal<any>
+  validatePermix(permix)
+
   const context = React.useContext(PermixContext)
 
   if (!context) {
@@ -46,8 +48,8 @@ export function usePermix<T extends PermixDefinition>(
   }
 
   const check: typeof permix.check = React.useCallback((entity, action, data) => {
-    return _permix._.checkWithPermissions(context.permissions, entity, action, data)
-  }, [context.permissions, _permix])
+    return permix._.checkWithState(context.state, entity, action, data)
+  }, [context.state, permix])
 
   return { check, isReady: context.isReady }
 }
