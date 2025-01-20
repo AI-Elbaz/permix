@@ -38,6 +38,10 @@ await permix.setup({
 })
 ```
 
+<Callout>
+You can also use `enum` based permissions. See [Enum-based](/docs/examples/enum-based) for more information.
+</Callout>
+
 ### Callback definition
 
 The `setup` method is an async function that requires awaiting due to event handlers. For cases where direct awaiting isn't possible, you can pass a callback function to `setup` to handle async operations internally.

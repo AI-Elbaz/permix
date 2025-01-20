@@ -113,18 +113,19 @@ export const adminPermissions = permix.template({
   }
 })
 
+// You can also use string literals - TypeScript will infer the enum type
 export const userPermissions = permix.template({
   post: {
-    [PostPermission.Create]: false,
-    [PostPermission.Read]: true,
-    [PostPermission.Update]: true,
-    [PostPermission.Delete]: false
+    create: false,
+    read: true,
+    update: true,
+    delete: false
   },
   user: {
-    [UserPermission.Create]: false,
-    [UserPermission.Read]: true,
-    [UserPermission.Update]: true,
-    [UserPermission.Delete]: false
+    create: false,
+    read: true,
+    update: true,
+    delete: false
   }
 })
 ```

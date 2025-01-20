@@ -96,7 +96,7 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
 }))
 
 // Setup permissions for signed in user
-function setupPermix() {
+async function setupPermix() {
   const user = await getUser()
   const permissionsMap = {
     editor: () => editorPermissions(),
