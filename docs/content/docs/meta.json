@@ -9,6 +9,7 @@
     "guide/check",
     "guide/template",
     "guide/events",
+    "guide/hydration",
     "---Integrations---",
     "integrations/react",
     "integrations/vue",

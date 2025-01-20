@@ -1,0 +1,100 @@
+---
+title: Hydration (SSR)
+description: Learn how to hydrate and dehydrate permissions in your application
+---
+
+## Overview
+
+Hydration is the process of converting server-side state into client-side state. In Permix, hydration allows you to serialize permissions on the server and restore them on the client without running setup logic again.
+
+## Usage
+
+Permix provides two methods for handling hydration:
+
+- `dehydrate` - Converts the current permissions state into a JSON-serializable format
+- `hydrate` - Restores permissions from a previously dehydrated state
+
+```ts
+import { dehydrate, hydrate } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'create' | 'read'
+  }
+}>()
+
+// Set up initial permissions
+await permix.setup({
+  post: {
+    create: true,
+    read: post => post.isPublic
+  }
+})
+
+// Dehydrate permissions to JSON
+const state = dehydrate(permix)
+// Result: { post: { create: true, read: false } }
+
+// Later, hydrate permissions from the state
+hydrate(permix, state)
+```
+
+<Callout>
+Note that function-based permissions will be converted to `false` during dehydration since functions cannot be serialized to JSON.
+</Callout>
+
+## Server-Side Rendering
+
+Hydration is particularly useful in server-side rendering scenarios where you want to transfer permissions from the server to the client:
+
+```ts
+// Express server
+import express from 'express'
+import { createPermix, dehydrate } from 'permix'
+
+const app = express()
+const permix = createPermix<{
+  post: {
+    action: 'create' | 'read'
+  }
+}>()
+
+app.get('/', async (req, res) => {
+  // Setup permissions on the server
+  await permix.setup({
+    post: {
+      create: true,
+      read: true
+    }
+  })
+
+  // Dehydrate permissions for client
+  const dehydratedState = dehydrate(permix)
+
+  // Send HTML with embedded permissions data
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <script>
+          window.__INITIAL_PERMISSIONS__ = ${JSON.stringify(dehydratedState)};
+        </script>
+      </head>
+      <body>
+        <div id="app"></div>
+        <script type="module">
+          // Client-side code
+          import { createPermix, hydrate } from 'https://cdn.jsdelivr.net/npm/permix/+esm'
+
+          const permix = createPermix();
+
+          // Hydrate permissions from server data
+          hydrate(permix, window.__INITIAL_PERMISSIONS__);
+
+          // Your app code here...
+        </script>
+      </body>
+    </html>
+  `)
+})
+```

@@ -13,7 +13,8 @@ Events are powered by the [`hookable`](https://github.com/unjs/hookable) package
 
 ## Usage
 
-You can register event handlers using the `hook` method:
+
+You can register event handlers using the `hook` and `hookOnce` methods:
 
 ```ts
 const permix = createPermix<{
@@ -22,8 +23,14 @@ const permix = createPermix<{
   }
 }>()
 
+// The handler will be called every time setup is executed
 permix.hook('setup', () => {
   console.log('Permissions were updated')
+})
+
+// The handler will be called only once
+permix.hookOnce('setup', () => {
+  console.log('Permissions were updated once')
 })
 
 // The handler will be called when setup is executed
@@ -39,3 +46,4 @@ Available events:
 
 - `setup` - Triggered when permissions are updated through the `setup` method.
 - `ready` - Triggered when the permissions are ready to be used.
+- `hydrate` - Triggered when the permissions are hydrated from the server. You can get the hydrated state by accessing the parameter of the handler. (Even here it's typed)
