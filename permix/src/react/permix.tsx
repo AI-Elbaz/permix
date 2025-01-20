@@ -40,7 +40,11 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 
   React.useEffect(() => {
     return permix.hook('setup', () => {
-      setContext(c => ({ ...c, isReady: permix._.isReady(), state: permix._.getState() }))
+      setContext(c => ({
+        ...c,
+        isReady: permix._.isReady(),
+        state: permix._.getState(),
+      }))
     })
   }, [permix])
 
@@ -86,9 +90,7 @@ export function PermixHydrate({ children, state }: { children: React.ReactNode, 
   validatePermix(permix)
 
   // Thanks TanStack Query for this trick: https://github.com/TanStack/query/blob/main/packages/react-query/src/HydrationBoundary.tsx#L56
-  React.useMemo(() => {
-    hydrate(permix, state)
-  }, [permix, state])
+  React.useMemo(() => hydrate(permix, state), [permix, state])
 
   return children
 }

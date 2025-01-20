@@ -1,4 +1,5 @@
-import { type Permix, type PermixDefinition, type PermixStateJSON, validatePermix } from './createPermix'
+import type { Permix, PermixDefinition, PermixStateJSON } from './createPermix'
+import { validatePermix } from './createPermix'
 
 export function dehydrate<Permissions extends PermixDefinition>(permix: Permix<Permissions>) {
   validatePermix(permix)
@@ -12,5 +13,8 @@ export function dehydrate<Permissions extends PermixDefinition>(permix: Permix<P
 
 export function hydrate<Permissions extends PermixDefinition>(permix: Permix<Permissions>, state: PermixStateJSON<Permissions>) {
   validatePermix(permix)
-  return permix._.setState(state)
+
+  permix._.setState(state)
+
+  return state
 }
