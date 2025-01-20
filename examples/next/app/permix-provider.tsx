@@ -6,11 +6,7 @@ import { useEffect } from 'react'
 
 export function PermixProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setupPermix()
-    }, 1000)
-
-    return () => clearTimeout(timeout)
+    setupPermix()
   }, [])
 
   return (
