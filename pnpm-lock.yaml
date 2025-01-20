@@ -109,7 +109,7 @@ importers:
         specifier: ^5.7.3
         version: 5.7.3
 
-  examples/next-client:
+  examples/next:
     dependencies:
       next:
         specifier: 15.1.5
