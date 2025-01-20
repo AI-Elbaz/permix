@@ -184,6 +184,8 @@ export default function PostCreate() {
   return (
     <div>
       Can I create a post? {check('post', PostPermission.Create) ? 'Yes' : 'No'}
+      {/* Or you can use string literals */}
+      Can I create a post? {check('post', 'create') ? 'Yes' : 'No'}
     </div>
   )
 }
