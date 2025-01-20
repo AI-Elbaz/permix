@@ -1,3 +1,2 @@
-export { createPermix } from './createPermix'
-export type { Permix, PermixDefinition } from './createPermix'
-export { dehydrate, hydrate } from './hydration'
+export { createPermix, type Permix, type PermixDefinition } from './createPermix'
+export { dehydrate, type DehydratedState, hydrate } from './hydration'

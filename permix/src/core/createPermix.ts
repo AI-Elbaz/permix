@@ -1,4 +1,4 @@
-import { hooks } from './hooks'
+import { createHooks } from './hooks'
 import { isPermissionsValid } from './utils'
 
 export type PermixDefinition = Record<string, {
@@ -116,7 +116,7 @@ export interface Permix<Permissions extends PermixDefinition> {
    * })
    * ```
    */
-  hook: typeof hooks.hook
+  hook: ReturnType<typeof createHooks<Permissions>>['hook']
 
   /**
    * Similar to `hook`, but will be called only once.
@@ -130,7 +130,7 @@ export interface Permix<Permissions extends PermixDefinition> {
    * })
    * ```
    */
-  hookOnce: typeof hooks.hookOnce
+  hookOnce: ReturnType<typeof createHooks<Permissions>>['hookOnce']
 
   /**
    * Define permissions in different place to setup them later.
@@ -155,6 +155,16 @@ export interface Permix<Permissions extends PermixDefinition> {
    */
   template: <T = void>(permissions: PermixState<Permissions> | ((param: T) => PermixState<Permissions>)) => (param: T) => PermixState<Permissions>
 
+  /**
+   * Check if the setup was called.
+   *
+   * @example
+   * ```ts
+   * const isReady = permix.isReady()
+   * ```
+   */
+  isReady: () => boolean
+
   [permixSymbol]: true
 }
 
@@ -163,11 +173,6 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
    * @internal
    */
   _: {
-    /**
-     * Check if the setup was called
-     */
-    isReady: () => boolean
-
     /**
      * Get latest setup state
      *
@@ -219,7 +224,7 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
     /**
      * Call a hook
      */
-    callHook: typeof hooks.callHook
+    hooks: ReturnType<typeof createHooks<Permissions>>
   }
 }
 
@@ -255,20 +260,20 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
   let isReady = false
   let resolveSetup: () => void
 
+  const hooks = createHooks<Permissions>()
+
   const setupPromise = new Promise((res) => {
     resolveSetup = () => res(undefined)
   })
 
-  function localSetup(r: PermixState<Permissions>) {
+  hooks.hook('setup', (r) => {
     state = r
     if (!isReady) {
       isReady = true
       hooks.callHook('ready')
     }
     resolveSetup()
-  }
-
-  hooks.hook('setup', localSetup)
+  })
 
   const permix = {
     check(entity, action, data) {
@@ -307,9 +312,9 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 
       return () => permissions
     },
+    isReady: () => isReady,
     [permixSymbol]: true,
     _: {
-      isReady: () => isReady,
       getState: () => {
         return state as PermixState<Permissions>
       },
@@ -325,7 +330,7 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
         return processedSetup
       },
       setState(s) {
-        localSetup(s as PermixState<Permissions>)
+        state = s
       },
       checkWithState(state, entity, action, data) {
         if (!state || !state[entity]) {
@@ -347,7 +352,7 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
           return action ?? false
         })
       },
-      callHook: hooks.callHook,
+      hooks,
     },
   } satisfies PermixInternal<Permissions>
 

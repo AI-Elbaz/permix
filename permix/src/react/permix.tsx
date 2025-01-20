@@ -34,7 +34,7 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 
   const [context, setContext] = React.useState<Context>({
     permix,
-    isReady: permix._.isReady(),
+    isReady: permix.isReady(),
     state: permix._.getState(),
   })
 
@@ -42,7 +42,7 @@ export function PermixProvider<Permissions extends PermixDefinition>({
     return permix.hook('setup', () => {
       setContext(c => ({
         ...c,
-        isReady: permix._.isReady(),
+        isReady: permix.isReady(),
         state: permix._.getState(),
       }))
     })
@@ -63,7 +63,7 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 }
 
 /**
- * Hook that provides the Permix context to your React components.
+ * Hook that provides the Permix reactive methods to your React components.
  *
  * @link https://permix.letstri.dev/docs/integrations/react
  */
@@ -77,11 +77,11 @@ export function usePermix<T extends PermixDefinition>(
 
   validatePermix(permixContext)
 
-  const check: typeof permix.check = React.useCallback((entity, action, data) => {
-    return permix._.checkWithState(state, entity, action, data)
-  }, [state, permix])
+  const check: typeof permixContext.check = React.useCallback((entity, action, data) => {
+    return permixContext._.checkWithState(state ?? permixContext._.getState(), entity, action, data)
+  }, [state, permixContext])
 
-  return { check, isReady }
+  return { check, isReady: isReady ?? permixContext.isReady() }
 }
 
 export function PermixHydrate({ children, state }: { children: React.ReactNode, state: PermixStateJSON<any> }) {
@@ -89,8 +89,9 @@ export function PermixHydrate({ children, state }: { children: React.ReactNode, 
 
   validatePermix(permix)
 
-  // Thanks TanStack Query for this trick: https://github.com/TanStack/query/blob/main/packages/react-query/src/HydrationBoundary.tsx#L56
-  React.useMemo(() => hydrate(permix, state), [permix, state])
+  hydrate(permix, state)
+
+  // React.useMemo(() => hydrate(permix, state), [permix, state])
 
   return children
 }
