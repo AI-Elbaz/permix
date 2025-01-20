@@ -380,7 +380,7 @@ describe('createPermix', () => {
         [PostPermission.Create]: true,
         [PostPermission.Read]: true,
         [PostPermission.Update]: true,
-        [PostPermission.Delete]: true,
+        delete: true,
       },
     })
 
@@ -412,5 +412,45 @@ describe('createPermix', () => {
     expect(() => permix.template(() => ({
       post: { create: null },
     }))()).toThrow()
+  })
+
+  it('should call setup hook', async () => {
+    const callback = vi.fn()
+
+    permix.hook('setup', callback)
+
+    await permix.setup({
+      post: {
+        create: true,
+        read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    expect(callback).toHaveBeenCalled()
+  })
+
+  it('should call ready hook', async () => {
+    const callback = vi.fn()
+
+    permix.hook('ready', callback)
+
+    await permix.setup({
+      post: {
+        create: true,
+        read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    expect(callback).toHaveBeenCalled()
   })
 })

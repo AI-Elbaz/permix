@@ -251,30 +251,31 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
  * ```
  */
 export function createPermix<Permissions extends PermixDefinition>(): Permix<Permissions> {
-  let state: Partial<PermixState<Permissions>> = {}
+  let state: PermixState<Permissions> | null = null
   let isReady = false
-  let resolve: () => void
+  let resolveSetup: () => void
 
-  const _promise = new Promise((res) => {
-    resolve = () => res(undefined)
+  const setupPromise = new Promise((res) => {
+    resolveSetup = () => res(undefined)
   })
 
-  hooks.hook('setup', async (r) => {
-    state = r as PermixState<Permissions>
-    await hooks.callHook('ready')
-    resolve()
-  })
+  function localSetup(r: PermixState<Permissions>) {
+    state = r
+    if (!isReady) {
+      isReady = true
+      hooks.callHook('ready')
+    }
+    resolveSetup()
+  }
 
-  hooks.hook('ready', () => {
-    isReady = true
-  })
+  hooks.hook('setup', localSetup)
 
   const permix = {
     check(entity, action, data) {
       return this._.checkWithState(state as PermixState<Permissions>, entity, action, data)
     },
     async checkAsync(entity, action, data) {
-      await _promise
+      await setupPromise
 
       return this._.checkWithState(state as PermixState<Permissions>, entity, action, data)
     },
@@ -324,11 +325,10 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
         return processedSetup
       },
       setState(s) {
-        state = s as PermixState<Permissions>
-        isReady = true
+        localSetup(s as PermixState<Permissions>)
       },
       checkWithState(state, entity, action, data) {
-        if (!state[entity]) {
+        if (!state || !state[entity]) {
           return false
         }
 
@@ -356,6 +356,6 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 
 export function validatePermix<Permissions extends PermixDefinition>(permix: Permix<Permissions>): asserts permix is PermixInternal<Permissions> {
   if (!(permix as PermixInternal<Permissions>)[permixSymbol]) {
-    throw new Error('[Permix]: Permix is not valid')
+    throw new Error('[Permix]: Permix instance is not valid')
   }
 }
