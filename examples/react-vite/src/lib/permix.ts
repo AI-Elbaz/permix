@@ -9,7 +9,7 @@ export const permix = createPermix<{
   }
 }>()
 
-export async function setupPermix(user: User) {
+export function setupPermix(user: User) {
   return permix.setup({
     post: {
       read: true,

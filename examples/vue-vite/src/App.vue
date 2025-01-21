@@ -9,9 +9,9 @@ const user = useUser()
 const { check, isReady } = usePermissions()
 const posts = usePosts()
 
-watch(user, async (user) => {
+watch(user, (user) => {
   if (user) {
-    await setupPermix(user)
+    setupPermix(user)
   }
 })
 </script>

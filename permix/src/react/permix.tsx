@@ -34,17 +34,13 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 
   const [context, setContext] = React.useState<Context>({
     permix,
-    isReady: permix.isReady(),
+    isReady: false,
     state: permix._.getState(),
   })
 
   React.useEffect(() => {
     return permix.hook('setup', () => {
-      setContext(c => ({
-        ...c,
-        isReady: permix.isReady(),
-        state: permix._.getState(),
-      }))
+      setContext(c => ({ ...c, state: permix._.getState() }))
     })
   }, [permix])
 
@@ -79,9 +75,9 @@ export function usePermix<T extends PermixDefinition>(
 
   const check: typeof permixContext.check = React.useCallback((entity, action, data) => {
     return permixContext._.checkWithState(state ?? permixContext._.getState(), entity, action, data)
-  }, [state, permixContext])
+  }, [permixContext, state])
 
-  return { check, isReady: isReady ?? permixContext.isReady() }
+  return { check, isReady }
 }
 
 export function PermixHydrate({ children, state }: { children: React.ReactNode, state: PermixStateJSON<any> }) {
@@ -89,9 +85,7 @@ export function PermixHydrate({ children, state }: { children: React.ReactNode, 
 
   validatePermix(permix)
 
-  hydrate(permix, state)
-
-  // React.useMemo(() => hydrate(permix, state), [permix, state])
+  React.useMemo(() => hydrate(permix, state), [permix, state])
 
   return children
 }

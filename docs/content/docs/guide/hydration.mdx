@@ -24,7 +24,7 @@ const permix = createPermix<{
 }>()
 
 // Set up initial permissions
-await permix.setup({
+permix.setup({
   post: {
     create: true,
     read: post => post.isPublic
@@ -59,9 +59,9 @@ const permix = createPermix<{
   }
 }>()
 
-app.get('/', async (req, res) => {
+app.get('/', (req, res) => {
   // Setup permissions on the server
-  await permix.setup({
+  permix.setup({
     post: {
       create: true,
       read: true

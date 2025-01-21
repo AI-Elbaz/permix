@@ -34,7 +34,7 @@ permix.hookOnce('setup', () => {
 })
 
 // The handler will be called when setup is executed
-await permix.setup({
+permix.setup({
   post: {
     create: true,
     read: true
@@ -46,4 +46,4 @@ Available events:
 
 - `setup` - Triggered when permissions are updated through the `setup` method.
 - `ready` - Triggered when the permissions are ready to be used.
-- `hydrate` - Triggered when the permissions are hydrated from the server. You can get the hydrated state by accessing the parameter of the handler. (Even here it's typed)
+- `hydrate` - Triggered when the permissions are hydrated from the server.

@@ -3,12 +3,12 @@ import { dehydrate } from 'permix'
 import { PermixHydrate } from 'permix/react'
 import { PermixProvider } from './permix-provider'
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  await setupPermix()
+  setupPermix()
 
   return (
     <html lang="en">

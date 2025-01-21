@@ -6,8 +6,8 @@ export const permix = createPermix<{
   }
 }>()
 
-export async function setupPermix() {
-  await permix.setup({
+export function setupPermix() {
+  permix.setup({
     post: {
       create: true,
       read: true,

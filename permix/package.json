@@ -71,9 +71,6 @@
     "scripts:copy-readme": "tsx ./scripts/copy-readme",
     "scripts:update-coverage": "vitest run --coverage && tsx ./scripts/update-coverage"
   },
-  "dependencies": {
-    "hookable": "^5.5.3"
-  },
   "optionalDependencies": {
     "@trpc/server": ">=10",
     "express": ">=4",

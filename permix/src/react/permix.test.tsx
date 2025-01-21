@@ -7,7 +7,7 @@ import { PermixHydrate, PermixProvider, usePermix } from './index'
 import '@testing-library/jest-dom/vitest'
 
 describe('permix react', () => {
-  it('should work with custom hook', async () => {
+  it('should work with custom hook', () => {
     const permix = createPermix<{
       post: {
         dataType: { id: string }
@@ -15,7 +15,7 @@ describe('permix react', () => {
       }
     }>()
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: true,
         read: false,
@@ -42,7 +42,7 @@ describe('permix react', () => {
       }
     }>()
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: post => post.id === '1',
         read: false,
@@ -71,7 +71,7 @@ describe('permix react', () => {
     expect(getByTestId('create')).toHaveTextContent('true')
     expect(getByTestId('read')).toHaveTextContent('false')
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: post => post.id === '2',
         read: true,
@@ -105,7 +105,7 @@ describe('permix react', () => {
 
     expect(container.firstChild).toHaveTextContent('false')
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: true,
         read: false,
@@ -117,34 +117,43 @@ describe('permix react', () => {
     })
   })
 
-  it('should hydrate state correctly', async () => {
-    const permix = createPermix<{
+  it('should check hydration', async () => {
+    const permixServer = createPermix<{
       post: {
         dataType: { id: string }
         action: 'create' | 'read'
       }
     }>()
 
-    await permix.setup({
+    permixServer.setup({
       post: {
         create: true,
         read: false,
       },
     })
 
+    const dehydrated = dehydrate(permixServer)
+
+    const permixClient = createPermix<{
+      post: {
+        dataType: { id: string }
+        action: 'create' | 'read'
+      }
+    }>()
+
     const TestComponent = () => {
-      const { isReady } = usePermix(permix)
-      return <div data-testid="ready-state">{isReady.toString()}</div>
+      const { check } = usePermix(permixClient)
+      return <div>{check('post', 'create').toString()}</div>
     }
 
-    const { getByTestId } = render(
-      <PermixProvider permix={permix}>
-        <PermixHydrate state={dehydrate(permix)}>
+    const { container } = render(
+      <PermixProvider permix={permixClient}>
+        <PermixHydrate state={dehydrated}>
           <TestComponent />
         </PermixHydrate>
       </PermixProvider>,
     )
 
-    expect(getByTestId('ready-state')).toHaveTextContent('true')
+    expect(container.firstChild).toHaveTextContent('true')
   })
 })

@@ -21,7 +21,7 @@ export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) =
 
   app.provide(PERMIX_CONTEXT_KEY, context)
 
-  permix.hook('setup', async () => {
+  permix.hook('setup', () => {
     context.value = { state: permix._.getState(), isReady: true }
   })
 }

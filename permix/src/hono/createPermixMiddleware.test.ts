@@ -41,8 +41,8 @@ describe('createPermixMiddleware', () => {
   it('should allow access when permission is granted', async () => {
     const app = new Hono()
 
-    app.use('*', async (c, next) => {
-      await permix.setup({
+    app.use('*', (c, next) => {
+      permix.setup({
         post: {
           create: true,
           read: false,
@@ -52,7 +52,7 @@ describe('createPermixMiddleware', () => {
           delete: false,
         },
       })
-      await next()
+      return next()
     })
 
     app.post('/posts', check('post', 'create'), (c) => {
@@ -71,8 +71,8 @@ describe('createPermixMiddleware', () => {
   it('should deny access when permission is not granted', async () => {
     const app = new Hono()
 
-    app.use('*', async (c, next) => {
-      await permix.setup({
+    app.use('*', (c, next) => {
+      permix.setup({
         post: {
           create: false,
           read: false,
@@ -82,7 +82,7 @@ describe('createPermixMiddleware', () => {
           delete: false,
         },
       })
-      await next()
+      return next()
     })
 
     app.post('/posts', check('post', 'create'), (c) => {
@@ -105,8 +105,8 @@ describe('createPermixMiddleware', () => {
 
     const app = new Hono()
 
-    app.use('*', async (c, next) => {
-      await permix.setup({
+    app.use('*', (c, next) => {
+      permix.setup({
         post: {
           create: false,
           read: false,
@@ -116,7 +116,7 @@ describe('createPermixMiddleware', () => {
           delete: false,
         },
       })
-      await next()
+      return next()
     })
 
     app.post('/posts', check('post', 'create'), (c) => {
@@ -139,8 +139,8 @@ describe('createPermixMiddleware', () => {
 
     const app = new Hono()
 
-    app.use('*', async (c, next) => {
-      await permix.setup({
+    app.use('*', (c, next) => {
+      permix.setup({
         post: {
           create: false,
           read: false,
@@ -150,7 +150,7 @@ describe('createPermixMiddleware', () => {
           delete: false,
         },
       })
-      await next()
+      return next()
     })
 
     app.post('/posts', check('post', 'create'), (c) => {

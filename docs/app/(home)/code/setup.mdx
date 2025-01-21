@@ -4,7 +4,7 @@ import { permix } from './permix'
 
 const user = await fetchUser()
 
-await permix.setup({
+permix.setup({
   post: {
     create: true,
     edit: post => !post.published,

@@ -23,7 +23,7 @@ const permix = createPermix<{
   }
 }>()
 
-await permix.setup({
+permix.setup({
   post: {
     read: true,
   }
@@ -103,11 +103,11 @@ async function setupPermix() {
     user: () => userPermissions(user),
   }
 
-  return permix.setup(permissionsMap[user.role]())
+  permix.setup(permissionsMap[user.role]())
 }
 
 // Call setupPermix where you need to setup permissions
-await setupPermix()
+setupPermix()
 
 // Check if a user has permission to do something
 permix.check('post', 'create')

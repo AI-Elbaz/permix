@@ -20,7 +20,7 @@ const adminPermissions = permix.template({
 })
 
 // Later, use the template to setup permissions
-await permix.setup(adminPermissions())
+permix.setup(adminPermissions())
 ```
 
 ## Dynamic Templates
@@ -43,7 +43,7 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
 
 // Use with specific user data
 const user = await getUser()
-await permix.setup(userPermissions(user))
+permix.setup(userPermissions(user))
 ```
 
 ## Type Safety

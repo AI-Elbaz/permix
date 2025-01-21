@@ -33,8 +33,8 @@ describe('createPermixInternal', () => {
     expect(() => validatePermix({} as Permix<{ post: { action: 'create' } }>)).toThrow()
   })
 
-  it('should work with getStateJSON', async () => {
-    await permix.setup({
+  it('should work with getStateJSON', () => {
+    permix.setup({
       post: {
         create: true,
         read: true,
@@ -50,12 +50,12 @@ describe('createPermixInternal', () => {
     expect(permix._.checkWithState(permix._.getState(), 'post', 'create')).toBe(true)
   })
 
-  it('should return JSON permissions with setup', async () => {
+  it('should return JSON permissions with setup', () => {
     function validatePost(post: { id: string }) {
       return post.id === '1'
     }
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: validatePost,
         read: true,
@@ -71,23 +71,5 @@ describe('createPermixInternal', () => {
     expect(permix._.getState()).toEqual({
       post: { create: validatePost, read: true, update: true },
     })
-  })
-
-  it('should set new state', () => {
-    validatePermix(permix)
-
-    permix._.setState({ post: { create: true, read: true, update: true } })
-    expect(permix._.getState()).toEqual({ post: { create: true, read: true, update: true } })
-  })
-
-  it('should set new state with functions', () => {
-    validatePermix(permix)
-
-    function validatePost(post: { id: string }) {
-      return post.id === '1'
-    }
-
-    permix._.setState({ post: { create: true, read: true, update: validatePost } })
-    expect(permix._.getState()).toEqual({ post: { create: true, read: true, update: validatePost } })
   })
 })

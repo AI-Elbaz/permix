@@ -36,8 +36,8 @@ describe('createPermixMiddleware', () => {
   })
 
   it('should allow access when permission is defined', async () => {
-    const protectedProcedure = t.procedure.use(async ({ next }) => {
-      await permix.setup({
+    const protectedProcedure = t.procedure.use(({ next }) => {
+      permix.setup({
         post: {
           create: true,
           read: true,
@@ -64,8 +64,8 @@ describe('createPermixMiddleware', () => {
   })
 
   it('should deny access when permission is not granted', async () => {
-    const protectedProcedure = t.procedure.use(async ({ next }) => {
-      await permix.setup({
+    const protectedProcedure = t.procedure.use(({ next }) => {
+      permix.setup({
         post: {
           create: false,
           read: false,
@@ -100,8 +100,8 @@ describe('createPermixMiddleware', () => {
       unauthorizedError: customError,
     })
 
-    const protectedProcedure = t.procedure.use(async ({ next }) => {
-      await permix.setup({
+    const protectedProcedure = t.procedure.use(({ next }) => {
+      permix.setup({
         post: {
           create: false,
           read: false,
@@ -143,8 +143,8 @@ describe('createPermixMiddleware', () => {
       },
     })
 
-    const protectedProcedure = t.procedure.use(async ({ next }) => {
-      await permix.setup({
+    const protectedProcedure = t.procedure.use(({ next }) => {
+      permix.setup({
         post: {
           create: false,
           read: false,
@@ -172,8 +172,8 @@ describe('createPermixMiddleware', () => {
   })
 
   it('should chain multiple permissions', async () => {
-    const protectedProcedure = t.procedure.use(async ({ next }) => {
-      await permix.setup({
+    const protectedProcedure = t.procedure.use(({ next }) => {
+      permix.setup({
         post: {
           create: true,
           read: true,
@@ -200,8 +200,8 @@ describe('createPermixMiddleware', () => {
   })
 
   it('should save types for context and input', async () => {
-    const protectedProcedure = t.procedure.use(async ({ next }) => {
-      await permix.setup({
+    const protectedProcedure = t.procedure.use(({ next }) => {
+      permix.setup({
         post: {
           create: true,
           read: true,

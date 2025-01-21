@@ -94,14 +94,14 @@ describe('hydration', () => {
     expect(permix.check('post', 'all')).toBe(false)
   })
 
-  it('should dehydrate permissions to JSON state', async () => {
+  it('should dehydrate permissions to JSON state', () => {
     const permix = createPermix<{
       post: {
         action: 'create' | 'read'
       }
     }>()
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: true,
         read: false,

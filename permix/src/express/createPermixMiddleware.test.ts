@@ -30,8 +30,8 @@ describe('createPermixMiddleware', () => {
   it('should allow access when permission is granted', async () => {
     const app = express()
 
-    app.use('*', async (req, res, next) => {
-      await permix.setup({
+    app.use('*', (req, res, next) => {
+      permix.setup({
         post: {
           create: true,
           read: false,
@@ -59,8 +59,8 @@ describe('createPermixMiddleware', () => {
   it('should deny access when permission is not granted', async () => {
     const app = express()
 
-    app.use('*', async (req, res, next) => {
-      await permix.setup({
+    app.use('*', (req, res, next) => {
+      permix.setup({
         post: {
           create: false,
           read: false,
@@ -92,8 +92,8 @@ describe('createPermixMiddleware', () => {
 
     const app = express()
 
-    app.use('*', async (req, res, next) => {
-      await permix.setup({
+    app.use('*', (req, res, next) => {
+      permix.setup({
         post: {
           create: false,
           read: false,
@@ -125,8 +125,8 @@ describe('createPermixMiddleware', () => {
 
     const app = express()
 
-    app.use('*', async (req, res, next) => {
-      await permix.setup({
+    app.use('*', (req, res, next) => {
+      permix.setup({
         post: {
           create: false,
           read: false,

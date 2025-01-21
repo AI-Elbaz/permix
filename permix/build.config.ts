@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { defineBuildConfig } from 'unbuild'
-import { dependencies, optionalDependencies } from './package.json'
+import { optionalDependencies } from './package.json'
 
 export default defineBuildConfig({
   entries: [
@@ -13,7 +13,6 @@ export default defineBuildConfig({
   ],
   declaration: true,
   externals: [
-    ...Object.keys(dependencies),
     ...Object.keys(optionalDependencies),
   ],
   hooks: {

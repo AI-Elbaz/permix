@@ -6,7 +6,7 @@ import { createPermix } from '../core/createPermix'
 import { permixPlugin, usePermix } from './index'
 
 describe('permix vue', () => {
-  it('should work with custom hook', async () => {
+  it('should work with custom hook', () => {
     const permix = createPermix<{
       post: {
         dataType: { id: string }
@@ -14,7 +14,7 @@ describe('permix vue', () => {
       }
     }>()
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: true,
         read: false,
@@ -49,7 +49,7 @@ describe('permix vue', () => {
       }
     }>()
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: post => post.id === '1',
         read: false,
@@ -84,7 +84,7 @@ describe('permix vue', () => {
     expect(wrapper.get('[data-testid="create"]').text()).toBe('true')
     expect(wrapper.get('[data-testid="read"]').text()).toBe('false')
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: post => post.id === '2',
         read: true,
@@ -121,7 +121,7 @@ describe('permix vue', () => {
 
     expect(wrapper.get('div').text()).toBe('false')
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: true,
         read: false,

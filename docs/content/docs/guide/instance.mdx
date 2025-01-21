@@ -92,7 +92,7 @@ const permix = createPermix<{
   }
 }>()
 
-await permix.setup({
+permix.setup({
   post: {
     create: true,
     edit: post => post.author === 'John Doe'

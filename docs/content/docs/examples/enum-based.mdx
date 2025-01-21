@@ -150,7 +150,7 @@ export async function setupPermissions() {
     user: () => userPermissions(user)
   }
 
-  await permix.setup(rolesMap[user.role])
+  permix.setup(rolesMap[user.role])
 }
 ```
 

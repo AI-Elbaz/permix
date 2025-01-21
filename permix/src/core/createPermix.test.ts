@@ -47,8 +47,8 @@ describe('createPermix', () => {
     createPermix()
   })
 
-  it('should setup rules', async () => {
-    await permix.setup({
+  it('should setup rules', () => {
+    permix.setup({
       post: {
         create: true,
         read: true,
@@ -63,28 +63,8 @@ describe('createPermix', () => {
     expect(permix.check('post', 'read')).toBe(true)
   })
 
-  it('shouldn\'t work if setup is no awaited', async () => {
+  it('should return true if permission is defined', () => {
     permix.setup({
-      post: {
-        create: true,
-        read: true,
-      },
-      comment: {
-        create: true,
-        read: true,
-        update: true,
-      },
-    })
-
-    expect(permix.check('post', 'read')).toBe(false)
-  })
-
-  it('should to be false if setup is not awaited', () => {
-    expect(permix.check('post', 'read')).toBe(false)
-  })
-
-  it('should return true if permission is defined', async () => {
-    await permix.setup({
       post: {
         create: true,
         read: true,
@@ -99,8 +79,8 @@ describe('createPermix', () => {
     expect(permix.check('post', 'create')).toBe(true)
   })
 
-  it('should return false if permission is not defined', async () => {
-    await permix.setup({
+  it('should return false if permission is not defined', () => {
+    permix.setup({
       post: {
         create: true,
         read: true,
@@ -117,8 +97,8 @@ describe('createPermix', () => {
     expect(permix.check('post', 'not-exist')).toBe(false)
   })
 
-  it('should return false if entity is not defined', async () => {
-    await permix.setup({
+  it('should return false if entity is not defined', () => {
+    permix.setup({
       post: {
         create: true,
         read: true,
@@ -134,8 +114,8 @@ describe('createPermix', () => {
     expect(permix.check('user', 'create')).toBe(false)
   })
 
-  it('should validate permission as function', async () => {
-    await permix.setup({
+  it('should validate permission as function', () => {
+    permix.setup({
       post: {
         create: post => post.authorId === '1',
         read: true,
@@ -155,8 +135,8 @@ describe('createPermix', () => {
   })
 
   it('should work with async check', async () => {
-    setTimeout(async () => {
-      await permix.setup({
+    setTimeout(() => {
+      permix.setup({
         post: {
           create: true,
           read: true,
@@ -172,7 +152,7 @@ describe('createPermix', () => {
     expect(permix.check('post', 'create')).toBe(false)
     expect(await permix.checkAsync('post', 'create')).toBe(true)
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: false,
         read: true,
@@ -187,82 +167,12 @@ describe('createPermix', () => {
     expect(permix.check('post', 'create')).toBe(false)
   })
 
-  it('should work with setup as function', async () => {
-    await permix.setup(() => ({
-      post: {
-        create: true,
-        read: true,
-      },
-      comment: {
-        create: true,
-        read: true,
-        update: true,
-      },
-    }))
-
-    expect(permix.check('post', 'create')).toBe(true)
-  })
-
-  it('should setup async function', async () => {
-    await permix.setup(async () => {
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      return {
-        post: {
-          create: true,
-          read: true,
-        },
-        comment: {
-          create: true,
-          read: true,
-          update: true,
-        },
-      }
-    })
-
-    expect(permix.check('post', 'create')).toBe(true)
-  })
-
-  it('should work with conditionally setup async function', async () => {
-    await permix.setup(async () => {
-      const isAdmin = await new Promise(resolve => setTimeout(() => resolve(true), 100)) as boolean
-
-      if (isAdmin) {
-        return {
-          post: {
-            create: true,
-            read: true,
-          },
-          comment: {
-            create: true,
-            read: true,
-            update: true,
-          },
-        }
-      }
-
-      return {
-        post: {
-          create: false,
-          read: false,
-        },
-        comment: {
-          create: false,
-          read: false,
-          update: false,
-        },
-      }
-    })
-
-    expect(permix.check('post', 'create')).toBe(true)
-  })
-
-  it('should call onUpdate callback', async () => {
+  it('should call hook setup', () => {
     const callback = vi.fn()
 
     permix.hook('setup', callback)
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: true,
         read: true,
@@ -277,22 +187,42 @@ describe('createPermix', () => {
     expect(callback).toHaveBeenCalled()
   })
 
-  it('should work without dataType', async () => {
+  it('should call hook ready', () => {
+    const callback = vi.fn()
+
+    permix.hook('ready', callback)
+
+    permix.setup({
+      post: {
+        create: true,
+        read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    expect(callback).toHaveBeenCalled()
+  })
+
+  it('should work without dataType', () => {
     const permix = createPermix<{
       post: {
         action: 'create'
       }
     }>()
 
-    await permix.setup({
+    permix.setup({
       post: { create: true },
     })
 
     expect(permix.check('post', 'create')).toBe(true)
   })
 
-  it('should check all permissions', async () => {
-    await permix.setup({
+  it('should check all permissions', () => {
+    permix.setup({
       post: {
         create: true,
         read: true,
@@ -306,7 +236,7 @@ describe('createPermix', () => {
 
     expect(permix.check('post', 'all')).toBe(true)
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: true,
         read: false,
@@ -321,7 +251,7 @@ describe('createPermix', () => {
     expect(permix.check('post', 'all')).toBe(false)
   })
 
-  it('should define permissions with template', async () => {
+  it('should define permissions with template', () => {
     const permix = createPermix<{
       post: {
         action: 'create'
@@ -340,12 +270,12 @@ describe('createPermix', () => {
       },
     })
 
-    await permix.setup(permissions())
+    permix.setup(permissions())
 
     expect(permix.check('post', 'create')).toBe(true)
   })
 
-  it('should define permissions with template and param', async () => {
+  it('should define permissions with template and param', () => {
     const permix = createPermix<{
       post: {
         action: 'create'
@@ -356,12 +286,12 @@ describe('createPermix', () => {
       post: { create: userId === '1' },
     }))
 
-    await permix.setup(permissions({ userId: '1' }))
+    permix.setup(permissions({ userId: '1' }))
 
     expect(permix.check('post', 'create')).toBe(true)
   })
 
-  it('should work with enum based permissions', async () => {
+  it('should work with enum based permissions', () => {
     enum PostPermission {
       Create = 'create',
       Read = 'read',
@@ -375,7 +305,7 @@ describe('createPermix', () => {
       }
     }>()
 
-    await permix.setup({
+    permix.setup({
       post: {
         [PostPermission.Create]: true,
         [PostPermission.Read]: true,
@@ -414,12 +344,12 @@ describe('createPermix', () => {
     }))()).toThrow()
   })
 
-  it('should call setup hook', async () => {
+  it('should call setup hook', () => {
     const callback = vi.fn()
 
     permix.hook('setup', callback)
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: true,
         read: true,
@@ -434,12 +364,12 @@ describe('createPermix', () => {
     expect(callback).toHaveBeenCalled()
   })
 
-  it('should call ready hook', async () => {
+  it('should call ready hook', () => {
     const callback = vi.fn()
 
     permix.hook('ready', callback)
 
-    await permix.setup({
+    permix.setup({
       post: {
         create: true,
         read: true,

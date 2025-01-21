@@ -1,0 +1,63 @@
+---
+title: Ready State
+description: Learn how to use the `isReady()` method to check if permissions are ready to use.
+---
+
+## Overview
+
+Sometimes you need to know when permissions are ready to use. For example, you might want to wait for permissions to be ready before rendering a component. That's where the `isReady()` method comes in.
+
+<Callout type="warn">
+Note that `isReady()` will always return `false` during server-side rendering. It only becomes `true` after the first successful call to `setup()` on the client.
+</Callout>
+
+
+## Usage
+
+Permix provides an `isReady()` method to check if permissions have been properly initialized on the client side.
+
+```ts
+const permix = createPermix()
+
+// Initially false
+console.log(permix.isReady()) // false
+
+// After setup completes
+permix.setup({
+  post: {
+    create: true,
+    read: true
+  }
+})
+console.log(permix.isReady()) // true
+```
+
+This is particularly useful in SSR applications when using function-based permissions, since the dehydration process converts all function permissions to `false` until they are properly rehydrated on the client.
+
+<Callout>
+Read more about [hydration](/guide/hydration) to learn how to transfer permissions from the server to the client.
+</Callout>
+
+```ts
+import { dehydrate, hydrate, createPermix } from 'permix'
+import { permix } from './permix'
+
+permix.setup({
+  post: {
+    create: true,
+    read: post => post.isPublic
+  }
+})
+
+// Dehydrate permissions on the server
+const state = dehydrate(permix)
+// { post: { create: true, read: false } }
+
+// Rehydrate permissions on the client
+hydrate(permix, state)
+
+permix.hook('ready', (state) => {
+  const canRead = permix.check('post', 'read', { isPublic: true })
+  console.log(canRead) // true
+})
+```
