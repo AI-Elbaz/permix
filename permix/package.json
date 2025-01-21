@@ -5,7 +5,7 @@
   "version": "0.8.0",
   "private": false,
   "packageManager": "pnpm@9.15.4",
-  "description": "A simple and type-safe permissions library for React, Vue, and more.",
+  "description": "Permix is a lightweight, framework-agnostic, type-safe permissions management library for JavaScript applications on the client and server sides.",
   "author": "Valerii Strilets",
   "license": "MIT",
   "funding": "https://github.com/sponsors/letstri",
@@ -46,6 +46,10 @@
       "types": "./dist/vue/index.d.ts",
       "import": "./dist/vue/index.mjs"
     },
+    "./nuxt": {
+      "types": "./dist/nuxt/index.d.ts",
+      "import": "./dist/nuxt/index.mjs"
+    },
     "./trpc": {
       "types": "./dist/trpc/index.d.ts",
       "import": "./dist/trpc/index.mjs"
@@ -72,10 +76,10 @@
     "scripts:update-coverage": "vitest run --coverage && tsx ./scripts/update-coverage"
   },
   "optionalDependencies": {
-    "@nuxt/kit": ">=3",
     "@trpc/server": ">=10",
     "express": ">=4",
     "hono": ">=4",
+    "nuxt": ">=3",
     "react": ">=18",
     "vue": ">=3"
   },

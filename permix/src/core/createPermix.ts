@@ -192,8 +192,6 @@ export interface Permix<Permissions extends PermixDefinition> {
    * ```
    */
   isReady: () => boolean
-
-  [permixSymbol]: true
 }
 
 export interface PermixInternal<Permissions extends PermixDefinition> extends Permix<Permissions> {
@@ -252,6 +250,8 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
     hooks: ReturnType<typeof createHooks<Permissions>>
 
     isSetupCalled: () => boolean
+
+    [permixSymbol]: true
   }
 }
 
@@ -347,7 +347,6 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
       return () => permissions
     },
     isReady: () => isReady,
-    [permixSymbol]: true,
     _: {
       isSetupCalled: () => isSetupCalled,
       getState: () => {
@@ -369,6 +368,7 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
         return processedSetup
       },
       hooks,
+      [permixSymbol]: true,
     },
   } satisfies PermixInternal<Permissions>
 
@@ -376,7 +376,7 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 }
 
 export function validatePermix<Permissions extends PermixDefinition>(permix: Permix<Permissions>): asserts permix is PermixInternal<Permissions> {
-  if (!(permix as PermixInternal<Permissions>)[permixSymbol]) {
+  if (!(permix as PermixInternal<Permissions>)._[permixSymbol]) {
     throw new Error('[Permix]: Permix instance is not valid')
   }
 }

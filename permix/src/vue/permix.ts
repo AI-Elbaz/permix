@@ -1,13 +1,9 @@
-import type { InjectionKey, Plugin, Ref } from 'vue'
+import type { Plugin, Ref } from 'vue'
 import type { Permix, PermixDefinition, PermixState } from '../core/createPermix'
 import { computed, inject, ref } from 'vue'
 import { validatePermix } from '../core/createPermix'
 
-const PERMIX_CONTEXT_KEY: InjectionKey<Ref<{
-  permix: Permix<any>
-  isReady: boolean
-  state: PermixState<any>
-}>> = Symbol('permix-setup')
+const PERMIX_CONTEXT_KEY = 'vue-permix'
 
 function usePermixContext() {
   const context = inject(PERMIX_CONTEXT_KEY)
@@ -16,7 +12,11 @@ function usePermixContext() {
     throw new Error('[Permix]: Looks like you forgot to install the plugin')
   }
 
-  return context
+  return context as Ref<{
+    permix: Permix<any>
+    isReady: boolean
+    state: PermixState<any>
+  }>
 }
 
 /**
