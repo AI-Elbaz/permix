@@ -72,13 +72,17 @@ export default function RootLayout({
 The `setupPermix()` function in the layout runs on the server, while the same function in the provider runs on the client. This ensures permissions are available during server-side rendering and stay synchronized on the client.
 </Callout>
 
+<Callout>
+Make sure to create and export your Permix instance from a separate file (e.g., `@/lib/permix.ts`).
+</Callout>
+
 </Step>
 
 <Step>
 
 ## Usage
 
-Usage the same as the [React integration](/docs/integrations/react).
+Usage the same as the [React integration](/docs/integrations/react#usage).
 
 </Step>
 
