@@ -18,7 +18,7 @@ Want to explore Permix before installing? Try our interactive sandbox environmen
 
 ### Install Permix
 
-Typically you'll need to install Permix using your package manager.
+Typically you'll need to install Permix using your package manager:
 
 <Tabs items={["npm", "pnpm", "yarn", "bun"]}>
 
@@ -46,7 +46,7 @@ bun add permix
 
 ### Create an instance
 
-To create a base instance, you need to provide a schema as a generic type to `createPermix` function that defines your permissions.
+To create a base instance, you need to provide a schema as a generic type to `createPermix` function that defines your permissions:
 
 ```ts title="/lib/permix.ts"
 import { createPermix } from 'permix'
@@ -66,7 +66,7 @@ Learn more about features and configuration of instances in the [instance guide]
 
 ### Setup your permissions
 
-You can setup your permissions by calling `setup` method on your instance in any place you want.
+You can setup your permissions by calling `setup` method on your instance in any place you want:
 
 ```ts
 import { permix } from './lib/permix'
@@ -87,7 +87,7 @@ permix.setup({
 
 ### Check permissions
 
-After setup, you can use `check` method to check available permissions.
+After setup, you can use `check` method to check available permissions:
 
 ```ts
 permix.check('post', 'create') // true
@@ -111,3 +111,39 @@ You've now got a basic setup of Permix. The next step is to learn more about 3 c
 </Step>
 
 </Steps>
+
+## Integrations
+
+Continuing from the quick start, you can now explore how Permix integrates with other libraries and frameworks.
+
+<Cards>
+
+<Card href="/docs/integrations/react" title="React">
+Integration with React via provider and hook.
+</Card>
+
+<Card href="/docs/integrations/next" title="Next.js">
+Integration with Next.js via provider, hydration component and hook.
+</Card>
+
+<Card href="/docs/integrations/vue" title="Vue">
+Integration with Vue via plugin and composable.
+</Card>
+
+<Card href="/docs/integrations/nuxt" title="Nuxt">
+Integration with Nuxt via module and composable.
+</Card>
+
+<Card href="/docs/integrations/hono" title="Hono">
+Integration with Hono via middleware.
+</Card>
+
+<Card href="/docs/integrations/express" title="Express">
+Integration with Express via middleware.
+</Card>
+
+<Card href="/docs/integrations/trpc" title="tRPC">
+Integration with TRPC via middleware.
+</Card>
+
+</Cards>

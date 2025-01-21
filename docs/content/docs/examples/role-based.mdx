@@ -26,7 +26,7 @@ Not necessary, but you can use any integration to check permissions. In this exa
 
 ## Prepare Permix
 
-Small preparation with vanilla Permix instance and `usePermix` hook for React.
+Small preparation with vanilla Permix instance and `usePermix` hook for React:
 
 <Tabs items={['/lib/permix.ts', '/hooks/use-permix.ts']}>
 
@@ -72,11 +72,7 @@ export const usePermissions = () => usePermix(permix)
 
 ## Define roles templates
 
-To define roles templates, you can use `template` method.
-
-<Callout>
-Read more about templates in the [`template` guide](/docs/guide/template).
-</Callout>
+To define roles templates, you can use `template` method:
 
 ```ts title="/lib/permissions.ts"
 export const adminPermissions = permix.template({
@@ -110,13 +106,17 @@ export const userPermissions = permix.template({
 })
 ```
 
+<Callout>
+Read more about templates in the [`template` guide](/docs/guide/template).
+</Callout>
+
 </Step>
 
 <Step>
 
 ## Apply role
 
-And now you can apply a role to the user.
+And now you can apply a role to the user:
 
 ```ts title="/lib/setup-permissions.ts"
 import { permix } from './permix'
@@ -152,7 +152,7 @@ export default function App() {
 
 ## Usage
 
-Now you can use `usePermissions` hook to check permissions in your components.
+Now you can use `usePermissions` hook to check permissions in your components:
 
 ```tsx title="PostCreate.tsx"
 import { usePermissions } from './hooks/use-permix'
@@ -168,7 +168,7 @@ export default function PostCreate() {
 }
 ```
 
-If you don't need reactivity, you still can use `check` method from `permix` instance.
+If you don't need reactivity, you still can use `check` method from `permix` instance:
 
 ```tsx title="PostCreate.tsx"
 import { permix } from './permix'

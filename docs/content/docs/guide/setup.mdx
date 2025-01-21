@@ -82,7 +82,9 @@ permix.setup({
 
 If you cannot define entity types in the Permix instance, the types will be `unknown` by default, but you can still define them later in the `setup` method.
 
+<Callout type="warn">
 This approach is not recommended as it reduces type safety and IDE support.
+</Callout>
 
 ```ts twoslash
 import { createPermix } from 'permix'

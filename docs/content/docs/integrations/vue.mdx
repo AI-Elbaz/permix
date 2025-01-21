@@ -7,6 +7,10 @@ description: Learn how to use Permix with Vue applications
 
 Permix provides official Vue integration through the `permixPlugin` and `usePermix` composable. This allows you to manage permissions reactively in your Vue app.
 
+<Callout>
+Before getting started with Vue integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+</Callout>
+
 <Steps>
 
 <Step>
@@ -15,7 +19,7 @@ Permix provides official Vue integration through the `permixPlugin` and `usePerm
 
 First, install the Vue plugin in your application:
 
-```ts
+```ts title="main.ts"
 import { createApp } from 'vue'
 import { permixPlugin } from 'permix/vue'
 import { permix } from './lib/permix'
@@ -65,7 +69,7 @@ const { check, isReady } = usePermix(permix)
 
 To avoid importing the `usePermix` composable and Permix instance in every component, you can create a custom composable:
 
-```ts
+```ts title="composables/use-permissions.ts"
 import { usePermix } from 'permix/vue'
 import { permix } from './lib/permix'
 

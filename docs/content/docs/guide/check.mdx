@@ -9,7 +9,7 @@ Permix provides two methods for checking permissions: `check` and `checkAsync`. 
 
 ## `check`
 
-The `check` method allows you to verify if certain actions are permitted. It returns a boolean indicating whether the action is allowed.
+The `check` method allows you to verify if certain actions are permitted. It returns a boolean indicating whether the action is allowed:
 
 ```ts
 permix.check('post', 'create') // returns true/false
@@ -17,7 +17,7 @@ permix.check('post', 'create') // returns true/false
 
 ## Array
 
-You can check multiple actions at once by passing an array of actions. All actions must be permitted for the check to return true.
+You can check multiple actions at once by passing an array of actions. All actions must be permitted for the check to return true:
 
 ```ts
 // Check if both create and read are allowed
@@ -26,7 +26,7 @@ permix.check('post', ['create', 'read']) // returns true if both are allowed
 
 ## All
 
-Use the special 'all' keyword to verify if all possible actions for an entity are permitted.
+Use the special 'all' keyword to verify if all possible actions for an entity are permitted:
 
 ```ts
 // Check if all actions are allowed for posts
@@ -35,11 +35,7 @@ permix.check('post', 'all') // returns true only if all actions are permitted
 
 ## `checkAsync`
 
-When you need to ensure permissions are ready before checking, use `checkAsync`. This is useful when permissions might be set up asynchronously.
-
-<Callout>
-In most cases you should use `check` instead of `checkAsync`. `checkAsync` is useful when you need to ensure permissions are ready before checking, for example in route middleware.
-</Callout>
+When you need to ensure permissions are ready before checking, use `checkAsync`. This is useful when permissions might be set up asynchronously:
 
 ```ts
 setTimeout(() => {
@@ -50,6 +46,10 @@ setTimeout(() => {
 
 await permix.checkAsync('post', 'create') // waits for setup
 ```
+
+<Callout>
+In most cases you should use `check` instead of `checkAsync`. `checkAsync` is useful when you need to ensure permissions are ready before checking, for example in route middleware.
+</Callout>
 
 ## Data-Based
 

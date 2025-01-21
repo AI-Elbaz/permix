@@ -5,14 +5,9 @@ description: Learn how to handle permission updates in your application
 
 ## Overview
 
-Permix provides an event system that allows you to react to permission changes in your application. Currently, there is one event available: `setup`, which is triggered whenever permissions are updated through the `setup` method.
-
-<Callout>
-Events are powered by the [`hookable`](https://github.com/unjs/hookable) package, a lightweight and type-safe event system.
-</Callout>
+Permix provides an event system that allows you to react to permission changes in your application. Each event provides type-safe data and hooks to register handlers.
 
 ## Usage
-
 
 You can register event handlers using the `hook` and `hookOnce` methods:
 
@@ -33,7 +28,8 @@ permix.hookOnce('setup', () => {
   console.log('Permissions were updated once')
 })
 
-// The handler will be called when setup is executed
+// Calling `setup` method triggers the `setup` event
+// and `ready` event if called on the client side
 permix.setup({
   post: {
     create: true,

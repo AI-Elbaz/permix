@@ -26,7 +26,7 @@ Not necessary, but you can use any integration to check permissions. In this exa
 
 ## Define enums
 
-First, let's define our permission enums that we'll use.
+First, let's define our permission enums that we'll use:
 
 ```ts title="/lib/permissions.ts"
 export enum PostPermission {
@@ -50,7 +50,7 @@ export enum UserPermission {
 
 ## Prepare Permix
 
-Let's create a Permix instance using our enums.
+Let's create a Permix instance using our enums:
 
 <Tabs items={['/lib/permix.ts', '/hooks/use-permix.ts']}>
 
@@ -91,11 +91,7 @@ export const usePermissions = () => usePermix(permix)
 
 ## Define permission templates
 
-Create templates using the enum values.
-
-<Callout>
-Read more about templates in the [`template` guide](/docs/guide/template).
-</Callout>
+Create templates using the enum values:
 
 ```ts title="/lib/permissions.ts"
 export const adminPermissions = permix.template({
@@ -130,13 +126,17 @@ export const userPermissions = permix.template({
 })
 ```
 
+<Callout>
+Read more about templates in the [`template` guide](/docs/guide/template).
+</Callout>
+
 </Step>
 
 <Step>
 
 ## Setup permissions
 
-Apply the permissions based on user role.
+Apply the permissions based on user role:
 
 ```ts title="/lib/setup-permissions.ts"
 import { permix } from './permix'
@@ -172,7 +172,7 @@ export default function App() {
 
 ## Usage
 
-Use the enum values to check permissions.
+Use the enum values to check permissions:
 
 ```tsx title="PostCreate.tsx"
 import { usePermissions } from './hooks/use-permix'
@@ -191,7 +191,7 @@ export default function PostCreate() {
 }
 ```
 
-If you don't need reactivity, you still can use `check` method from `permix` instance.
+If you don't need reactivity, you still can use `check` method from `permix` instance:
 
 ```tsx title="PostCreate.tsx"
 import { permix } from './permix'

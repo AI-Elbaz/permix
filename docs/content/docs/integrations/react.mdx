@@ -7,6 +7,10 @@ description: Learn how to use Permix with React applications
 
 Permix provides official React integration through the `PermixProvider` component and `usePermix` hook. This allows you to manage permissions reactively in your React app.
 
+<Callout>
+Before getting started with React integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+</Callout>
+
 <Steps>
 
 <Step>
@@ -69,7 +73,7 @@ function PostEditor({ post }) {
 
 To avoid importing the `usePermix` hook and Permix instance in every component, you can create a custom hook:
 
-```tsx
+```tsx title="hooks/use-permissions.ts"
 import { usePermix } from 'permix/react'
 import { permix } from './lib/permix'
 

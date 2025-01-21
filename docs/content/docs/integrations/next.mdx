@@ -1,0 +1,115 @@
+---
+title: Next.js
+description: Learn how to use Permix with Next.js applications
+---
+
+## Overview
+
+Permix seamlessly integrates with Next.js applications, providing full support for both server and client components through the [React integration](/docs/integrations/react).
+
+<Callout>
+Before getting started with Next.js integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+</Callout>
+
+<Steps>
+
+<Step>
+
+## Setup
+
+First, create a Permix provider component that handles client-side setup:
+
+```tsx title="app/permix-provider.tsx"
+'use client'
+
+import { permix, setupPermix } from '@/lib/permix'
+import { PermixProvider as Provider } from 'permix/react'
+import { useEffect } from 'react'
+
+export function PermixProvider({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    setupPermix()
+  }, [])
+
+  return (
+    <Provider permix={permix}>
+      {children}
+    </Provider>
+  )
+}
+```
+
+Then, wrap your application with the `PermixProvider` and `PermixHydrate` components in your root layout:
+
+```tsx title="app/layout.tsx"
+import { permix, setupPermix } from '@/lib/permix'
+import { dehydrate } from 'permix'
+import { PermixHydrate } from 'permix/react'
+import { PermixProvider } from './permix-provider'
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  setupPermix()
+
+  return (
+    <html lang="en">
+      <body>
+        <PermixProvider>
+          <PermixHydrate state={dehydrate(permix)}>
+            {children}
+          </PermixHydrate>
+        </PermixProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+<Callout>
+The `setupPermix()` function in the layout runs on the server, while the same function in the provider runs on the client. This ensures permissions are available during server-side rendering and stay synchronized on the client.
+</Callout>
+
+</Step>
+
+<Step>
+
+## Usage
+
+Create a custom hook to use permissions throughout your application:
+
+```tsx title="hooks/use-permissions.tsx"
+import { permix } from '@/lib/permix'
+import { usePermix } from 'permix/react'
+
+export function usePermissions() {
+  return usePermix(permix)
+}
+```
+
+Use the hook in your client components:
+
+```tsx title="app/some-page/page.tsx"
+'use client'
+
+import { usePermissions } from '@/hooks/use-permissions'
+
+export default function Home() {
+  const { check, isReady } = usePermissions()
+
+  return (
+    <div>
+      Is Permix Ready? {isReady ? 'Yes' : 'No'}
+      <hr />
+      Can I create a post? {check('post', 'create') ? 'Yes' : 'No'}
+    </div>
+  )
+}
+```
+
+</Step>
+
+</Steps>
+

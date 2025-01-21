@@ -40,7 +40,7 @@ hydrate(permix, state)
 ```
 
 <Callout>
-Note that function-based permissions will be converted to `false` during dehydration since functions cannot be serialized to JSON.
+Note that function-based permissions will be converted to `false` during dehydration since functions cannot be serialized to JSON. That's why you should call `setup` method on the client side immediately after hydration.
 </Callout>
 
 ## Server-Side Rendering
