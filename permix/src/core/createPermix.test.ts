@@ -383,4 +383,40 @@ describe('createPermix', () => {
 
     expect(callback).toHaveBeenCalled()
   })
+
+  it('should check ready state', () => {
+    expect(permix.isReady()).toBe(false)
+
+    permix.setup({
+      post: {
+        create: true,
+        read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    expect(permix.isReady()).toBe(true)
+  })
+
+  it('should check ready state async', async () => {
+    setTimeout(() => {
+      permix.setup({
+        post: {
+          create: true,
+          read: true,
+        },
+        comment: {
+          create: true,
+          read: true,
+          update: true,
+        },
+      })
+    }, 100)
+
+    expect(await permix.isReadyAsync()).toBe(true)
+  })
 })

@@ -192,6 +192,11 @@ export interface Permix<Permissions extends PermixDefinition> {
    * ```
    */
   isReady: () => boolean
+
+  /**
+   * Similar to `isReady`, but returns a Promise that resolves once `setup` is called.
+   */
+  isReadyAsync: () => Promise<boolean>
 }
 
 export interface PermixInternal<Permissions extends PermixDefinition> extends Permix<Permissions> {
@@ -347,6 +352,11 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
       return () => permissions
     },
     isReady: () => isReady,
+    isReadyAsync: async () => {
+      await setupPromise
+
+      return isReady
+    },
     _: {
       isSetupCalled: () => isSetupCalled,
       getState: () => {
