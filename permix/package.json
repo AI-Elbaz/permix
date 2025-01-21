@@ -2,7 +2,7 @@
   "name": "permix",
   "displayName": "Permix",
   "type": "module",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "private": false,
   "packageManager": "pnpm@9.15.4",
   "description": "A simple and type-safe permissions library for React, Vue, and more.",
@@ -72,6 +72,7 @@
     "scripts:update-coverage": "vitest run --coverage && tsx ./scripts/update-coverage"
   },
   "optionalDependencies": {
+    "@nuxt/kit": ">=3",
     "@trpc/server": ">=10",
     "express": ">=4",
     "hono": ">=4",
