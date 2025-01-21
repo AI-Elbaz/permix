@@ -78,36 +78,7 @@ The `setupPermix()` function in the layout runs on the server, while the same fu
 
 ## Usage
 
-Create a custom hook to use permissions throughout your application:
-
-```tsx title="hooks/use-permissions.tsx"
-import { permix } from '@/lib/permix'
-import { usePermix } from 'permix/react'
-
-export function usePermissions() {
-  return usePermix(permix)
-}
-```
-
-Use the hook in your client components:
-
-```tsx title="app/some-page/page.tsx"
-'use client'
-
-import { usePermissions } from '@/hooks/use-permissions'
-
-export default function Home() {
-  const { check, isReady } = usePermissions()
-
-  return (
-    <div>
-      Is Permix Ready? {isReady ? 'Yes' : 'No'}
-      <hr />
-      Can I create a post? {check('post', 'create') ? 'Yes' : 'No'}
-    </div>
-  )
-}
-```
+Usage the same as the [React integration](/docs/integrations/react).
 
 </Step>
 

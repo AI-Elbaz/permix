@@ -5,7 +5,11 @@ description: Learn how to hydrate and dehydrate permissions in your application
 
 ## Overview
 
-Hydration is the process of converting server-side state into client-side state. In Permix, hydration allows you to serialize permissions on the server and restore them on the client without running setup logic again.
+Hydration is the process of converting server-side state into client-side state. In Permix, hydration allows you to serialize permissions on the server and restore them partially on the client.
+
+<Callout type="warn">
+Note that function-based permissions will be converted to `false` during dehydration since functions cannot be serialized to JSON. That's why you should call `setup` method on the client side immediately after hydration.
+</Callout>
 
 ## Usage
 
@@ -14,11 +18,12 @@ Permix provides two methods for handling hydration:
 - `dehydrate` - Converts the current permissions state into a JSON-serializable format
 - `hydrate` - Restores permissions from a previously dehydrated state
 
-```ts
-import { dehydrate, hydrate } from 'permix'
+```ts twoslash
+import { createPermix, dehydrate, hydrate } from 'permix'
 
 const permix = createPermix<{
   post: {
+    dataType: { isPublic: boolean }
     action: 'create' | 'read'
   }
 }>()
@@ -39,15 +44,11 @@ const state = dehydrate(permix)
 hydrate(permix, state)
 ```
 
-<Callout>
-Note that function-based permissions will be converted to `false` during dehydration since functions cannot be serialized to JSON. That's why you should call `setup` method on the client side immediately after hydration.
-</Callout>
-
 ## Server-Side Rendering
 
 Hydration is particularly useful in server-side rendering scenarios where you want to transfer permissions from the server to the client:
 
-```ts
+```ts twoslash
 // Express server
 import express from 'express'
 import { createPermix, dehydrate } from 'permix'
@@ -91,7 +92,8 @@ app.get('/', (req, res) => {
           // Hydrate permissions from server data
           hydrate(permix, window.__INITIAL_PERMISSIONS__);
 
-          // Your app code here...
+          // After hydration, you should call setup again
+          // on the client side to fully restore permissions
         </script>
       </body>
     </html>

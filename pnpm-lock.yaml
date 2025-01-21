@@ -63,8 +63,8 @@ importers:
         specifier: 15.1.4
         version: 15.1.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       permix:
-        specifier: ^0.7.3
-        version: 0.7.3(typescript@5.7.3)
+        specifier: ^0.8.0
+        version: 0.8.0(typescript@5.7.3)
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -4317,8 +4317,8 @@ packages:
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
 
-  permix@0.7.3:
-    resolution: {integrity: sha512-ob/ivJbpvr1x091ryXkKw6TPiiesd9VUcN/RONlB/kH3ySZ9CdfCe7Ql4+AiN0JaBGv8p2zHFGHtrAfDDYYWRw==}
+  permix@0.8.0:
+    resolution: {integrity: sha512-EZOemI7sHe88snGPtdPSUuBEr306Orrnbfan8aUAchY8SgZp06gYz6nehoRr5lXNNNhuDmOrw0UlcX3avQc/VQ==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -10182,16 +10182,17 @@ snapshots:
   perfect-debounce@1.0.0:
     optional: true
 
-  permix@0.7.3(typescript@5.7.3):
-    dependencies:
-      hookable: 5.5.3
+  permix@0.8.0(typescript@5.7.3):
     optionalDependencies:
+      '@nuxt/kit': 3.15.2(magicast@0.3.5)(rollup@4.30.1)
       '@trpc/server': 10.45.2
       express: 4.21.2
       hono: 4.6.16
       react: 19.0.0
       vue: 3.5.13(typescript@5.7.3)
     transitivePeerDependencies:
+      - magicast
+      - rollup
       - supports-color
       - typescript
 

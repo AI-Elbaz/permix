@@ -18,8 +18,7 @@ const permixSymbol = Symbol.for('permix')
 
 export type PermixStateJSON<Permissions extends PermixDefinition = PermixDefinition> = {
   [Key in keyof Permissions]: {
-    [Action in Permissions[Key]['action']]:
-      | boolean
+    [Action in Permissions[Key]['action']]: boolean
   };
 }
 

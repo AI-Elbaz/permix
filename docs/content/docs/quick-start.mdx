@@ -56,6 +56,8 @@ export const permix = createPermix<{
     action: 'create' | 'read' | 'update' | 'delete'
   }
 }>()
+
+// ...
 ```
 
 Learn more about features and configuration of instances in the [instance guide](/docs/guide/instance).
@@ -68,17 +70,20 @@ Learn more about features and configuration of instances in the [instance guide]
 
 You can setup your permissions by calling `setup` method on your instance in any place you want:
 
-```ts
-import { permix } from './lib/permix'
+```ts title="/lib/permix.ts"
+// ...
 
-permix.setup({
-  post: {
-    create: true,
-    read: true,
-    update: true,
-    delete: false,
-  },
-})
+// Call setupPermissions in your application
+export function setupPermissions() {
+  permix.setup({
+    post: {
+      create: true,
+      read: true,
+      update: true,
+      delete: false,
+    },
+  })
+}
 ```
 
 </Step>
