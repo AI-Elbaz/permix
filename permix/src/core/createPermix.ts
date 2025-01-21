@@ -1,4 +1,3 @@
-import type { DehydratedState } from './hydration'
 import { createHooks as hooks } from './hooks'
 import { isPermissionsValid } from './utils'
 
@@ -6,7 +5,7 @@ export function createHooks<Permissions extends PermixDefinition>() {
   return hooks<{
     setup: (state: PermixState<Permissions>) => void
     ready: () => void
-    hydrate: (state: DehydratedState<Permissions>) => void
+    hydrate: () => void
   }>()
 }
 
@@ -30,6 +29,35 @@ export type PermixState<Permissions extends PermixDefinition = PermixDefinition>
       | boolean
       | ((data: Permissions[Key]['dataType']) => boolean);
   };
+}
+
+type CheckFunctionParams<Permissions extends PermixDefinition, K extends keyof Permissions> = [
+  entity: K,
+  action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][],
+  data?: Permissions[K]['dataType'],
+]
+
+function checkWithState<Permissions extends PermixDefinition, K extends keyof Permissions>(state: PermixState<Permissions>, ...params: CheckFunctionParams<Permissions, K>) {
+  const [entity, action, data] = params
+
+  if (!state || !state[entity]) {
+    return false
+  }
+
+  const entityObj = state[entity]
+  const actions = Array.isArray(action) ? action : [action]
+
+  const actionValues = action === 'all'
+    ? Object.values(entityObj)
+    : actions.map(a => entityObj[a])
+
+  return actionValues.every((action) => {
+    if (typeof action === 'function') {
+      return action(data) ?? false
+    }
+
+    return action ?? false
+  })
 }
 
 /**
@@ -65,7 +93,7 @@ export interface Permix<Permissions extends PermixDefinition> {
    * permix.check('post', 'all') // returns true if ALL actions are allowed
    * ```
    */
-  check: <K extends keyof Permissions>(entity: K, action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
+  check: <K extends keyof Permissions>(...args: CheckFunctionParams<Permissions, K>) => boolean
 
   /**
    * Similar to `check`, but returns a Promise that resolves once `setup` is called.
@@ -86,7 +114,7 @@ export interface Permix<Permissions extends PermixDefinition> {
    * const canCreate = await permix.checkAsync('post', 'create') // Promise<true>
    * ```
    */
-  checkAsync: <K extends keyof Permissions>(entity: K, action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => Promise<boolean>
+  checkAsync: <K extends keyof Permissions>(...args: CheckFunctionParams<Permissions, K>) => Promise<boolean>
 
   /**
    * Set up permissions.
@@ -189,17 +217,27 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
     getState: () => PermixState<Permissions>
 
     /**
-     * Check if an action is allowed for an entity using provided permissions
+     * Set state.
+     *
+     * @example
+     * ```ts
+     * permix._.setState({ post: { create: true, delete: post => !post.isPublished } })
+     * ```
+     */
+    setState: (state: PermixState<Permissions>) => void
+
+    /**
+     * Check if an action is allowed for an entity using provided permissions.
      *
      * @example
      * ```ts
      * permix._.checkWithState(permix._.getState(), 'post', 'create')
      * ```
      */
-    checkWithState: <K extends keyof Permissions>(state: PermixState<Permissions>, entity: K, action: Permissions[K]['action'] | 'all' | Permissions[K]['action'][], data?: Permissions[K]['dataType']) => boolean
+    checkWithState: <K extends keyof Permissions>(state: PermixState<Permissions>, ...params: CheckFunctionParams<Permissions, K>) => boolean
 
     /**
-     * Get current permissions in JSON format
+     * Get current permissions in JSON serializable format.
      *
      * @example
      * ```ts
@@ -263,10 +301,6 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
     }
   })
 
-  hooks.hook('hydrate', (s) => {
-    state = s
-  })
-
   hooks.hook('setup', (s) => {
     state = s
     isSetupCalled = true
@@ -278,12 +312,12 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 
   const permix = {
     check(entity, action, data) {
-      return this._.checkWithState(state as PermixState<Permissions>, entity, action, data)
+      return checkWithState(state as PermixState<Permissions>, entity, action, data)
     },
     async checkAsync(entity, action, data) {
       await setupPromise
 
-      return this._.checkWithState(state as PermixState<Permissions>, entity, action, data)
+      return checkWithState(state as PermixState<Permissions>, entity, action, data)
     },
     setup(permissions) {
       hooks.callHook('setup', permissions)
@@ -320,6 +354,10 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
       getState: () => {
         return state as PermixState<Permissions>
       },
+      setState: (s) => {
+        state = s
+      },
+      checkWithState,
       getStateJSON: () => {
         const processedSetup = {} as PermixStateJSON<Permissions>
         for (const entity in state) {
@@ -330,26 +368,6 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
           }
         }
         return processedSetup
-      },
-      checkWithState(state, entity, action, data) {
-        if (!state || !state[entity]) {
-          return false
-        }
-
-        const entityObj = state[entity]
-        const actions = Array.isArray(action) ? action : [action]
-
-        const actionValues = action === 'all'
-          ? Object.values(entityObj)
-          : actions.map(a => entityObj[a])
-
-        return actionValues.every((action) => {
-          if (typeof action === 'function') {
-            return action(data) ?? false
-          }
-
-          return action ?? false
-        })
       },
       hooks,
     },
