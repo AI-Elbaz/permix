@@ -3,13 +3,11 @@ import * as React from 'react'
 import { hydrate } from '../core'
 import { validatePermix } from '../core/createPermix'
 
-interface Context {
+const PermixContext = React.createContext<{
   permix: Permix<any>
   isReady: boolean
   state: PermixState<any>
-}
-
-const PermixContext = React.createContext<Context>(null!)
+}>(null!)
 
 function usePermixContext() {
   const context = React.useContext(PermixContext)
@@ -32,7 +30,7 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 }: { children: React.ReactNode, permix: Permix<Permissions> }) {
   validatePermix(permix)
 
-  const [context, setContext] = React.useState<Context>({
+  const [context, setContext] = React.useState({
     permix,
     isReady: false,
     state: permix._.getState(),
