@@ -19,7 +19,7 @@ Before getting started with React integration, make sure you've completed the in
 
 First, wrap your application with the `PermixProvider`:
 
-```tsx
+```tsx title="App.tsx"
 import { PermixProvider } from 'permix/react'
 import { permix } from './lib/permix'
 
@@ -44,11 +44,11 @@ Remember to always pass the same Permix instance to both the `PermixProvider` an
 
 Use the `usePermix` hook in your components to check permissions:
 
-```tsx
+```tsx title="pages/post-editor.tsx"
 import { usePermix } from 'permix/react'
 import { permix } from './lib/permix'
 
-function PostEditor({ post }) {
+export function PostEditor({ post }) {
   const { check, isReady } = usePermix(permix)
 
   if (!isReady) {
@@ -82,8 +82,6 @@ export function usePermissions() {
 }
 ```
 
-
 </Step>
 
 </Steps>
-
