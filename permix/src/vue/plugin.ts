@@ -30,6 +30,6 @@ export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) =
   })
 
   permix.hook('ready', () => {
-    context.value.isReady = true
+    context.value.isReady = permix.isReady()
   })
 }
