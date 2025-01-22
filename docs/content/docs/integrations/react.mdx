@@ -69,6 +69,23 @@ import { createComponents } from 'permix/react'
 export const { Check } = createComponents(permix)
 ```
 
+And then you can use the `Check` component in your components:
+
+```tsx title="page.tsx"
+export default function Page() {
+  return (
+    <Check
+      entity="entity"
+      action="action"
+      data={data}
+      else={<p>Will show this if you don't have permission</p>}
+    >
+      Will show this if you have permission
+    </Check>
+  )
+}
+```
+
 </Step>
 
 <Step>

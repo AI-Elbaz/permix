@@ -3,6 +3,7 @@
     "---Getting Started---",
     "index",
     "quick-start",
+    "comparison",
     "---Guide---",
     "guide/instance",
     "guide/setup",
@@ -22,6 +23,7 @@
     "---Examples---",
     "examples/role-based",
     "examples/enum-based",
+    "examples/feature-flags",
     "[Repository examples](https://github.com/letstri/permix/tree/main/examples)"
   ]
 }

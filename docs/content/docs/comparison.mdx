@@ -1,0 +1,38 @@
+---
+title: Comparison
+description: Comparison with other libraries
+icon: RiArrowLeftRightFill
+---
+
+## Overview
+
+Permix is a library that provides a way to manage permissions in your application. It is designed to be used with React, Vue, etc. But not only Permix can manage permissions, there are other libraries that can do the same thing.
+
+## Comparison
+
+| Feature | Permix | CASL |
+| --- | --- | --- |
+| Type-safe | ✅ Native | ✅ Via [external type](https://casl.js.org/v6/en/advanced/typescript#permissions-inference) |
+| Entity | ✅ Relates to props of a [passed object](/docs/guide/setup#type-based) | ⚠️ Class-based yes, but object-based via [external function](https://casl.js.org/v6/en/guide/subject-type-detection) |
+| Hydration | ✅ Native | ⚠️ Via custom implementation |
+| Saving rules | ✅ Via [template](/docs/guide/caching) | ✅ Via [AppAbility](https://casl.js.org/v6/en/cookbook/cache-rules#the-issue) |
+| Server and Client | ✅ | ✅ |
+| Events | ✅ | ❌ |
+| Improved DX | ✅ Create instance in one place and that's it | ❌ In CASL you need to manage a lot of stuff manually (type-safe, hydration, etc.) |
+| Modernity | ✅ Uses modern updates and features of each lib and framework | ❌ CASL was created a long time ago and hasn't updated the core |
+
+## Code examples
+
+### Vanilla
+
+<Tabs items={['Permix', 'CASL']}>
+
+<Tab value="Permix">
+12
+</Tab>
+
+<Tab value="CASL">
+33
+</Tab>
+
+</Tabs>

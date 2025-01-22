@@ -68,6 +68,19 @@ import { createComponents } from 'permix/vue'
 export const { Check } = createComponents(permix)
 ```
 
+And then you can use the `Check` component in your templates:
+
+```vue title="page.vue"
+<template>
+  <Check entity="entity" action="action" :data="data">
+    Will show this if you have permission
+    <template #else>
+      Will show this if you don't have permission
+    </template>
+  </Check>
+</template>
+```
+
 </Step>
 
 <Step>
