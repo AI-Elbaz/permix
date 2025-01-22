@@ -5,6 +5,9 @@ export const permix = createPermix<{
   post: {
     action: 'create' | 'read'
   }
+  comment: {
+    action: 'create' | 'update'
+  }
 }>()
 
 export function setupPermix() {
@@ -12,6 +15,10 @@ export function setupPermix() {
     post: {
       create: true,
       read: true,
+    },
+    comment: {
+      create: true,
+      update: true,
     },
   })
 }

@@ -32,6 +32,9 @@ watch(user, (user) => {
     <hr>
     <Check entity="post" action="edit">
       Can I edit a post inside the Check component?
+      <template #else>
+        You don't have permission to edit a post
+      </template>
     </Check>
   </div>
 </template>

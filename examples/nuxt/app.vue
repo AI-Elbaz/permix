@@ -10,8 +10,11 @@ const { check } = usePermissions()
   <div>
     Can I create a post? {{ check('post', 'create') }}
     <hr>
-    <Check entity="post" action="create">
+    <Check entity="post" action="update">
       Can I create a post inside the Check component?
+      <template #else>
+        You don't have permission to create a post
+      </template>
     </Check>
   </div>
 </template>
