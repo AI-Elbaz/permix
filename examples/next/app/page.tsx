@@ -1,6 +1,7 @@
 'use client'
 
 import { usePermissions } from '@/hooks/use-permissions'
+import { Check } from '@/lib/permix-components'
 
 export default function Home() {
   const { check, isReady } = usePermissions()
@@ -14,6 +15,10 @@ export default function Home() {
       Can I create a post?
       {' '}
       {check('post', 'create') ? 'Yes' : 'No'}
+      <hr />
+      <Check entity="post" action="create">
+        Can I create a post inside the Check component?
+      </Check>
     </div>
   )
 }

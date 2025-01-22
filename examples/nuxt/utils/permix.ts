@@ -1,4 +1,5 @@
 import { createPermix } from 'permix'
+import { createComponents } from 'permix/vue'
 
 export const permix = createPermix<{
   post: {
@@ -14,3 +15,5 @@ export function setupPermix() {
     },
   })
 }
+
+export const { Check } = createComponents(permix)

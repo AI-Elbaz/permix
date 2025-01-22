@@ -3,7 +3,7 @@ import { watch } from 'vue'
 import { usePermissions } from './composables/permissions'
 import { usePosts } from './composables/posts'
 import { useUser } from './composables/user'
-import { setupPermix } from './lib/permix'
+import { Check, setupPermix } from './lib/permix'
 
 const user = useUser()
 const { check, isReady } = usePermissions()
@@ -29,8 +29,9 @@ watch(user, (user) => {
       {{ post.authorId }}?
       {{ check('post', 'edit', post) ? 'Yes' : 'No' }}
     </div>
+    <hr>
+    <Check entity="post" action="edit">
+      Can I edit a post inside the Check component?
+    </Check>
   </div>
 </template>
-
-<style scoped>
-</style>

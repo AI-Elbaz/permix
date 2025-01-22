@@ -1,6 +1,7 @@
 import type { Post } from '../composables/posts'
 import type { User } from '../composables/user'
 import { createPermix } from 'permix'
+import { createComponents } from 'permix/vue'
 
 export const permix = createPermix<{
   post: {
@@ -17,3 +18,5 @@ export function setupPermix(user: User) {
     },
   })
 }
+
+export const { Check } = createComponents(permix)

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { usePermissions } from './hooks/permissions'
 import { usePosts } from './hooks/posts'
 import { useUser } from './hooks/user'
-import { setupPermix } from './lib/permix'
+import { Check, setupPermix } from './lib/permix'
 import './App.css'
 
 function App() {
@@ -36,6 +36,10 @@ function App() {
           {check('post', 'edit', post) ? 'Yes' : 'No'}
         </div>
       ))}
+      <hr />
+      <Check entity="post" action="edit">
+        Can I edit a post inside the Check component?
+      </Check>
     </>
   )
 }
