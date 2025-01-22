@@ -86,8 +86,8 @@ describe('components', () => {
       template: `
         <Check entity="post" action="edit" :data="{ authorId: '2' }">
           <div data-testid="post-can-be-created">{{ canText }}</div>
-          <template #else>
-            <div data-testid="else">{{ cannotText }}</div>
+          <template #otherwise>
+            <div data-testid="otherwise">{{ cannotText }}</div>
           </template>
         </Check>
       `,
@@ -152,5 +152,60 @@ describe('components', () => {
 
     await wrapper.vm.$nextTick()
     expect(wrapper.html()).toContain(text)
+  })
+
+  it('should work with reverse prop', async () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    permix.setup({
+      post: {
+        create: true,
+      },
+    })
+
+    const defaultText = 'Default slot'
+    const otherwiseText = 'Otherwise slot'
+
+    const { Check } = createComponents(permix)
+
+    const TestComponent = {
+      template: `
+        <Check entity="post" action="create" reverse>
+          <div>{{ defaultText }}</div>
+          <template #otherwise>
+            <div>{{ otherwiseText }}</div>
+          </template>
+        </Check>
+      `,
+      components: { Check },
+      setup() {
+        return { defaultText, otherwiseText }
+      },
+    }
+
+    const wrapper = mount(TestComponent, {
+      global: {
+        plugins: [[permixPlugin, { permix }]],
+      },
+    })
+
+    expect(wrapper.html()).not.toContain(defaultText)
+    expect(wrapper.html()).toContain(otherwiseText)
+
+    // Update permission to false
+    permix.setup({
+      post: {
+        create: false,
+      },
+    })
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.html()).toContain(defaultText)
+    expect(wrapper.html()).not.toContain(otherwiseText)
   })
 })

@@ -33,7 +33,7 @@ export function usePermix<T extends PermixDefinition>(
 
   validatePermix(permixContext)
 
-  const check: typeof permixContext.check = React.useCallback((entity, action, data) => {
+  const check: typeof permix.check = React.useCallback((entity, action, data) => {
     return permixContext._.checkWithState(state ?? permixContext._.getState(), entity, action, data)
   }, [permixContext, state])
 

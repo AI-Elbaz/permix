@@ -4,15 +4,16 @@ import { usePermix } from './composables'
 
 export function createComponents<Permissions extends PermixDefinition>(permix: Permix<Permissions>) {
   function Check<K extends keyof Permissions>(
-    props: CheckFunctionObject<Permissions, K>,
+    props: CheckFunctionObject<Permissions, K> & { reverse?: boolean },
     context: SetupContext<any, SlotsType<{
       default: void
-      else?: void
+      otherwise?: void
     }>>,
   ) {
     const { check } = usePermix(permix)
 
-    return check(props.entity, props.action, props.data) ? context.slots.default?.() : context.slots.else?.()
+    const hasPermission = check(props.entity, props.action, props.data)
+    return props.reverse ? (hasPermission ? context.slots.otherwise?.() : context.slots.default?.()) : (hasPermission ? context.slots.default?.() : context.slots.otherwise?.())
   }
 
   Check.inheritAttrs = false
@@ -28,6 +29,11 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
     data: {
       type: Object,
       required: false,
+    },
+    reverse: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   }
 

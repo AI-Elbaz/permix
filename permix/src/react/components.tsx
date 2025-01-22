@@ -58,14 +58,17 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
     entity,
     action,
     data,
-    else: elseSlot = null,
+    otherwise = null,
+    reverse = false,
   }: {
     children: React.ReactNode
-    else?: React.ReactNode
+    otherwise?: React.ReactNode
+    reverse?: boolean
   } & CheckFunctionObject<Permissions, K>) {
     const { check } = usePermix(permix)
 
-    return check(entity, action, data) ? children : elseSlot
+    const hasPermission = check(entity, action, data)
+    return <>{reverse ? hasPermission ? otherwise : children : hasPermission ? children : otherwise}</>
   }
 
   Check.displayName = 'Check'

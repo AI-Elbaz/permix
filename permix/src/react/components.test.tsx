@@ -121,7 +121,7 @@ describe('components', () => {
           entity="post"
           action="edit"
           data={{ authorId: '2' }}
-          else={<div data-testid="else">{cannotText}</div>}
+          otherwise={<div data-testid="otherwise">{cannotText}</div>}
         >
           <div data-testid="post-can-be-created">{canText}</div>
         </Check>
@@ -179,6 +179,58 @@ describe('components', () => {
 
     await waitFor(() => {
       expect(container.innerHTML).toContain(text)
+    })
+  })
+
+  it('should work with reverse prop', async () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    permix.setup({
+      post: {
+        create: true,
+      },
+    })
+
+    const defaultText = 'Default slot'
+    const otherwiseText = 'Otherwise slot'
+
+    const { Check } = createComponents(permix)
+
+    const TestComponent = () => {
+      return (
+        <Check
+          entity="post"
+          action="create"
+          reverse
+          otherwise={<div>{otherwiseText}</div>}
+        >
+          <div>{defaultText}</div>
+        </Check>
+      )
+    }
+
+    const { container } = render(
+      <PermixProvider permix={permix}>
+        <TestComponent />
+      </PermixProvider>,
+    )
+
+    expect(container.innerHTML).not.toContain(defaultText)
+    expect(container.innerHTML).toContain(otherwiseText)
+
+    permix.setup({
+      post: {
+        create: false,
+      },
+    })
+
+    await waitFor(() => {
+      expect(container.innerHTML).toContain(defaultText)
+      expect(container.innerHTML).not.toContain(otherwiseText)
     })
   })
 })
