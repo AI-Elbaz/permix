@@ -1,4 +1,3 @@
-import type { MiddlewareFunction, ProcedureParams } from '@trpc/server'
 import type { Permix, PermixDefinition } from '../core/createPermix'
 import { TRPCError } from '@trpc/server'
 
@@ -25,8 +24,8 @@ export function createPermixMiddleware<T extends PermixDefinition>(
     }),
   } = options
 
-  const check = <$Params extends ProcedureParams, K extends keyof T>(entity: K, action: 'all' | T[K]['action'] | T[K]['action'][]) => {
-    const middleware: MiddlewareFunction<$Params, $Params> = ({ next }) => {
+  const check = <K extends keyof T>(entity: K, action: 'all' | T[K]['action'] | T[K]['action'][]) => {
+    const middleware = ({ next }: { next: () => Promise<any> }) => {
       const hasPermission = permix.check(entity, action)
 
       if (!hasPermission) {
