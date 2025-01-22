@@ -16,7 +16,7 @@
     "fumadocs-twoslash": "^2.0.3",
     "fumadocs-ui": "14.7.7",
     "next": "15.1.6",
-    "permix": "^0.8.0",
+    "permix": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "twoslash": "^0.2.12"

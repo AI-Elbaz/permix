@@ -63,8 +63,8 @@ importers:
         specifier: 15.1.6
         version: 15.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       permix:
-        specifier: ^0.8.0
-        version: 0.8.0(magicast@0.3.5)(typescript@5.7.3)
+        specifier: workspace:*
+        version: link:../permix
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -5923,9 +5923,6 @@ packages:
 
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
-
-  permix@0.8.0:
-    resolution: {integrity: sha512-EZOemI7sHe88snGPtdPSUuBEr306Orrnbfan8aUAchY8SgZp06gYz6nehoRr5lXNNNhuDmOrw0UlcX3avQc/VQ==}
 
   pg-cloudflare@1.1.1:
     resolution: {integrity: sha512-xWPagP/4B6BgFO+EKz3JONXv3YDgvkbVrGw2mTo3D6tVDQRh1e7cqVGvyR3BE+eQgAvx1XhW/iEASj4/jCWl3Q==}
@@ -13743,20 +13740,6 @@ snapshots:
   pathval@2.0.0: {}
 
   perfect-debounce@1.0.0: {}
-
-  permix@0.8.0(magicast@0.3.5)(typescript@5.7.3):
-    optionalDependencies:
-      '@nuxt/kit': 3.15.2(magicast@0.3.5)(rollup@4.31.0)
-      '@trpc/server': 10.45.2
-      express: 4.21.2
-      hono: 4.6.17
-      react: 19.0.0
-      vue: 3.5.13(typescript@5.7.3)
-    transitivePeerDependencies:
-      - magicast
-      - rollup
-      - supports-color
-      - typescript
 
   pg-cloudflare@1.1.1:
     optional: true
