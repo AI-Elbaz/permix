@@ -10,12 +10,12 @@ export function dehydrate<Permissions extends PermixDefinition>(permix: Permix<P
     throw new Error('[Permix]: To dehydrate Permix, `setup` must be called first.')
   }
 
-  return permix._.getStateJSON()
+  return permix._.getSerializableState()
 }
 
 export function hydrate<Permissions extends PermixDefinition>(permix: Permix<Permissions>, state: DehydratedState<Permissions>) {
   validatePermix(permix)
 
-  permix._.setState(state)
+  permix._.setState(permix._.parseSerializableState(state))
   permix._.hooks.callHook('hydrate')
 }

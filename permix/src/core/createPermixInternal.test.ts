@@ -34,7 +34,7 @@ describe('createPermixInternal', () => {
     expect(() => validatePermix({} as Permix<{ post: { action: 'create' } }>)).toThrow()
   })
 
-  it('should work with getStateJSON', () => {
+  it('should work with getSerializableState', () => {
     permix.setup({
       post: {
         create: true,
@@ -45,7 +45,7 @@ describe('createPermixInternal', () => {
 
     validatePermix(permix)
 
-    expect(permix._.getStateJSON()).toEqual({
+    expect(permix._.getSerializableState()).toEqual({
       post: { create: true, read: true, update: true },
     })
     expect(permix._.checkWithState(permix._.getState(), 'post', 'create')).toBe(true)
@@ -66,7 +66,7 @@ describe('createPermixInternal', () => {
 
     validatePermix(permix)
 
-    expect(permix._.getStateJSON()).toEqual({
+    expect(permix._.getSerializableState()).toEqual({
       post: { create: false, read: true, update: true },
     })
     expect(permix._.getState()).toEqual({

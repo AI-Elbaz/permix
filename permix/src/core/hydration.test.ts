@@ -121,4 +121,34 @@ describe('hydration', () => {
     expect(permix.check('post', 'create')).toBe(true)
     expect(permix.check('post', 'read')).toBe(false)
   })
+
+  it('shouldn\'t hydrate functions', () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    function setup() {
+      permix.setup({
+        post: {
+          create: () => true,
+        },
+      })
+    }
+
+    setup()
+
+    const dehydratedState = dehydrate(permix)
+
+    expect(dehydratedState).toEqual({ post: { create: false } })
+
+    hydrate(permix, dehydratedState)
+
+    expect(permix.check('post', 'create')).toBe(false)
+
+    setup()
+
+    expect(permix.check('post', 'create')).toBe(true)
+  })
 })

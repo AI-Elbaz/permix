@@ -262,11 +262,13 @@ export interface PermixInternal<Permissions extends PermixDefinition> extends Pe
      * permix.setup({
      *   post: { create: true, delete: post => !post.isPublished }
      * })
-     * const permissions = permix.getStateJSON()
+     * const permissions = permix.getSerializableState()
      * // returns { post: { create: true, delete: false } }
      * ```
      */
-    getStateJSON: () => PermixStateJSON<Permissions>
+    getSerializableState: () => PermixStateJSON<Permissions>
+
+    parseSerializableState: (state: PermixStateJSON<Permissions>) => PermixState<Permissions>
 
     hooks: ReturnType<typeof createHooks<Permissions>>
 
@@ -384,16 +386,34 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
         state = s
       },
       checkWithState,
-      getStateJSON: () => {
+      getSerializableState: () => {
         const processedSetup = {} as PermixStateJSON<Permissions>
+
         for (const entity in state) {
           processedSetup[entity] = {} as any
           for (const action in state[entity]) {
             const value = state[entity][action]
+
             processedSetup[entity][action] = typeof value === 'function' ? false : value as boolean
           }
         }
+
         return processedSetup
+      },
+      parseSerializableState: (state: PermixStateJSON<Permissions>) => {
+        const parsedState = {} as PermixState<Permissions>
+
+        for (const entity in state) {
+          parsedState[entity] = {} as any
+
+          for (const action in state[entity]) {
+            const value = state[entity][action]
+
+            parsedState[entity][action] = value
+          }
+        }
+
+        return parsedState
       },
       hooks,
       [permixSymbol]: true,
