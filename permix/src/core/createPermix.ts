@@ -203,16 +203,6 @@ export interface Permix<Permissions extends PermixDefinition> {
    * Similar to `isReady`, but returns a Promise that resolves once `setup` is called.
    */
   isReadyAsync: () => Promise<boolean>
-
-  /**
-   * Prop to get all entities passed in Permix instance
-   */
-  $entityInfer: keyof Permissions
-
-  /**
-   * Prop to get all actions passed in Permix instance
-   */
-  $actionInfer: Permissions[keyof Permissions]['action']
 }
 
 export interface PermixInternal<Permissions extends PermixDefinition> extends Permix<Permissions> {
@@ -375,8 +365,6 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 
       return isReady
     },
-    $entityInfer: '' as keyof Permissions,
-    $actionInfer: '' as Permissions[keyof Permissions]['action'],
     _: {
       isSetupCalled: () => isSetupCalled,
       getState: () => {
