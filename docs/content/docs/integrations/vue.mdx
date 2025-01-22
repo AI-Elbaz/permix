@@ -72,10 +72,14 @@ And then you can use the `Check` component in your templates:
 
 ```vue title="page.vue"
 <template>
-  <Check entity="entity" action="action" :data="data">
-    Will show this if you have permission
-    <template #else>
-      Will show this if you don't have permission
+  <!--
+    reverse: Will flip the logic of the permission check
+    otherwise: Will show this if a user doesn't have permission
+  -->
+  <Check entity="entity" action="action" :data="data" reverse>
+    Will show this if a user have permission
+    <template #otherwise>
+      Will show this if a user doesn't have permission
     </template>
   </Check>
 </template>

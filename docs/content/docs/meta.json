@@ -21,9 +21,12 @@
     "integrations/express",
     "integrations/hono",
     "---Examples---",
-    "examples/role-based",
-    "examples/enum-based",
-    "examples/feature-flags",
-    "[Repository examples](https://github.com/letstri/permix/tree/main/examples)"
+    "[role-based](https://github.com/letstri/permix/tree/main/examples/role-based)",
+    "[enum-based](https://github.com/letstri/permix/tree/main/examples/enum-based)",
+    "[feature-flags](https://github.com/letstri/permix/tree/main/examples/feature-flags)",
+    "[react](https://github.com/letstri/permix/tree/main/examples/react)",
+    "[vue](https://github.com/letstri/permix/tree/main/examples/vue)",
+    "[nuxt](https://github.com/letstri/permix/tree/main/examples/nuxt)",
+    "[next](https://github.com/letstri/permix/tree/main/examples/next)"
   ]
 }

@@ -78,9 +78,10 @@ export default function Page() {
       entity="entity"
       action="action"
       data={data}
-      else={<p>Will show this if you don't have permission</p>}
+      otherwise={<p>Will show this if a user doesn't have permission</p>} // Will show this if a user doesn't have permission
+      reverse // Will flip the logic of the permission check
     >
-      Will show this if you have permission
+      Will show this if a user has permission
     </Check>
   )
 }
