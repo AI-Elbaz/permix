@@ -12,7 +12,7 @@ const { check } = usePermissions()
     <hr>
     <Check entity="post" action="create">
       Can I create a post inside the Check component?
-      <template #else>
+      <template #otherwise>
         You don't have permission to create a post
       </template>
     </Check>

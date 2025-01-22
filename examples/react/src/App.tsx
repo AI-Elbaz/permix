@@ -37,7 +37,7 @@ function App() {
         </div>
       ))}
       <hr />
-      <Check entity="post" action="edit" else={<div>You don't have permission to edit a post</div>}>
+      <Check entity="post" action="edit" otherwise={<div>You don't have permission to edit a post</div>}>
         Can I edit a post inside the Check component?
       </Check>
     </>

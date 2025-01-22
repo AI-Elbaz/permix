@@ -16,7 +16,7 @@ export default function Home() {
       {' '}
       {check('post', 'create') ? 'Yes' : 'No'}
       <hr />
-      <Check entity="post" action="create" else={<div>You don't have permission to create a post</div>}>
+      <Check entity="post" action="create" otherwise={<div>You don't have permission to create a post</div>}>
         Can I create a post inside the Check component?
       </Check>
     </div>
