@@ -6,6 +6,24 @@ import { createPermix } from '../core/createPermix'
 import { permixPlugin, usePermix } from './index'
 
 describe('composables', () => {
+  it('should throw error when plugin is not installed', () => {
+    const permix = createPermix<{
+      post: {
+        action: 'read'
+      }
+    }>()
+
+    const TestWrapper = defineComponent({
+      template: '<div></div>',
+      setup() {
+        expect(() => usePermix(permix)).toThrow('[Permix]: Looks like you forgot to install the plugin')
+        return {}
+      },
+    })
+
+    mount(TestWrapper)
+  })
+
   it('should work with custom hook', () => {
     const permix = createPermix<{
       post: {

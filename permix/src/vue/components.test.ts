@@ -208,4 +208,53 @@ describe('components', () => {
     expect(wrapper.html()).toContain(defaultText)
     expect(wrapper.html()).not.toContain(otherwiseText)
   })
+
+  it('shouldn\'t accept invalid props', () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    permix.setup({
+      post: {
+        create: true,
+      },
+    })
+
+    const { Check } = createComponents(permix)
+
+    const TestEntityComponent = {
+      template: `
+        <Check entity="not-exist" action="create">
+          <div>Entity prop</div>
+        </Check>
+      `,
+      components: { Check },
+    }
+
+    const TestActionComponent = {
+      template: `
+        <Check entity="post" action="not-exist">
+          <div>Action prop</div>
+        </Check>
+      `,
+      components: { Check },
+    }
+
+    const wrapper = mount(TestEntityComponent, {
+      global: {
+        plugins: [[permixPlugin, { permix }]],
+      },
+    })
+
+    const wrapper2 = mount(TestActionComponent, {
+      global: {
+        plugins: [[permixPlugin, { permix }]],
+      },
+    })
+
+    expect(wrapper.html()).not.toContain('Action prop')
+    expect(wrapper2.html()).not.toContain('Entity prop')
+  })
 })

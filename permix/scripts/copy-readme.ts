@@ -1,3 +1,4 @@
+/* c8 ignore start */
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -7,3 +8,4 @@ const readmePath = path.join(currentDir, '../..', 'README.md')
 const distReadmePath = path.join(currentDir, '..', 'README.md')
 
 fs.copyFileSync(readmePath, distReadmePath)
+/* c8 ignore end */

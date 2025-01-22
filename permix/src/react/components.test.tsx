@@ -233,4 +233,48 @@ describe('components', () => {
       expect(container.innerHTML).not.toContain(otherwiseText)
     })
   })
+
+  it('should validate ts props', () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    permix.setup({
+      post: {
+        create: true,
+      },
+    })
+
+    const { Check } = createComponents(permix)
+
+    const TestEntityComponent = () => {
+      return (
+        // @ts-expect-error entity does not exist
+        <Check entity="not-exist" action="create">
+          <div>Entity prop</div>
+        </Check>
+      )
+    }
+
+    const TestActionComponent = () => {
+      return (
+        // @ts-expect-error check action does not exist
+        <Check entity="post" action="not-exist">
+          <div>Action prop</div>
+        </Check>
+      )
+    }
+
+    const { container } = render(
+      <PermixProvider permix={permix}>
+        <TestEntityComponent />
+        <TestActionComponent />
+      </PermixProvider>,
+    )
+
+    expect(container.innerHTML).not.toContain('Action prop')
+    expect(container.innerHTML).not.toContain('Entity prop')
+  })
 })

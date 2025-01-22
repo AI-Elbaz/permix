@@ -171,6 +171,40 @@ describe('createPermixMiddleware', () => {
       .toThrow('You do not have permission to create a post')
   })
 
+  it('should throw error if unauthorizedError is not TRPCError', async () => {
+    const { check } = createPermixMiddleware(permix, {
+      // @ts-expect-error Testing invalid error type
+      unauthorizedError: { message: 'Invalid error' },
+    })
+
+    const protectedProcedure = t.procedure.use(({ next }) => {
+      permix.setup({
+        post: {
+          create: false,
+          read: false,
+          update: false,
+        },
+        user: {
+          delete: false,
+        },
+      })
+
+      return next()
+    })
+
+    const router = t.router({
+      createPost: protectedProcedure
+        .use(check('post', 'create'))
+        .query(() => {
+          return { success: true }
+        }),
+    })
+
+    await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost())
+      .rejects
+      .toThrow()
+  })
+
   it('should chain multiple permissions', async () => {
     const protectedProcedure = t.procedure.use(({ next }) => {
       permix.setup({

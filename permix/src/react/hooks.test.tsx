@@ -115,4 +115,20 @@ describe('permix react', () => {
       expect(container.firstChild).toHaveTextContent('true')
     })
   })
+
+  it('should throw error when PermixProvider is missing', () => {
+    const permix = createPermix<{
+      post: {
+        dataType: { id: string }
+        action: 'create' | 'read'
+      }
+    }>()
+
+    const TestComponent = () => {
+      const { check } = usePermix(permix)
+      return <div>{check('post', 'create').toString()}</div>
+    }
+
+    expect(() => render(<TestComponent />)).toThrow()
+  })
 })

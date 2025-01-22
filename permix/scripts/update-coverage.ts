@@ -1,3 +1,4 @@
+/* c8 ignore start */
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -12,3 +13,4 @@ const regex = /Coverage-(\d+\.\d+|\d{2,})%25-/
 const replacement = `Coverage-${coveragePercentage}%25-`
 
 fs.writeFileSync(readmePath, readme.replace(regex, replacement))
+/* c8 ignore end */
