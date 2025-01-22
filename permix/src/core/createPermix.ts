@@ -30,11 +30,17 @@ export type PermixState<Permissions extends PermixDefinition = PermixDefinition>
   };
 }
 
-type CheckFunctionParams<Permissions extends PermixDefinition, K extends keyof Permissions> = [
+export type CheckFunctionParams<Permissions extends PermixDefinition, K extends keyof Permissions> = [
   entity: K,
   action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][],
   data?: Permissions[K]['dataType'],
 ]
+
+export interface CheckFunctionObject<Permissions extends PermixDefinition, K extends keyof Permissions> {
+  entity: K
+  action: 'all' | Permissions[K]['action'] | Permissions[K]['action'][]
+  data?: Permissions[K]['dataType']
+}
 
 function checkWithState<Permissions extends PermixDefinition, K extends keyof Permissions>(state: PermixState<Permissions>, ...params: CheckFunctionParams<Permissions, K>) {
   const [entity, action, data] = params
@@ -197,6 +203,16 @@ export interface Permix<Permissions extends PermixDefinition> {
    * Similar to `isReady`, but returns a Promise that resolves once `setup` is called.
    */
   isReadyAsync: () => Promise<boolean>
+
+  /**
+   * Prop to get all entities passed in Permix instance
+   */
+  $entityInfer: keyof Permissions
+
+  /**
+   * Prop to get all actions passed in Permix instance
+   */
+  $actionInfer: Permissions[keyof Permissions]['action']
 }
 
 export interface PermixInternal<Permissions extends PermixDefinition> extends Permix<Permissions> {
@@ -357,6 +373,8 @@ export function createPermix<Permissions extends PermixDefinition>(): Permix<Per
 
       return isReady
     },
+    $entityInfer: '' as keyof Permissions,
+    $actionInfer: '' as Permissions[keyof Permissions]['action'],
     _: {
       isSetupCalled: () => isSetupCalled,
       getState: () => {

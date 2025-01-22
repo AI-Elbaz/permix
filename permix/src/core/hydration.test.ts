@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createPermix } from './createPermix'
-import { dehydrate, hydrate } from './hydration'
+import { createPermix, dehydrate, hydrate } from '.'
 
 describe('hydration', () => {
   it('should hydrate permissions from JSON state', () => {
