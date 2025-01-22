@@ -1,1 +1,3 @@
-export { permixPlugin, usePermix } from './permix'
+export { createComponents } from './components'
+export { usePermix } from './composables'
+export { permixPlugin } from './plugin'

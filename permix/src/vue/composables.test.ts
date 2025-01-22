@@ -5,7 +5,7 @@ import { createApp, defineComponent, ref } from 'vue'
 import { createPermix } from '../core/createPermix'
 import { permixPlugin, usePermix } from './index'
 
-describe('permix vue', () => {
+describe('composables', () => {
   it('should work with custom hook', () => {
     const permix = createPermix<{
       post: {
@@ -73,6 +73,7 @@ describe('permix vue', () => {
     })
 
     const app = createApp({})
+
     app.use(permixPlugin, { permix })
 
     const wrapper = mount(TestComponent, {

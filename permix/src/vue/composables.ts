@@ -1,9 +1,8 @@
-import type { Plugin, Ref } from 'vue'
+import type { Ref } from 'vue'
 import type { Permix, PermixDefinition, PermixState } from '../core/createPermix'
-import { computed, inject, ref } from 'vue'
+import { computed, inject } from 'vue'
 import { validatePermix } from '../core/createPermix'
-
-const PERMIX_CONTEXT_KEY = 'vue-permix'
+import { PERMIX_CONTEXT_KEY } from './plugin'
 
 function usePermixContext() {
   const context = inject(PERMIX_CONTEXT_KEY)
@@ -17,35 +16,6 @@ function usePermixContext() {
     isReady: boolean
     state: PermixState<any>
   }>
-}
-
-/**
- * Vue plugin that provides the Permix context to your application.
- *
- * @link https://permix.letstri.dev/docs/integrations/vue
- */
-export const permixPlugin: Plugin<{ permix: Permix<any> }> = (app, { permix }) => {
-  if (!permix) {
-    throw new Error('[Permix]: Looks like you forgot to provide the permix instance to the plugin')
-  }
-
-  validatePermix(permix)
-
-  const context = ref({
-    permix,
-    state: permix._.getState(),
-    isReady: false,
-  })
-
-  app.provide(PERMIX_CONTEXT_KEY, context)
-
-  permix.hook('setup', () => {
-    context.value.state = permix._.getState()
-  })
-
-  permix.hook('ready', () => {
-    context.value.isReady = true
-  })
 }
 
 /**

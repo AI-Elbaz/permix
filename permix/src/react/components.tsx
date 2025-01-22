@@ -1,4 +1,4 @@
-import type { PermixStateJSON } from '../core/createPermix'
+import type { CheckFunctionObject, PermixStateJSON } from '../core/createPermix'
 import * as React from 'react'
 import { hydrate, type Permix, type PermixDefinition } from '../core'
 import { validatePermix } from '../core/createPermix'
@@ -62,10 +62,7 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
   }: {
     children: React.ReactNode
     fallback?: React.ReactNode
-    entity: keyof Permissions
-    action: 'all' | Permissions[keyof Permissions]['action'] | Permissions[keyof Permissions]['action'][]
-    data?: Permissions[keyof Permissions]['dataType']
-  }) {
+  } & CheckFunctionObject<Permissions, keyof Permissions>) {
     const { check } = usePermix(permix)
     const can = check(entity, action, data)
 
@@ -75,6 +72,8 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
 
     return children
   }
+
+  Check.displayName = 'Check'
 
   return {
     Check,
