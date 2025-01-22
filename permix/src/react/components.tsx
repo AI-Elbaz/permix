@@ -21,16 +21,23 @@ export function PermixProvider<Permissions extends PermixDefinition>({
     state: permix._.getState(),
   })
 
+  function updateState() {
+    validatePermix(permix)
+    setContext(c => ({ ...c, state: permix._.getState() }))
+  }
+
+  function updateReady() {
+    setContext(c => ({ ...c, isReady: permix.isReady() }))
+  }
+
   React.useEffect(() => {
-    return permix.hook('setup', () => {
-      setContext(c => ({ ...c, state: permix._.getState() }))
-    })
+    updateState()
+    return permix.hook('setup', () => updateState())
   }, [permix])
 
   React.useEffect(() => {
-    return permix.hook('ready', () => {
-      setContext(c => ({ ...c, isReady: true }))
-    })
+    updateReady()
+    return permix.hook('ready', () => updateReady())
   }, [permix])
 
   return (
