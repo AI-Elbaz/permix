@@ -1,45 +1,35 @@
-import type { SlotsType } from 'vue'
+import type { SetupContext, SlotsType } from 'vue'
 import type { CheckFunctionObject, Permix, PermixDefinition } from '../core/createPermix'
-import { defineComponent, useSlots } from 'vue'
 import { usePermix } from './composables'
 
-// Props extends Record<string, any>, E extends EmitsOptions = {}, EE extends string = string, S extends SlotsType
-
 export function createComponents<Permissions extends PermixDefinition>(permix: Permix<Permissions>) {
-  const Check = defineComponent<
-    CheckFunctionObject<Permissions, keyof Permissions>,
-    any,
-    any,
-    SlotsType<{
+  function Check<K extends keyof Permissions>(
+    props: CheckFunctionObject<Permissions, K>,
+    context: SetupContext<any, SlotsType<{
       default: void
       else?: void
-    }>
-  >((props) => {
-    const slots = useSlots()
+    }>>,
+  ) {
     const { check } = usePermix(permix)
 
-    return () => [check(props.entity, props.action, props.data) ? slots.default?.() : slots.else?.()]
-  }, {
-    inheritAttrs: false,
-    props: {
-      entity: {
-        type: String,
-        required: true,
-      },
-      action: {
-        type: String,
-        required: true,
-      },
-      data: {
-        type: Object,
-        required: false,
-      },
+    return check(props.entity, props.action, props.data) ? context.slots.default?.() : context.slots.else?.()
+  }
+
+  Check.inheritAttrs = false
+  Check.props = {
+    entity: {
+      type: String,
+      required: true,
     },
-    slots: Object as SlotsType<{
-      default: void
-      else?: void
-    }>,
-  })
+    action: {
+      type: String,
+      required: true,
+    },
+    data: {
+      type: Object,
+      required: false,
+    },
+  }
 
   return {
     Check,
