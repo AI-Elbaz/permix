@@ -53,7 +53,7 @@ export function PermixHydrate({ children, state }: { children: React.ReactNode, 
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function createComponents<Permissions extends PermixDefinition>(permix: Permix<Permissions>) {
-  function Check({
+  function Check<K extends keyof Permissions>({
     children,
     entity,
     action,
@@ -62,7 +62,7 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
   }: {
     children: React.ReactNode
     else?: React.ReactNode
-  } & CheckFunctionObject<Permissions, keyof Permissions>) {
+  } & CheckFunctionObject<Permissions, K>) {
     const { check } = usePermix(permix)
     const can = check(entity, action, data)
 
