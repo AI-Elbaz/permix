@@ -63,6 +63,8 @@
       "import": "./dist/hono/index.mjs"
     }
   },
+  "main": "./dist/core/index.mjs",
+  "types": "./dist/core/index.d.ts",
   "files": [
     "dist"
   ],
