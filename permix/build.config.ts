@@ -1,6 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { defineBuildConfig } from 'unbuild'
-import { optionalDependencies } from './package.json'
 
 export default defineBuildConfig([
   {
@@ -15,10 +14,6 @@ export default defineBuildConfig([
       './src/hono/index.ts',
     ],
     declaration: true,
-    externals: [
-      'nuxt/app',
-      ...Object.keys(optionalDependencies),
-    ],
     hooks: {
       'build:done': async () => {
         const file = await readFile('./dist/react/index.mjs', 'utf-8')
@@ -27,12 +22,6 @@ export default defineBuildConfig([
     },
   },
   {
-    entries: [
-      './src/nuxt/index.ts',
-    ],
-    externals: [
-      'nuxt/app',
-      ...Object.keys(optionalDependencies),
-    ],
+    entries: ['./src/nuxt/index.ts'],
   },
 ])

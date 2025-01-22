@@ -68,6 +68,9 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "prepublishOnly": "run-p test build && pnpm run scripts:copy-readme",
     "build": "run-p build:unbuild && pnpm run scripts:update-coverage",
@@ -78,13 +81,33 @@
     "scripts:copy-readme": "tsx ./scripts/copy-readme",
     "scripts:update-coverage": "vitest run --coverage && tsx ./scripts/update-coverage"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "@trpc/server": ">=10",
     "express": ">=4",
     "hono": ">=4",
     "nuxt": ">=3",
     "react": ">=18",
     "vue": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "@trpc/server": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    },
+    "hono": {
+      "optional": true
+    },
+    "nuxt": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
