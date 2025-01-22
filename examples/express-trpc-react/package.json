@@ -1,0 +1,36 @@
+{
+  "name": "express",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "tsx server/main.ts",
+    "dev:server": "tsx watch server/main.ts",
+    "dev:client": "vite",
+    "drizzle:generate": "cd server && drizzle-kit generate",
+    "drizzle:migrate": "cd server && drizzle-kit migrate"
+  },
+  "dependencies": {
+    "@trpc/client": "^10.45.2",
+    "@trpc/server": "^10.45.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.38.4",
+    "express": ">=4",
+    "permix": "workspace:*",
+    "pg": "^8.13.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/pg": "^8.11.10",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "drizzle-kit": "^0.30.2",
+    "tsx": "^4.19.2",
+    "vite": "^6.0.11",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
