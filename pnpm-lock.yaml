@@ -35,6 +35,9 @@ importers:
       npm-run-all2:
         specifier: ^7.0.2
         version: 7.0.2
+      permix:
+        specifier: workspace:*
+        version: link:permix
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
