@@ -2,7 +2,7 @@
   "name": "permix",
   "displayName": "Permix",
   "type": "module",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "private": false,
   "packageManager": "pnpm@9.15.4",
   "description": "Permix is a lightweight, framework-agnostic, type-safe permissions management library for JavaScript applications on the client and server sides.",
