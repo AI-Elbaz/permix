@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { createApp, defineComponent, ref } from 'vue'
+import { createApp, defineComponent, onBeforeMount, onMounted, ref } from 'vue'
 import { createPermix } from '../core/createPermix'
 import { permixPlugin, usePermix } from './index'
 
@@ -150,5 +150,75 @@ describe('composables', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.get('div').text()).toBe('true')
+  })
+
+  it('should work with setup inside onBeforeMount', async () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    const TestWrapper = defineComponent({
+      template: '<div>{{ isReady }}</div>',
+      setup() {
+        const { isReady } = usePermix(permix)
+
+        onBeforeMount(() => {
+          permix.setup({
+            post: {
+              create: true,
+            },
+          })
+        })
+
+        return { isReady }
+      },
+    })
+
+    const wrapper = mount(TestWrapper, {
+      global: {
+        plugins: [[permixPlugin, { permix }]],
+      },
+    })
+
+    expect(wrapper.text()).toBe('true')
+  })
+
+  it('should work with setup inside onMounted', async () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    const TestWrapper = defineComponent({
+      template: '<div>{{ isReady }}</div>',
+      setup() {
+        const { isReady } = usePermix(permix)
+
+        onMounted(() => {
+          permix.setup({
+            post: {
+              create: true,
+            },
+          })
+        })
+
+        return { isReady }
+      },
+    })
+
+    const wrapper = mount(TestWrapper, {
+      global: {
+        plugins: [[permixPlugin, { permix }]],
+      },
+    })
+
+    expect(wrapper.text()).toBe('false')
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toBe('true')
   })
 })
