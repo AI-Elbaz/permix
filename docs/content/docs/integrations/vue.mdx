@@ -26,6 +26,7 @@ import { permix } from './lib/permix'
 import App from './App.vue'
 
 const app = createApp(App)
+
 app.use(permixPlugin, { permix })
 app.mount('#app')
 ```
@@ -38,14 +39,47 @@ Remember to always use the same Permix instance here and in the `usePermix` comp
 
 <Step>
 
+## Composable
+
+For checking permissions in your components, you can use the `usePermix` composable. And to avoid importing the composable and Permix instance in every component, you can create a custom composable:
+
+```ts title="composables/use-permissions.ts"
+import { usePermix } from 'permix/vue'
+import { permix } from './lib/permix'
+
+export function usePermissions() {
+  return usePermix(permix)
+}
+```
+
+</Step>
+
+<Step>
+
+## Components
+
+If you prefer using components, you can import the `createComponents` function from `permix/vue` and create checking components:
+
+```ts title="lib/permix.ts"
+import { createComponents } from 'permix/vue'
+
+// ...
+
+export const { Check } = createComponents(permix)
+```
+
+</Step>
+
+<Step>
+
 ## Usage
 
 Use the `usePermix` composable in your components to check permissions:
 
-```vue
+```vue title="page.vue"
 <script setup lang="ts">
 import { usePermix } from 'permix/vue'
-import { permix } from './lib/permix'
+import { permix, Check } from './lib/permix'
 
 const props = defineProps<{
   post: Post
@@ -61,22 +95,23 @@ const { check, isReady } = usePermix(permix)
       <button v-if="check('post', 'edit', props.post)">Edit Post</button>
       <p v-else>You don't have permission to edit this post</p>
     </template>
+    <Check name="post" action="edit" :data="props.post">
+      Can I edit this post?
+      <template #else>
+        You don't have permission to edit this post
+      </template>
+    </Check>
   </div>
 </template>
 ```
 
-### Custom composable
+</Step>
 
-To avoid importing the `usePermix` composable and Permix instance in every component, you can create a custom composable:
+<Step>
 
-```ts title="composables/use-permissions.ts"
-import { usePermix } from 'permix/vue'
-import { permix } from './lib/permix'
+## Example
 
-export function usePermissions() {
-  return usePermix(permix)
-}
-```
+You can find the example of the Vue integration [here](https://github.com/letstri/permix/tree/main/examples/vue-vite).
 
 </Step>
 

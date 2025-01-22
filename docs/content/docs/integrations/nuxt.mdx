@@ -39,9 +39,37 @@ Make sure to create and export your Permix instance from a separate file (e.g., 
 
 <Step>
 
+<Step>
+
+## Components
+
+If you prefer using components, you can import the `createComponents` function from `permix/react` and create checking components:
+
+```tsx title="lib/permix-components.ts"
+'use client'
+
+// the directive is needed for server side frameworks like Next.js
+// for client side you can skip it
+
+import { createComponents } from 'permix/react'
+import { permix } from './permix'
+
+export const { Check } = createComponents(permix)
+```
+
+</Step>
+
 ## Usage
 
 Usage is the same as the [Vue integration](/docs/integrations/vue#usage).
+
+</Step>
+
+<Step>
+
+## Example
+
+You can find the example of the Nuxt integration [here](https://github.com/letstri/permix/tree/main/examples/nuxt).
 
 </Step>
 

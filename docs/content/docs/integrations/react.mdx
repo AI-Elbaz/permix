@@ -40,15 +40,50 @@ Remember to always pass the same Permix instance to both the `PermixProvider` an
 
 <Step>
 
+## Hook
+
+For checking permissions in your components, you can use the `usePermix` hook. And to avoid importing the hook and Permix instance in every component, you can create a custom hook:
+
+```tsx title="hooks/use-permissions.ts"
+import { usePermix } from 'permix/react'
+import { permix } from '../lib/permix'
+
+export function usePermissions() {
+  return usePermix(permix)
+}
+```
+
+</Step>
+
+<Step>
+
+## Components
+
+If you prefer using components, you can import the `createComponents` function from `permix/react` and create checking components:
+
+```ts title="lib/permix.ts"
+import { createComponents } from 'permix/react'
+
+// ...
+
+export const { Check } = createComponents(permix)
+```
+
+</Step>
+
+<Step>
+
 ## Usage
 
-Use the `usePermix` hook in your components to check permissions:
+Use the `usePermix` hook and checking components in your components:
 
-```tsx title="pages/post-editor.tsx"
+```tsx title="page.tsx"
 import { usePermix } from 'permix/react'
 import { permix } from './lib/permix'
+import { Check } from './lib/permix-components'
 
-export function PostEditor({ post }) {
+export default function Page() {
+  const post = usePost()
   const { check, isReady } = usePermix(permix)
 
   if (!isReady) {
@@ -64,23 +99,21 @@ export function PostEditor({ post }) {
       ) : (
         <p>You don't have permission to edit this post</p>
       )}
+      <Check entity="post" action="create">
+        Can I create a post inside the Check component?
+      </Check>
     </div>
   )
 }
 ```
 
-### Custom hook
+</Step>
 
-To avoid importing the `usePermix` hook and Permix instance in every component, you can create a custom hook:
+<Step>
 
-```tsx title="hooks/use-permissions.ts"
-import { usePermix } from 'permix/react'
-import { permix } from './lib/permix'
+## Example
 
-export function usePermissions() {
-  return usePermix(permix)
-}
-```
+You can find the example of the React integration [here](https://github.com/letstri/permix/tree/main/examples/react-vite).
 
 </Step>
 

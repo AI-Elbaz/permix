@@ -80,9 +80,42 @@ Make sure to create and export your Permix instance from a separate file (e.g., 
 
 <Step>
 
+## Hook
+
+The hook creation is the same as in the [React integration](/docs/integrations/react#hook).
+
+</Step>
+
+<Step>
+
+## Components
+
+If you prefer using components, you can import the `createComponents` function from `permix/react` and create checking components:
+
+```tsx title="lib/permix-components.ts"
+'use client'
+
+import { createComponents } from 'permix/react'
+import { permix } from './permix'
+
+export const { Check } = createComponents(permix)
+```
+
+</Step>
+
+<Step>
+
 ## Usage
 
 Usage the same as the [React integration](/docs/integrations/react#usage).
+
+</Step>
+
+<Step>
+
+## Example
+
+You can find the example of the Next.js integration [here](https://github.com/letstri/permix/tree/main/examples/next).
 
 </Step>
 
