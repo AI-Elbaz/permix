@@ -58,16 +58,16 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
     entity,
     action,
     data,
-    fallback = null,
+    else: elseSlot = null,
   }: {
     children: React.ReactNode
-    fallback?: React.ReactNode
+    else?: React.ReactNode
   } & CheckFunctionObject<Permissions, keyof Permissions>) {
     const { check } = usePermix(permix)
     const can = check(entity, action, data)
 
     if (!can) {
-      return fallback
+      return elseSlot
     }
 
     return children

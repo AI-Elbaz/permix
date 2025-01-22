@@ -86,8 +86,8 @@ describe('components', () => {
       template: `
         <Check entity="post" action="edit" :data="{ authorId: '2' }">
           <div data-testid="post-can-be-created">{{ canText }}</div>
-          <template #fallback>
-            <div data-testid="fallback">{{ cannotText }}</div>
+          <template #else>
+            <div data-testid="else">{{ cannotText }}</div>
           </template>
         </Check>
       `,

@@ -121,7 +121,7 @@ describe('components', () => {
           entity="post"
           action="edit"
           data={{ authorId: '2' }}
-          fallback={<div data-testid="fallback">Post cannot be created</div>}
+          else={<div data-testid="else">{cannotText}</div>}
         >
           <div data-testid="post-can-be-created">{canText}</div>
         </Check>

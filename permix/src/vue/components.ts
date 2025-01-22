@@ -1,11 +1,26 @@
 import type { SlotsType } from 'vue'
 import type { CheckFunctionObject, Permix, PermixDefinition } from '../core/createPermix'
-import { defineComponent } from 'vue'
+import { defineComponent, useSlots } from 'vue'
 import { usePermix } from './composables'
 
+// Props extends Record<string, any>, E extends EmitsOptions = {}, EE extends string = string, S extends SlotsType
+
 export function createComponents<Permissions extends PermixDefinition>(permix: Permix<Permissions>) {
-  const Check = defineComponent<CheckFunctionObject<Permissions, keyof Permissions>>({
-    name: 'Check',
+  const Check = defineComponent<
+    CheckFunctionObject<Permissions, keyof Permissions>,
+    any,
+    any,
+    SlotsType<{
+      default: void
+      else?: void
+    }>
+  >((props) => {
+    const slots = useSlots()
+    const { check } = usePermix(permix)
+
+    return () => [check(props.entity, props.action, props.data) ? slots.default?.() : slots.else?.()]
+  }, {
+    inheritAttrs: false,
     props: {
       entity: {
         type: String,
@@ -15,19 +30,15 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
         type: String,
         required: true,
       },
-      data: Object,
+      data: {
+        type: Object,
+        required: false,
+      },
     },
     slots: Object as SlotsType<{
       default: void
-      fallback?: void
+      else?: void
     }>,
-    inheritAttrs: false,
-    setup(props, { slots }) {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { check } = usePermix(permix)
-
-      return () => [check(props.entity, props.action, props.data) ? slots.default?.() : slots.fallback?.()]
-    },
   })
 
   return {
