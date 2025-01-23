@@ -1,12 +1,34 @@
 ---
 title: Introduction
-description: A type-safe permission management you've always needed
+description: The type-safe permission management you've always needed
 icon: RiInboxLine
 ---
 
 ## Idea
 
-The idea to create a new permissions library came after watching Web Dev Simplified's [video](https://www.youtube.com/watch?v=5GG-VUvruzE) about permissions management and another attempt to combine [CASL](https://casl.js.org/) for both client and server without losing type-safety. This experience inspired the creation of Permix, which allows developers to implement permissions for frontend and backend applications written in TypeScript using a single source of truth across the entire app.
+In my many years of experience, I have worked extensively with validations. At the beginning of my career, I wrote validations myself, in the spirit:
+
+```ts
+if (user.role === 'admin') {
+  // do something
+}
+```
+
+Later, I started using [CASL](https://casl.js.org) for validation in a [Vue](https://vuejs.org/) application.
+
+```ts
+can('read', ['Post', 'Comment']);
+can('manage', 'Post', { author: 'me' });
+can('create', 'Comment');
+```
+
+But time goes on, CASL becomes older, and developers' needs grow, especially for type-safe libraries. Unfortunately, CASL couldn't satisfy my type validation needs and so I started thinking again about writing my own validation solution. But this time I wanted to make it as a library, as I already had experience with open-source.
+
+## Implementation
+
+A couple of weeks later, I started to create my own solution. However, nothing occurred to me until I watched a Web Dev Simplified [video](https://www.youtube.com/watch?v=5GG-VUvruzE) where he demonstrated an example of implementing permission management as he envisioned it. I really liked his approach because it was based on type-safety, which is exactly what I needed.
+
+So I'm ready to present to you my permission management solution called Permix!
 
 ## DX
 
@@ -140,12 +162,12 @@ const canUpdateComment = permix.check('comment', 'update', comment)
 
 What are the benefits of using Permix?
 
-- 100% type-safe without writing TypeScript (except for init)
-- Single source of truth for entire app
+- 100% type-safe without writing TypeScript (except for initialization)
+- Single source of truth for your entire app
 - Perfect match for TypeScript monorepos
-- 0 dependencies
+- Zero dependencies
 - Useful methods for specific cases
-- Large number of integrations for different frameworks, such as [React](/docs/integrations/react), [Vue](/docs/integrations/vue), [Next.js](/docs/integrations/next) etc.
+- Large number of integrations for different frameworks, such as [React](/docs/integrations/react), [Vue](/docs/integrations/vue), [Next.js](/docs/integrations/next), and more.
 
 ## Ready?
 
