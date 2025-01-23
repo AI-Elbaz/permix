@@ -14,7 +14,7 @@ When creating Permix, the goal was to simplify DX as much as possible without lo
 
 That is why you only need to write the following code to get started:
 
-```ts
+```ts twoslash
 import { createPermix } from 'permix'
 
 const permix = createPermix<{
@@ -29,12 +29,14 @@ permix.setup({
   }
 })
 
-permix.check('post', 'read') // true
+const canReadPost = permix.check('post', 'read') // true
 ```
 
 It looks too simple, so here's a more interesting example:
 
-```ts
+```ts twoslash
+import { createPermix } from 'permix'
+
 // You can take types from your database
 interface User {
   id: string
@@ -95,6 +97,14 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
   },
 }))
 
+async function getUser() {
+  // Imagine that this function is fetching user from database
+  return {
+    id: '1',
+    role: 'editor' as const,
+  }
+}
+
 // Setup permissions for signed in user
 async function setupPermix() {
   const user = await getUser()
@@ -110,11 +120,20 @@ async function setupPermix() {
 setupPermix()
 
 // Check if a user has permission to do something
-permix.check('post', 'create')
+const canCreatePost = permix.check('post', 'create')
+
+async function getComment() {
+  // Imagine that this function is fetching comment from database
+  return {
+    id: '1',
+    content: 'Hello, world!',
+    authorId: '1',
+  }
+}
 
 const comment = await getComment()
 
-permix.check('comment', 'update', comment)
+const canUpdateComment = permix.check('comment', 'update', comment)
 ```
 
 ## Benefits
