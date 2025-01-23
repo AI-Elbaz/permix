@@ -75,7 +75,13 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
     const { check } = usePermix(permix)
 
     const hasPermission = check(entity, action, data)
-    return <>{reverse ? hasPermission ? otherwise : children : hasPermission ? children : otherwise}</>
+    return (
+      <>
+        {reverse
+          ? hasPermission ? otherwise : children
+          : hasPermission ? children : otherwise}
+      </>
+    )
   }
 
   Check.displayName = 'Check'

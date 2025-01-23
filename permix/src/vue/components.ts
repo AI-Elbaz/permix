@@ -13,7 +13,9 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
     const { check } = usePermix(permix)
 
     const hasPermission = check(props.entity, props.action, props.data)
-    return props.reverse ? (hasPermission ? context.slots.otherwise?.() : context.slots.default?.()) : (hasPermission ? context.slots.default?.() : context.slots.otherwise?.())
+    return props.reverse
+      ? (hasPermission ? context.slots.otherwise?.() : context.slots.default?.())
+      : (hasPermission ? context.slots.default?.() : context.slots.otherwise?.())
   }
 
   Check.inheritAttrs = false
