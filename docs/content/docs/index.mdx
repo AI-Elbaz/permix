@@ -6,7 +6,7 @@ icon: RiInboxLine
 
 ## Idea
 
-In my many years of experience, I have worked extensively with permission management. At the beginning of my career, I wrote permission management myself, that looked like this:
+In my many years of experience, I have worked extensively with permissions management, and early in my career I wrote solutions that looked like this:
 
 ```ts
 if (user.role === 'admin') {
@@ -14,7 +14,7 @@ if (user.role === 'admin') {
 }
 ```
 
-Later, I started using [CASL](https://casl.js.org) for permission management in a [Vue](https://vuejs.org/) application.
+Later, I started using [CASL](https://casl.js.org) for permissions management in a [Vue](https://vuejs.org/) application.
 
 ```ts
 can('read', ['Post', 'Comment']);
