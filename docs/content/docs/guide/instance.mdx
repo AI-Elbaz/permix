@@ -7,7 +7,7 @@ description: Learn how to create a new Permix instance
 
 Instance is the main entry point for Permix that will check permissions in every returned method. To create an instance, you need to use the `createPermix` function.
 
-### TypeScript
+## TypeScript
 
 Permix is built with TypeScript, providing type safety and validation. Using TypeScript enables autocompletion and compile-time checks for your permission definitions.
 
@@ -21,15 +21,7 @@ const permix = createPermix<{
 }>()
 ```
 
-### JavaScript
-
-Not using TypeScript? Permix works perfectly fine even with plain JavaScript.
-
-```js title="/lib/permix.js"
-const permix = createPermix()
-```
-
-## Generic type
+### Generic type
 
 Permix instance do not accept any parameters to configure something, only generic type that looks like this:
 
@@ -52,7 +44,7 @@ import type { PermixDefinition } from 'permix'
 You shouldn't use `PermixDefinition` type directly, it's used internally by Permix.
 </Callout>
 
-### `action`
+#### `action`
 
 Union type of all actions you want to check on the entity.
 
@@ -67,7 +59,7 @@ const permix = createPermix<{
 }>()
 ```
 
-### `dataType`
+#### `dataType`
 
 <Callout>
 Not required, but recommended.
@@ -109,7 +101,7 @@ const somePost: Post = {
 const canEdit = permix.check('post', 'edit', somePost)
 ```
 
-## Return type
+### Return type
 
 Each Permix instance provides a list of methods to manage and check permissions. These methods are documented in detail on their separate pages.
 
@@ -130,4 +122,12 @@ permix.
 
 
 
+```
+
+### JavaScript
+
+Not using TypeScript? Permix works perfectly fine even with plain JavaScript.
+
+```js title="/lib/permix.js"
+const permix = createPermix()
 ```
