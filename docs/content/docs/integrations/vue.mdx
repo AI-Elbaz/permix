@@ -112,9 +112,9 @@ const { check, isReady } = usePermix(permix)
       <button v-if="check('post', 'edit', props.post)">Edit Post</button>
       <p v-else>You don't have permission to edit this post</p>
     </template>
-    <Check name="post" action="edit" :data="props.post">
+    <Check entity="post" action="edit" :data="props.post">
       Can I edit this post?
-      <template #else>
+      <template #otherwise>
         You don't have permission to edit this post
       </template>
     </Check>
