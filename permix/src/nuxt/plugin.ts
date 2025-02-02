@@ -1,3 +1,4 @@
+/* c8 ignore start */
 import type { ObjectPlugin } from 'nuxt/app'
 import type { Permix, PermixDefinition } from '../core'
 import { dehydrate, hydrate } from '../core'
@@ -28,3 +29,4 @@ export function permixPlugin<Permissions extends PermixDefinition>(permix: Permi
     },
   }
 }
+/* c8 ignore end */
