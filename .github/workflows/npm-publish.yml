@@ -15,7 +15,6 @@ jobs:
         with:
           node-version: 22.x
           registry-url: 'https://registry.npmjs.org'
-          provenance: true
       - uses: pnpm/action-setup@v2
         with:
           version: 9
