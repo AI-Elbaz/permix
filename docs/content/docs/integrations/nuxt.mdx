@@ -45,12 +45,7 @@ Make sure to create and export your Permix instance from a separate file (e.g., 
 
 If you prefer using components, you can import the `createComponents` function from `permix/vue` and create checking components:
 
-```ts title="utils/permix-components.ts"
-'use client'
-
-// the directive is needed for server side frameworks like Next.js
-// for client side you can skip it
-
+```ts title="utils/permix-components.ts
 import { createComponents } from 'permix/vue'
 import { permix } from './permix'
 
