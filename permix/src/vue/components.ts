@@ -2,7 +2,7 @@ import type { SetupContext, SlotsType, VNode } from 'vue'
 import type { CheckFunctionObject, Permix, PermixDefinition } from '../core/createPermix'
 import { usePermix } from './composables'
 
-interface CheckProps<Permissions extends PermixDefinition, K extends keyof Permissions> extends CheckFunctionObject<Permissions, K> {
+export interface CheckProps<Permissions extends PermixDefinition, K extends keyof Permissions> extends CheckFunctionObject<Permissions, K> {
   reverse?: boolean
 }
 

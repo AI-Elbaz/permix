@@ -58,7 +58,7 @@ export function PermixHydrate({ children, state }: { children: React.ReactNode, 
   return children
 }
 
-interface CheckProps<Permissions extends PermixDefinition, K extends keyof Permissions> extends CheckFunctionObject<Permissions, K> {
+export interface CheckProps<Permissions extends PermixDefinition, K extends keyof Permissions> extends CheckFunctionObject<Permissions, K> {
   children: React.ReactNode
   otherwise?: React.ReactNode
   reverse?: boolean

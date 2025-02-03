@@ -1,4 +1,3 @@
-import type { PermixComponents } from './components'
 import { render, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { createPermix, dehydrate } from '../core'
@@ -277,27 +276,5 @@ describe('components', () => {
 
     expect(container.innerHTML).not.toContain('Action prop')
     expect(container.innerHTML).not.toContain('Entity prop')
-  })
-
-  it('should create components with PermixDefinition', () => {
-    // eslint-disable-next-line ts/consistent-type-definitions
-    type PermixDefinition = {
-      post: {
-        action: 'create'
-      }
-      user: {
-        action: 'read'
-      }
-    }
-
-    const permix = createPermix<PermixDefinition>()
-
-    const { Check }: PermixComponents<PermixDefinition> = createComponents(permix)
-
-    expect(() => {
-      // @ts-expect-error wrong action
-      Check({ entity: 'post', action: 'read' })
-      // Because didn't setup the provider
-    }).toThrow()
   })
 })

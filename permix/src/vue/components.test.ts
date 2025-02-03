@@ -1,4 +1,3 @@
-import type { PermixComponents } from './components'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createPermix } from '../core'
@@ -257,30 +256,5 @@ describe('components', () => {
 
     expect(wrapper.html()).not.toContain('Action prop')
     expect(wrapper2.html()).not.toContain('Entity prop')
-  })
-
-  it('should create components with PermixDefinition', () => {
-    // eslint-disable-next-line ts/consistent-type-definitions
-    type PermixDefinition = {
-      post: {
-        action: 'create'
-      }
-      user: {
-        action: 'read'
-      }
-    }
-
-    const permix = createPermix<PermixDefinition>()
-
-    const { Check }: PermixComponents<PermixDefinition> = createComponents(permix)
-
-    expect(() => {
-      Check(
-        // @ts-expect-error wrong action
-        { entity: 'post', action: 'read' },
-        {},
-      )
-      // Because didn't setup the plugin
-    }).toThrow()
   })
 })

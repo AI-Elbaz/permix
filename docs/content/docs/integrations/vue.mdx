@@ -133,29 +133,3 @@ You can find the example of the Vue integration [here](https://github.com/letstr
 </Step>
 
 </Steps>
-
-## Known issues
-
-Sometimes you can get an error like this:
-
-```
-The inferred type of `Check` cannot be named without a reference to `...`. This is likely not portable. A type annotation is necessary.
-```
-
-To fix this, you can add a type annotation to the `createComponents` function:
-
-```ts
-import { createPermix } from 'permix'
-import { createComponents, type PermixComponents } from 'permix/vue'
-
-// It should be defined only as type, interface won't work
-type PermixDefinition = {
-  post: {
-    action: 'create'
-  }
-}
-
-const permix = createPermix<PermixDefinition>()
-
-const { Check }: PermixComponents<PermixDefinition> = createComponents(permix)
-```
