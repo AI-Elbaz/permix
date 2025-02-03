@@ -43,15 +43,15 @@ Make sure to create and export your Permix instance from a separate file (e.g., 
 
 ## Components
 
-If you prefer using components, you can import the `createComponents` function from `permix/react` and create checking components:
+If you prefer using components, you can import the `createComponents` function from `permix/vue` and create checking components:
 
-```tsx title="lib/permix-components.ts"
+```ts title="utils/permix-components.ts"
 'use client'
 
 // the directive is needed for server side frameworks like Next.js
 // for client side you can skip it
 
-import { createComponents } from 'permix/react'
+import { createComponents } from 'permix/vue'
 import { permix } from './permix'
 
 export const { Check } = createComponents(permix)
