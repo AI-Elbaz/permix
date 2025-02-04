@@ -38,7 +38,7 @@ export function createComponents<Permissions extends PermixDefinition>(permix: P
       required: true,
     },
     action: {
-      type: String,
+      type: [String, Array],
       required: true,
     },
     data: {
