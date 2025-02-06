@@ -28,18 +28,28 @@ function App() {
       <hr />
       {posts.map(post => (
         <div key={post.id}>
+          <h2>
+            Post
+            {' '}
+            {post.id}
+          </h2>
           Can I edit the post where authorId is
-          {' '}
           {post.authorId}
           ?
-          {' '}
+          <br />
           {check('post', 'edit', post) ? 'Yes' : 'No'}
+          <br />
+          <Check
+            entity="post"
+            action="edit"
+            data={post}
+            otherwise="I don't have permission to edit a post inside the Check component"
+          >
+            I can edit a post inside the Check component
+          </Check>
+          <hr />
         </div>
       ))}
-      <hr />
-      <Check entity="post" action="edit" otherwise={<div>You don't have permission to edit a post</div>}>
-        Can I edit a post inside the Check component?
-      </Check>
     </>
   )
 }

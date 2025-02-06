@@ -25,16 +25,19 @@ watch(user, (user) => {
     {{ user?.id ?? '...' }}
     <hr>
     <div v-for="post in posts" :key="post.id">
+      <h2>
+        Post {{ post.id }}
+      </h2>
       Can I edit the post where authorId is
-      {{ post.authorId }}?
-      {{ check('post', 'edit', post) ? 'Yes' : 'No' }}
+      {{ post.authorId }}?<br>
+      {{ check('post', 'edit', post) ? 'Yes' : 'No' }}<br>
+      <Check entity="post" :action="['edit', 'read']" :data="post">
+        I can edit a post inside the Check component
+        <template #otherwise>
+          I don't have permission to edit a post inside the Check component
+        </template>
+      </Check>
+      <hr>
     </div>
-    <hr>
-    <Check entity="post" action="edit">
-      Can I edit a post inside the Check component?
-      <template #otherwise>
-        You don't have permission to edit a post
-      </template>
-    </Check>
   </div>
 </template>
