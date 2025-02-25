@@ -9,10 +9,13 @@ export function createHooks<Permissions extends PermixDefinition>() {
   }>()
 }
 
-export type PermixDefinition = Record<string, {
+export type PermixDefinition<T extends Record<string, {
   dataType?: unknown
   action: string
-}>
+}> = Record<string, {
+  dataType?: unknown
+  action: string
+}>> = T
 
 const permixSymbol = Symbol.for('permix')
 

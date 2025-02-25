@@ -32,7 +32,7 @@ describe('createPermixMiddleware', () => {
 
   it('should throw ts and js error', () => {
     // @ts-expect-error should throw
-    expect(() => check('post', 'delete')()).toThrow()
+    expect(check('post', 'delete')).toThrow()
   })
 
   it('should allow access when permission is defined', async () => {
