@@ -4,17 +4,17 @@ import { createPermixExpress } from 'permix/express'
 
 const app = express()
 
-type Definition = PermixDefinition<{
+type PermissionsDefinition = PermixDefinition<{
   user: {
     action: 'read' | 'write'
   }
 }>
 
-const { setupPermixMiddleware, checkMiddleware, getPermix } = createPermixExpress<Definition>({
+const permixExpress = createPermixExpress<PermissionsDefinition>({
   onUnauthorized: ({ res }) => res.status(403).json({ error: 'You are not authorized to access this resource' }),
 })
 
-app.use(setupPermixMiddleware(() => ({
+app.use(permixExpress.setupMiddleware(() => ({
   user: {
     read: true,
     write: false,
@@ -23,16 +23,16 @@ app.use(setupPermixMiddleware(() => ({
 
 const router = express.Router()
 
-router.get('/', checkMiddleware('user', 'read'), (req, res) => {
+router.get('/', permixExpress.checkMiddleware('user', 'read'), (req, res) => {
   res.send('Hello World')
 })
 
-router.get('/write', checkMiddleware('user', 'write'), (req, res) => {
+router.get('/write', permixExpress.checkMiddleware('user', 'write'), (req, res) => {
   res.send('Hello World')
 })
 
 router.get('/permix', (req, res) => {
-  res.json({ canRead: getPermix(req).check('user', 'read') })
+  res.json({ canRead: permixExpress.get(req).check('user', 'read') })
 })
 
 app.use(router)

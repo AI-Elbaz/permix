@@ -23,7 +23,7 @@ export function createPermixExpress<Definition extends PermixDefinition>(
 ) {
   type PermixRequest = Request & { [permixSymbol]: Permix<Definition> }
 
-  function getPermix(req: Request) {
+  function get(req: Request) {
     const permix = (req as PermixRequest)[permixSymbol]
 
     if (!permix) {
@@ -38,9 +38,9 @@ export function createPermixExpress<Definition extends PermixDefinition>(
     (req as PermixRequest)[permixSymbol] = permix
   }
 
-  function setupPermixMiddleware(callback: (params: { req: Request, res: Response }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
+  function setupMiddleware(callback: (params: { req: Request, res: Response }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     return async (req: Request, res: Response, next: NextFunction) => {
-      let permix = getPermix(req)
+      let permix = get(req)
 
       if (!permix) {
         permix = createPermix<Definition>()
@@ -54,7 +54,7 @@ export function createPermixExpress<Definition extends PermixDefinition>(
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
     return (req: Request, res: Response, next: NextFunction) => {
-      const hasPermission = getPermix(req).check(...params)
+      const hasPermission = get(req).check(...params)
 
       if (!hasPermission) {
         return onUnauthorized({ req, res, next, entity: params[0], actions: Array.isArray(params[1]) ? params[1] : [params[1]] })
@@ -64,5 +64,5 @@ export function createPermixExpress<Definition extends PermixDefinition>(
     }
   }
 
-  return { setupPermixMiddleware, getPermix, checkMiddleware }
+  return { setupMiddleware, get, checkMiddleware }
 }
