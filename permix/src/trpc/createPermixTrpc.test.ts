@@ -157,7 +157,7 @@ describe('createPermixTrpc', () => {
   })
 
   it('should throw error if unauthorizedError is not TRPCError', async () => {
-    const { checkMiddleware } = createPermixTrpc({
+    const { checkMiddleware } = createPermixTrpc<PermissionsDefinition>({
       // @ts-expect-error Testing invalid error type
       unauthorizedError: { message: 'Invalid error' },
     })

@@ -39,7 +39,7 @@ export function createPermixTrpc<Definition extends PermixDefinition>(
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
-    function middleware<C extends { permix: Permix<any> }>({ ctx, next }: { ctx: C, next: (...args: any[]) => Promise<any> }) {
+    function middleware<C extends { permix: Permix<Definition> }>({ ctx, next }: { ctx: C, next: (...args: any[]) => Promise<any> }) {
       const hasPermission = ctx.permix.check(...params)
 
       if (!hasPermission) {
