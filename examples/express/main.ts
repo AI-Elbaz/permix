@@ -10,7 +10,7 @@ type Definition = PermixDefinition<{
   }
 }>
 
-const { setupPermixMiddleware, checkMiddleware } = createPermixExpress<Definition>({
+const { setupPermixMiddleware, checkMiddleware, getPermix } = createPermixExpress<Definition>({
   onUnauthorized: ({ res }) => res.status(403).json({ error: 'You are not authorized to access this resource' }),
 })
 
@@ -29,6 +29,10 @@ router.get('/', checkMiddleware('user', 'read'), (req, res) => {
 
 router.get('/write', checkMiddleware('user', 'write'), (req, res) => {
   res.send('Hello World')
+})
+
+router.get('/permix', (req, res) => {
+  res.json({ canRead: getPermix(req).check('user', 'read') })
 })
 
 app.use(router)

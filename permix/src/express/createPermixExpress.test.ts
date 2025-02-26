@@ -163,4 +163,17 @@ describe('createPermix', () => {
     expect(response.status).toBe(200)
     expect(response.body).toEqual({ success: true })
   })
+
+  it('should return null when permix is not found', async () => {
+    const app = express()
+
+    app.get('/', (req, res) => {
+      const permix = getPermix(req)
+      res.json({ permix })
+    })
+
+    const response = await request(app).get('/')
+
+    expect(response.body).toEqual({ permix: null })
+  })
 })

@@ -24,7 +24,14 @@ export function createPermixExpress<Definition extends PermixDefinition>(
   type PermixRequest = Request & { [permixSymbol]: Permix<Definition> }
 
   function getPermix(req: Request) {
-    return (req as PermixRequest)[permixSymbol]
+    const permix = (req as PermixRequest)[permixSymbol]
+
+    if (!permix) {
+      console.error('[Permix]: Permix not found. Please use the `setupPermixMiddleware` function to set the permix.')
+      return null!
+    }
+
+    return permix
   }
 
   function setPermix(req: Request, permix: Permix<Definition>) {
