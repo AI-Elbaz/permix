@@ -20,7 +20,7 @@ import { isRulesValid } from './utils'
  * })
  *
  * // Now you can use setup
- * permix.setup(adminPermissions())
+ * permix.setup(adminPermissions)
  * ```
  */
 export function template<Definition extends PermixDefinition>(rules: PermixRules<Definition>) {
@@ -28,5 +28,5 @@ export function template<Definition extends PermixDefinition>(rules: PermixRules
     throw new Error('[Permix]: Permissions in template are not valid.')
   }
 
-  return () => rules
+  return rules
 }

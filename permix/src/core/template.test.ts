@@ -19,13 +19,13 @@ describe('template', () => {
       },
     })
 
-    expect(permissions()).toEqual({
+    expect(permissions).toEqual({
       post: {
         create: true,
       },
     })
 
-    permix.setup(permissions())
+    permix.setup(permissions)
 
     expect(permix.check('post', 'create')).toBe(true)
   })
@@ -84,11 +84,11 @@ describe('template', () => {
   it('should work with template function', () => {
     const permix = createPermix<Definition>()
 
-    const permissions = template<Definition>({
+    const rules = template<Definition>({
       post: { create: true },
     })
 
-    permix.setup(permissions())
+    permix.setup(rules)
 
     expect(permix.check('post', 'create')).toBe(true)
   })
