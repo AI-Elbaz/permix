@@ -20,7 +20,7 @@ type Definition = PermixDefinition<{
 }>
 
 describe('createPermix', () => {
-  const { permixMiddleware, getPermix, checkMiddleware } = createPermix<Definition>()
+  const { setupPermixMiddleware, getPermix, checkMiddleware } = createPermix<Definition>()
 
   it('should throw ts error', () => {
     // @ts-expect-error should throw
@@ -30,25 +30,18 @@ describe('createPermix', () => {
   it('should allow access when permission is granted', async () => {
     const app = express()
 
-    app.use(permixMiddleware)
+    app.use(setupPermixMiddleware(() => ({
+      post: {
+        create: true,
+        read: false,
+        update: false,
+      },
+      user: {
+        delete: false,
+      },
+    })))
 
-    app.use((req, res, next) => {
-      const permix = getPermix(req)
-
-      permix.setup({
-        post: {
-          create: true,
-          read: false,
-          update: false,
-        },
-        user: {
-          delete: false,
-        },
-      })
-      next()
-    })
-
-    app.post('/posts', checkMiddleware('post', 'create'), (_, res) => {
+    app.post('/posts', checkMiddleware('post', 'create'), (req, res) => {
       res.json({ success: true })
     })
 
@@ -60,128 +53,114 @@ describe('createPermix', () => {
     expect(response.body).toEqual({ success: true })
   })
 
-  // it('should deny access when permission is not granted', async () => {
-  //   const app = express()
+  it('should deny access when permission is not granted', async () => {
+    const app = express()
 
-  //   app.use('*', (req, res, next) => {
-  //     permix.setup({
-  //       post: {
-  //         create: false,
-  //         read: false,
-  //         update: false,
-  //       },
-  //       user: {
-  //         delete: false,
-  //       },
-  //     })
-  //     next()
-  //   })
+    app.use(setupPermixMiddleware(() => ({
+      post: {
+        create: false,
+        read: false,
+        update: false,
+      },
+      user: {
+        delete: false,
+      },
+    })))
 
-  //   app.post('/posts', check('post', 'create'), (_, res) => {
-  //     res.json({ success: true })
-  //   })
+    app.post('/posts', checkMiddleware('post', 'create'), (req, res) => {
+      res.json({ success: true })
+    })
 
-  //   const response = await request(app)
-  //     .post('/posts')
-  //     .send({ title: 'Test Post' })
+    const response = await request(app)
+      .post('/posts')
+      .send({ title: 'Test Post' })
 
-  //   expect(response.status).toBe(403)
-  //   expect(response.body).toEqual({ error: 'Forbidden' })
-  // })
+    expect(response.status).toBe(403)
+    expect(response.body).toEqual({ error: 'Forbidden' })
+  })
 
-  // it('should work with custom error handler', async () => {
-  //   const { check } = createPermixMiddleware(permix, {
-  //     onUnauthorized: ({ res }) => res.status(401).json({ error: 'Custom error' }),
-  //   })
+  it('should work with custom error handler', async () => {
+    const { setupPermixMiddleware, checkMiddleware } = createPermix<Definition>({
+      onUnauthorized: ({ res }) => res.status(401).json({ error: 'Custom error' }),
+    })
 
-  //   const app = express()
+    const app = express()
 
-  //   app.use('*', (req, res, next) => {
-  //     permix.setup({
-  //       post: {
-  //         create: false,
-  //         read: false,
-  //         update: false,
-  //       },
-  //       user: {
-  //         delete: false,
-  //       },
-  //     })
-  //     next()
-  //   })
+    app.use(setupPermixMiddleware(() => ({
+      post: {
+        create: false,
+        read: false,
+        update: false,
+      },
+      user: {
+        delete: false,
+      },
+    })))
 
-  //   app.post('/posts', check('post', 'create'), (_, res) => {
-  //     res.json({ success: true })
-  //   })
+    app.post('/posts', checkMiddleware('post', 'create'), (req, res) => {
+      res.json({ success: true })
+    })
 
-  //   const response = await request(app)
-  //     .post('/posts')
-  //     .send({ title: 'Test Post' })
+    const response = await request(app)
+      .post('/posts')
+      .send({ title: 'Test Post' })
 
-  //   expect(response.status).toBe(401)
-  //   expect(response.body).toEqual({ error: 'Custom error' })
-  // })
+    expect(response.status).toBe(401)
+    expect(response.body).toEqual({ error: 'Custom error' })
+  })
 
-  // it('should work with custom error and params', async () => {
-  //   const { check } = createPermixMiddleware(permix, {
-  //     onUnauthorized: ({ res, entity, actions }) => res.status(401).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }),
-  //   })
+  it('should work with custom error and params', async () => {
+    const { setupPermixMiddleware, checkMiddleware } = createPermix<Definition>({
+      onUnauthorized: ({ res, entity, actions }) => res.status(401).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }),
+    })
 
-  //   const app = express()
+    const app = express()
 
-  //   app.use('*', (req, res, next) => {
-  //     permix.setup({
-  //       post: {
-  //         create: false,
-  //         read: false,
-  //         update: false,
-  //       },
-  //       user: {
-  //         delete: false,
-  //       },
-  //     })
-  //     next()
-  //   })
+    app.use(setupPermixMiddleware(() => ({
+      post: {
+        create: false,
+        read: false,
+        update: false,
+      },
+      user: {
+        delete: false,
+      },
+    })))
 
-  //   app.post('/posts', check('post', 'create'), (_, res) => {
-  //     res.json({ success: true })
-  //   })
+    app.post('/posts', checkMiddleware('post', 'create'), (req, res) => {
+      res.json({ success: true })
+    })
 
-  //   const response = await request(app)
-  //     .post('/posts')
-  //     .send({ title: 'Test Post' })
+    const response = await request(app)
+      .post('/posts')
+      .send({ title: 'Test Post' })
 
-  //   expect(response.status).toBe(401)
-  //   expect(response.body).toEqual({ error: 'You do not have permission to create a post' })
-  // })
+    expect(response.status).toBe(401)
+    expect(response.body).toEqual({ error: 'You do not have permission to create a post' })
+  })
 
-  // it('should save permix instance in request', async () => {
-  //   type Definition = PermixDefinition<{
-  //     user: {
-  //       action: 'read' | 'write'
-  //     }
-  //   }>
+  it('should save permix instance in request', async () => {
+    const app = express()
 
-  //   const app = express()
+    app.use(setupPermixMiddleware(() => ({
+      post: {
+        create: true,
+        read: false,
+        update: false,
+      },
+      user: {
+        delete: false,
+      },
+    })))
 
-  //   app.use((req, res, next) => {
-  //     req.permix = createPermix<Definition>()
-  //     req.permix.setup({
-  //       user: {
-  //         read: true,
-  //         write: false,
-  //       },
-  //     })
-  //     next()
-  //   })
+    app.get('/', (req, res) => {
+      const permix = getPermix(req)
+      res.json({ success: permix.check('post', 'create') })
+    })
 
-  //   app.get('/', (req, res) => {
-  //     res.json({ success: req.permix.check('user', 'read') })
-  //   })
+    const response = await request(app).get('/')
 
-  //   const response = await request(app).get('/')
-
-  //   expect(response.status).toBe(200)
-  //   expect(response.body).toEqual({ success: true })
-  // })
+    expect(response.status).toBe(200)
+    expect(response.body).toEqual({ success: true })
+  })
 })
