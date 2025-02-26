@@ -10,10 +10,6 @@ type Definition = PermixDefinition<{
   }
 }>
 
-declare global {
-  interface PermixExpressDefinition extends Definition {}
-}
-
 const { permixMiddleware, getPermix, checkMiddleware } = createPermix<Definition>({
   onUnauthorized: ({ res }) => res.status(403).json({ error: 'You are not authorized to access this resource' }),
 })
