@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isPermissionsValid } from './utils'
+import { isRulesValid } from './utils'
 
 describe('utils', () => {
   it('should return true for valid permissions object', () => {
@@ -10,7 +10,7 @@ describe('utils', () => {
       },
     }
 
-    expect(isPermissionsValid(permissions)).toBe(true)
+    expect(isRulesValid(permissions)).toBe(true)
   })
 
   it('should return true for permissions with function values', () => {
@@ -21,7 +21,7 @@ describe('utils', () => {
       },
     }
 
-    expect(isPermissionsValid(permissions)).toBe(true)
+    expect(isRulesValid(permissions)).toBe(true)
   })
 
   it('should return false for invalid permissions object', () => {
@@ -32,16 +32,16 @@ describe('utils', () => {
       },
     }
 
-    expect(isPermissionsValid(permissions)).toBe(false)
+    expect(isRulesValid(permissions)).toBe(false)
   })
 
   it('should return false for null value', () => {
-    expect(isPermissionsValid(null)).toBe(false)
+    expect(isRulesValid(null)).toBe(false)
   })
 
   it('should return false for non-object value', () => {
-    expect(isPermissionsValid('string')).toBe(false)
-    expect(isPermissionsValid(123)).toBe(false)
-    expect(isPermissionsValid(true)).toBe(false)
+    expect(isRulesValid('string')).toBe(false)
+    expect(isRulesValid(123)).toBe(false)
+    expect(isRulesValid(true)).toBe(false)
   })
 })

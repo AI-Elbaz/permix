@@ -1,5 +1,5 @@
 import type { Ref } from 'vue'
-import type { Permix, PermixDefinition, PermixState } from '../core/createPermix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/createPermix'
 import { computed, inject } from 'vue'
 import { validatePermix } from '../core/createPermix'
 import { PERMIX_CONTEXT_KEY } from './plugin'
@@ -14,7 +14,7 @@ function usePermixContext() {
   return context as Ref<{
     permix: Permix<any>
     isReady: boolean
-    state: PermixState<any>
+    state: PermixRules<any>
   }>
 }
 

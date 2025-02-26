@@ -21,7 +21,11 @@ export const publicProcedure = t.procedure.use(({ next }) => {
 
   setupPermix(user.role)
 
-  return next()
+  return next({
+    ctx: {
+      permix,
+    },
+  })
 })
 
 export const { check } = createPermixMiddleware(permix, {

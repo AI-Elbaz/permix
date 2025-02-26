@@ -7,7 +7,7 @@
  *   },
  * }
  *
- * isPermissionsValid(permissions) // true
+ * isRulesValid(permissions) // true
  *
  * const permissions2 = {
  *   post: {
@@ -16,9 +16,9 @@
  *   },
  * }
  *
- * isPermissionsValid(permissions2) // false
+ * isRulesValid(permissions2) // false
  */
-export function isPermissionsValid<T>(value: unknown): value is T {
+export function isRulesValid<T>(value: unknown): value is T {
   if (typeof value !== 'object' || value === null) {
     return false
   }

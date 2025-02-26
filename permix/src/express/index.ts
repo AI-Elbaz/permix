@@ -1,1 +1,1 @@
-export { createPermixMiddleware } from './createPermixMiddleware'
+export { createPermix } from './createPermix'

@@ -1,20 +1,30 @@
+import type { PermixDefinition } from 'permix'
 import express from 'express'
-import { createPermix } from 'permix'
-import { createPermixMiddleware } from 'permix/express'
+import { createPermix } from 'permix/express'
 
 const app = express()
 
-const permix = createPermix<{
+type Definition = PermixDefinition<{
   user: {
     action: 'read' | 'write'
   }
-}>()
+}>
 
-const { check } = createPermixMiddleware(permix, {
-  onUnauthorized: ({ res }) => res.status(403).json({ error: 'You are not authorized to access this resource' }),
-})
+declare global {
+  interface PermixExpressDefinition extends Definition {}
+}
+
+const { permixMiddleware, getPermix, checkMiddleware } = createPermix<Definition>()
+
+app.use(permixMiddleware)
+
+// const { check } = createPermixMiddleware<Definition>({
+//   onUnauthorized: ({ res }) => res.status(403).json({ error: 'You are not authorized to access this resource' }),
+// })
 
 app.use((req, res, next) => {
+  const permix = getPermix(req)
+
   // Here you can check the request headers to get the user id and setup normal user permissions
   permix.setup({
     user: {
@@ -22,16 +32,17 @@ app.use((req, res, next) => {
       write: false,
     },
   })
+
   next()
 })
 
 const router = express.Router()
 
-router.get('/', check('user', 'read'), (req, res) => {
+router.get('/', checkMiddleware('user', 'read'), (req, res) => {
   res.send('Hello World')
 })
 
-router.get('/write', check('user', 'write'), (req, res) => {
+router.get('/write', checkMiddleware('user', 'write'), (req, res) => {
   res.send('Hello World')
 })
 
