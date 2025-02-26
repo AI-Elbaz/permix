@@ -157,7 +157,7 @@ describe('createPermixTrpc', () => {
   })
 
   it('should throw error if unauthorizedError is not TRPCError', async () => {
-    const { checkMiddleware } = createPermixTrpc<PermissionsDefinition>({
+    const permixTrpc = createPermixTrpc<PermissionsDefinition>({
       // @ts-expect-error Testing invalid error type
       unauthorizedError: { message: 'Invalid error' },
     })
@@ -175,7 +175,7 @@ describe('createPermixTrpc', () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(checkMiddleware('post', 'create'))
+        .use(permixTrpc.checkMiddleware('post', 'create'))
         .query(() => {
           return { success: true }
         }),

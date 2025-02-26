@@ -30,7 +30,7 @@ export function createPermixTrpc<Definition extends PermixDefinition>(
     callback: (params: { ctx: TParams['_ctx_out'] }) => PermixRules<Definition> | Promise<PermixRules<Definition>>,
   ): MiddlewareFunction<TParams, TParamsAfter> {
     return async ({ ctx, next }) => {
-      const permix = ((ctx as any).permix || createPermix<Definition>()) as Permix<Definition>
+      const permix = createPermix<Definition>()
 
       permix.setup(await callback({ ctx }))
 

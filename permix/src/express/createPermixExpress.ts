@@ -40,14 +40,12 @@ export function createPermixExpress<Definition extends PermixDefinition>(
 
   function setupMiddleware(callback: (params: { req: Request, res: Response }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     return async (req: Request, res: Response, next: NextFunction) => {
-      let permix = getPermix(req)
+      const permix = createPermix<Definition>()
 
-      if (!permix) {
-        permix = createPermix<Definition>()
-        setPermix(req, permix)
-      }
+      setPermix(req, permix)
 
       permix.setup(await callback({ req, res }))
+
       next()
     }
   }
