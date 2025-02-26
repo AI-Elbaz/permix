@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
-import { createPermix as createPermixCore } from '../core/createPermix'
+import { createPermix } from '../core/createPermix'
 
 const permixSymbol = Symbol('permix')
 
@@ -16,7 +16,7 @@ export interface PermixExpressOptions<T extends PermixDefinition> {
  *
  * @link https://permix.letstri.dev/docs/integrations/express
  */
-export function createPermix<Definition extends PermixDefinition>(
+export function createPermixExpress<Definition extends PermixDefinition>(
   {
     onUnauthorized = ({ res }) => res.status(403).json({ error: 'Forbidden' }),
   }: PermixExpressOptions<Definition> = {},
@@ -36,7 +36,7 @@ export function createPermix<Definition extends PermixDefinition>(
       let permix = getPermix(req)
 
       if (!permix) {
-        permix = createPermixCore<Definition>()
+        permix = createPermix<Definition>()
         setPermix(req, permix)
       }
 

@@ -2,7 +2,7 @@ import type { PermixDefinition } from '../core/createPermix'
 import express from 'express'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
-import { createPermix } from './createPermix'
+import { createPermixExpress } from './createPermixExpress'
 
 interface Post {
   id: string
@@ -20,7 +20,7 @@ type Definition = PermixDefinition<{
 }>
 
 describe('createPermix', () => {
-  const { setupPermixMiddleware, getPermix, checkMiddleware } = createPermix<Definition>()
+  const { setupPermixMiddleware, getPermix, checkMiddleware } = createPermixExpress<Definition>()
 
   it('should throw ts error', () => {
     // @ts-expect-error should throw
@@ -80,7 +80,7 @@ describe('createPermix', () => {
   })
 
   it('should work with custom error handler', async () => {
-    const { setupPermixMiddleware, checkMiddleware } = createPermix<Definition>({
+    const { setupPermixMiddleware, checkMiddleware } = createPermixExpress<Definition>({
       onUnauthorized: ({ res }) => res.status(401).json({ error: 'Custom error' }),
     })
 
@@ -110,7 +110,7 @@ describe('createPermix', () => {
   })
 
   it('should work with custom error and params', async () => {
-    const { setupPermixMiddleware, checkMiddleware } = createPermix<Definition>({
+    const { setupPermixMiddleware, checkMiddleware } = createPermixExpress<Definition>({
       onUnauthorized: ({ res, entity, actions }) => res.status(401).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }),
     })
 

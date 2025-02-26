@@ -1,6 +1,6 @@
 import type { PermixDefinition } from 'permix'
 import express from 'express'
-import { createPermix } from 'permix/express'
+import { createPermixExpress } from 'permix/express'
 
 const app = express()
 
@@ -10,7 +10,7 @@ type Definition = PermixDefinition<{
   }
 }>
 
-const { setupPermixMiddleware, checkMiddleware } = createPermix<Definition>({
+const { setupPermixMiddleware, checkMiddleware } = createPermixExpress<Definition>({
   onUnauthorized: ({ res }) => res.status(403).json({ error: 'You are not authorized to access this resource' }),
 })
 

@@ -1,1 +1,1 @@
-export { createPermix } from './createPermix'
+export { createPermixExpress } from './createPermixExpress'
