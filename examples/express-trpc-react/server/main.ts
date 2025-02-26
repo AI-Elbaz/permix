@@ -1,43 +1,38 @@
-import { permix, setupPermix } from '@/shared/permix'
+import type { PermissionsDefinition } from '@/shared/permix'
+import { getRules } from '@/shared/permix'
 import { initTRPC, TRPCError } from '@trpc/server'
 import * as trpcExpress from '@trpc/server/adapters/express'
 import cors from 'cors'
 import express from 'express'
-import { createPermixMiddleware } from 'permix/trpc'
+import { createPermixTrpc } from 'permix/trpc'
 import { z } from 'zod'
 
 const app = express()
 
 app.use(cors())
 
-const t = initTRPC.create()
+const t = initTRPC.context<{ extraInfo: string }>().create()
 
-export const router = t.router
-export const publicProcedure = t.procedure.use(({ next }) => {
-  // Imagine this is a middleware that gets the user from the request
-  const user = {
-    role: 'admin' as const,
-  }
-
-  setupPermix(user.role)
-
-  return next({
-    ctx: {
-      permix,
-    },
-  })
-})
-
-export const { check } = createPermixMiddleware(permix, {
+export const permixTrpc = createPermixTrpc<PermissionsDefinition>({
   unauthorizedError: new TRPCError({
     code: 'FORBIDDEN',
     message: 'You are not authorized to access this resource',
   }),
 })
 
+export const router = t.router
+export const publicProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => {
+  // Imagine this is a middleware that gets the user from the request
+  const user = {
+    role: 'admin' as const,
+  }
+
+  return getRules(user.role)
+}))
+
 export const appRouter = router({
   userList: publicProcedure
-    .use(check('user', 'read'))
+    .use(permixTrpc.checkMiddleware('user', 'read'))
     // Imagine this is a database query
     .query(() => [
       {
@@ -52,7 +47,7 @@ export const appRouter = router({
       },
     ]),
   userWrite: publicProcedure
-    .use(check('user', 'create'))
+    .use(permixTrpc.checkMiddleware('user', 'create'))
     .input(z.object({
       name: z.string(),
       email: z.string().email(),
@@ -69,6 +64,9 @@ app.use(
   '/trpc',
   trpcExpress.createExpressMiddleware({
     router: appRouter,
+    createContext: () => ({
+      extraInfo: 'some extra info',
+    }),
   }),
 )
 app.listen(3000, () => {
