@@ -46,10 +46,6 @@
       "types": "./dist/vue/index.d.ts",
       "import": "./dist/vue/index.mjs"
     },
-    "./nuxt": {
-      "types": "./dist/nuxt/index.d.ts",
-      "import": "./dist/nuxt/index.mjs"
-    },
     "./trpc": {
       "types": "./dist/trpc/index.d.ts",
       "import": "./dist/trpc/index.mjs"
@@ -85,7 +81,6 @@
     "@trpc/server": ">=10",
     "express": ">=4",
     "hono": ">=4",
-    "nuxt": ">=3",
     "react": ">=18",
     "vue": ">=3"
   },
@@ -97,9 +92,6 @@
       "optional": true
     },
     "hono": {
-      "optional": true
-    },
-    "nuxt": {
       "optional": true
     },
     "react": {
