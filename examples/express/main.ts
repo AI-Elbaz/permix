@@ -14,13 +14,11 @@ declare global {
   interface PermixExpressDefinition extends Definition {}
 }
 
-const { permixMiddleware, getPermix, checkMiddleware } = createPermix<Definition>()
+const { permixMiddleware, getPermix, checkMiddleware } = createPermix<Definition>({
+  onUnauthorized: ({ res }) => res.status(403).json({ error: 'You are not authorized to access this resource' }),
+})
 
 app.use(permixMiddleware)
-
-// const { check } = createPermixMiddleware<Definition>({
-//   onUnauthorized: ({ res }) => res.status(403).json({ error: 'You are not authorized to access this resource' }),
-// })
 
 app.use((req, res, next) => {
   const permix = getPermix(req)
