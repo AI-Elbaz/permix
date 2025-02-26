@@ -5,7 +5,7 @@ description: Learn how to use Permix with tRPC
 
 ## Overview
 
-Permix provides a middleware for tRPC that allows you to easily check permissions in your procedures. The middleware can be created using the `createPermixMiddleware` function.
+Permix provides a middleware for tRPC that allows you to easily check permissions in your procedures. The middleware can be created using the `createPermixTrpc` function.
 
 <Callout>
 Before getting started with tRPC integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
@@ -21,8 +21,7 @@ Here's a basic example of how to use the Permix middleware with tRPC:
 
 ```ts twoslash
 import { initTRPC } from '@trpc/server'
-import { createPermix } from 'permix'
-import { createPermixMiddleware } from 'permix/trpc'
+import { createPermixTrpc } from 'permix/trpc'
 
 interface Post {
   id: string
@@ -31,19 +30,28 @@ interface Post {
   content: string
 }
 
+// Initialize tRPC
+const t = initTRPC.context<{ user: { id: string } }>().create()
+
 // Create your Permix instance
-const permix = createPermix<{
+const permixTrpc = createPermixTrpc<{
   post: {
     dataType: Post
     action: 'create' | 'read' | 'update'
   }
 }>()
 
-// Initialize tRPC
-const t = initTRPC.create()
-
-// Create the middleware
-const { check } = createPermixMiddleware(permix)
+// Create a protected procedure with Permix
+const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(({ ctx }) => {
+  // You can access ctx.user or other properties to determine permissions
+  return {
+    post: {
+      create: true, // Allow post creation
+      read: true,   // Allow post reading
+      update: ctx.user.id === 'admin' // Only allow updates for admin
+    }
+  }
+}))
 ```
 
 <Callout>
@@ -56,15 +64,56 @@ The middleware preserves the context and input types from your tRPC procedures, 
 
 ## Usage
 
-Use the `check` function in your tRPC procedures to check permissions:
+Use the `checkMiddleware` function in your tRPC procedures to check permissions:
 
 ```ts
 const router = t.router({
-  createPost: t.procedure
-    .use(check('post', 'create'))
+  createPost: protectedProcedure
+    .use(permixTrpc.checkMiddleware('post', 'create'))
     .query(() => {
       return { success: true }
     }),
+
+  updatePost: protectedProcedure
+    .use(permixTrpc.checkMiddleware('post', ['read', 'update']))
+    .query(() => {
+      // Only executes if user has both 'read' and 'update' permissions
+      return { success: true }
+    }),
+
+  adminAction: protectedProcedure
+    .use(permixTrpc.checkMiddleware('post', 'all'))
+    .query(() => {
+      // Only executes if user has all permissions for 'post'
+      return { success: true }
+    })
+})
+```
+
+</Step>
+
+<Step>
+
+## Accessing Permix in Procedures
+
+Permix is automatically added to your tRPC context, so you can access it directly:
+
+```ts
+const router = t.router({
+  getPosts: protectedProcedure
+    .query(({ ctx }) => {
+      // Check permissions manually
+      if (ctx.permix.check('post', 'read')) {
+        // User has permission to read posts
+        return getAllPosts()
+      }
+
+      // If not explicitly blocked by middleware, you can handle permission failures here
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have permission to read posts'
+      })
+    })
 })
 ```
 
@@ -74,12 +123,12 @@ const router = t.router({
 
 ## Custom Error Handling
 
-By default, the middleware throws a `TRPCError` with code `UNAUTHORIZED`. You can customize this behavior by providing an error configuration:
+By default, the middleware throws a `TRPCError` with code `UNAUTHORIZED`. You can customize this behavior by providing an `unauthorizedError` option:
 
 ### Static Error
 
 ```ts
-const { check } = createPermixMiddleware(permix, {
+const permixTrpc = createPermixTrpc({
   unauthorizedError: new TRPCError({
     code: 'FORBIDDEN',
     message: 'Custom unauthorized message',
@@ -92,7 +141,7 @@ const { check } = createPermixMiddleware(permix, {
 You can also provide a function that returns different errors based on the entity and actions:
 
 ```ts
-const { check } = createPermixMiddleware(permix, {
+const permixTrpc = createPermixTrpc({
   unauthorizedError: ({ entity, actions }) => {
     if (entity === 'post' && actions.includes('create')) {
       return new TRPCError({
