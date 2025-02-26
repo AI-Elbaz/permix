@@ -28,6 +28,8 @@ jobs:
             npm config set sign-git-tag true
             if [[ "$PACKAGE_VERSION" == *"beta"* ]]; then
               pnpm publish --no-git-checks --tag beta
+            elif [[ "$PACKAGE_VERSION" == *"rc"* ]]; then
+              pnpm publish --no-git-checks --tag rc
             else
               pnpm publish --no-git-checks
             fi
