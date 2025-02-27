@@ -1,7 +1,7 @@
 import type { PermixDefinition } from '../core/createPermix'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
-import { createPermixHono } from './createPermixHono'
+import { createPermix } from './createPermix'
 
 interface Post {
   id: string
@@ -18,14 +18,14 @@ type Definition = PermixDefinition<{
   }
 }>
 
-describe('createPermixHono', () => {
-  const permixHono = createPermixHono<Definition>()
+describe('createPermix', () => {
+  const permix = createPermix<Definition>()
 
   it('should throw ts error', async () => {
     const app = new Hono()
 
     // @ts-expect-error should throw
-    app.post('/posts', permixHono.checkMiddleware('post', 'delete'), (c) => {
+    app.post('/posts', permix.checkMiddleware('post', 'delete'), (c) => {
       return c.json({ success: true })
     })
 
@@ -41,7 +41,7 @@ describe('createPermixHono', () => {
   it('should allow access when permission is granted', async () => {
     const app = new Hono()
 
-    app.use('*', permixHono.setupMiddleware(() => ({
+    app.use('*', permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: false,
@@ -52,7 +52,7 @@ describe('createPermixHono', () => {
       },
     })))
 
-    app.post('/posts', permixHono.checkMiddleware('post', 'create'), (c) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (c) => {
       return c.json({ success: true })
     })
 
@@ -68,7 +68,7 @@ describe('createPermixHono', () => {
   it('should deny access when permission is not granted', async () => {
     const app = new Hono()
 
-    app.use('*', permixHono.setupMiddleware(() => ({
+    app.use('*', permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -79,7 +79,7 @@ describe('createPermixHono', () => {
       },
     })))
 
-    app.post('/posts', permixHono.checkMiddleware('post', 'create'), (c) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (c) => {
       return c.json({ success: true })
     })
 
@@ -93,13 +93,13 @@ describe('createPermixHono', () => {
   })
 
   it('should work with custom error handler', async () => {
-    const permixHono = createPermixHono<Definition>({
+    const permix = createPermix<Definition>({
       onForbidden: ({ c }) => c.json({ error: 'Custom error' }, 403),
     })
 
     const app = new Hono()
 
-    app.use('*', permixHono.setupMiddleware(() => ({
+    app.use('*', permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -110,7 +110,7 @@ describe('createPermixHono', () => {
       },
     })))
 
-    app.post('/posts', permixHono.checkMiddleware('post', 'create'), (c) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (c) => {
       return c.json({ success: true })
     })
 
@@ -124,13 +124,13 @@ describe('createPermixHono', () => {
   })
 
   it('should work with custom error and params', async () => {
-    const permixHono = createPermixHono<Definition>({
+    const permix = createPermix<Definition>({
       onForbidden: ({ c, entity, actions }) => c.json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }, 403),
     })
 
     const app = new Hono()
 
-    app.use('*', permixHono.setupMiddleware(() => ({
+    app.use('*', permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -141,7 +141,7 @@ describe('createPermixHono', () => {
       },
     })))
 
-    app.post('/posts', permixHono.checkMiddleware('post', 'create'), (c) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (c) => {
       return c.json({ success: true })
     })
 
@@ -157,7 +157,7 @@ describe('createPermixHono', () => {
   it('should save permix instance in context', async () => {
     const app = new Hono()
 
-    app.use('*', permixHono.setupMiddleware(() => ({
+    app.use('*', permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: false,
@@ -169,8 +169,8 @@ describe('createPermixHono', () => {
     })))
 
     app.get('/', (c) => {
-      const permix = permixHono.get(c)
-      return c.json({ success: permix.check('post', 'create') })
+      const p = permix.get(c)
+      return c.json({ success: p.check('post', 'create') })
     })
 
     const res = await app.request('/')
@@ -183,8 +183,8 @@ describe('createPermixHono', () => {
     const app = new Hono()
 
     app.get('/', (c) => {
-      const permix = permixHono.get(c)
-      return c.json({ permix })
+      const p = permix.get(c)
+      return c.json({ permix: p })
     })
 
     const res = await app.request('/')
@@ -195,7 +195,7 @@ describe('createPermixHono', () => {
   it('should work with template', async () => {
     const app = new Hono()
 
-    app.use('*', permixHono.setupMiddleware(permixHono.template({
+    app.use('*', permix.setupMiddleware(permix.template({
       post: {
         create: true,
         read: false,
@@ -206,7 +206,7 @@ describe('createPermixHono', () => {
       },
     })))
 
-    app.post('/posts', permixHono.checkMiddleware('post', 'create'), (c) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (c) => {
       return c.json({ success: true })
     })
 

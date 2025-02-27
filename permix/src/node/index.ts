@@ -1,1 +1,1 @@
-export { createPermixNode, type PermixNodeOptions } from './createPermixNode'
+export { createPermix, type PermixOptions } from './createPermix'

@@ -2,7 +2,7 @@ import type { PermixDefinition } from '../core/createPermix'
 import { initTRPC, TRPCError } from '@trpc/server'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
-import { createPermixTrpc } from './createPermixTrpc'
+import { createPermix } from './createPermix'
 
 interface Context {
   user: {
@@ -10,7 +10,7 @@ interface Context {
   }
 }
 
-describe('createPermixTrpc', () => {
+describe('createPermix', () => {
   const t = initTRPC.context<Context>().create()
 
   interface Post {
@@ -28,15 +28,15 @@ describe('createPermixTrpc', () => {
     }
   }>
 
-  const permixTrpc = createPermixTrpc<PermissionsDefinition>()
+  const permix = createPermix<PermissionsDefinition>()
 
   it('should throw ts and js error', () => {
     // @ts-expect-error should throw
-    expect(permixTrpc.checkMiddleware('post', 'delete')).toThrow()
+    expect(permix.checkMiddleware('post', 'delete')).toThrow()
   })
 
   it('should allow access when permission is defined', async () => {
-    const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => ({
+    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: true,
@@ -49,7 +49,7 @@ describe('createPermixTrpc', () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permixTrpc.checkMiddleware('post', 'create'))
+        .use(permix.checkMiddleware('post', 'create'))
         .query(({ ctx }) => {
           ctx.permix.check('post', 'update')
           return { success: true }
@@ -61,7 +61,7 @@ describe('createPermixTrpc', () => {
   })
 
   it('should deny access when permission is not granted', async () => {
-    const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => ({
+    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -74,7 +74,7 @@ describe('createPermixTrpc', () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permixTrpc.checkMiddleware('post', 'create'))
+        .use(permix.checkMiddleware('post', 'create'))
         .query(() => {
           return { success: true }
         }),
@@ -89,11 +89,11 @@ describe('createPermixTrpc', () => {
       message: 'Custom forbidden message',
     })
 
-    const permixTrpc = createPermixTrpc({
+    const permix = createPermix({
       forbiddenError: customError,
     })
 
-    const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => ({
+    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -106,7 +106,7 @@ describe('createPermixTrpc', () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permixTrpc.checkMiddleware('post', 'create'))
+        .use(permix.checkMiddleware('post', 'create'))
         .query(() => {
           return { success: true }
         }),
@@ -116,7 +116,7 @@ describe('createPermixTrpc', () => {
   })
 
   it('should work with custom error and params', async () => {
-    const permixTrpc = createPermixTrpc({
+    const permix = createPermix({
       forbiddenError: ({ entity, actions }) => {
         if (entity === 'post' && actions.includes('create')) {
           return new TRPCError({
@@ -132,7 +132,7 @@ describe('createPermixTrpc', () => {
       },
     })
 
-    const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => ({
+    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -145,7 +145,7 @@ describe('createPermixTrpc', () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permixTrpc.checkMiddleware('post', 'create'))
+        .use(permix.checkMiddleware('post', 'create'))
         .query(() => {
           return { success: true }
         }),
@@ -157,12 +157,12 @@ describe('createPermixTrpc', () => {
   })
 
   it('should throw error if forbiddenError is not TRPCError', async () => {
-    const permixTrpc = createPermixTrpc<PermissionsDefinition>({
+    const permix = createPermix<PermissionsDefinition>({
       // @ts-expect-error Testing invalid error type
       forbiddenError: { message: 'Invalid error' },
     })
 
-    const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => ({
+    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -175,7 +175,7 @@ describe('createPermixTrpc', () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permixTrpc.checkMiddleware('post', 'create'))
+        .use(permix.checkMiddleware('post', 'create'))
         .query(() => {
           return { success: true }
         }),
@@ -187,7 +187,7 @@ describe('createPermixTrpc', () => {
   })
 
   it('should chain multiple permissions', async () => {
-    const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => ({
+    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: true,
@@ -200,7 +200,7 @@ describe('createPermixTrpc', () => {
 
     const router = t.router({
       createAndReadPost: protectedProcedure
-        .use(permixTrpc.checkMiddleware('post', ['create', 'read']))
+        .use(permix.checkMiddleware('post', ['create', 'read']))
         .query(() => {
           return { success: true }
         }),
@@ -211,7 +211,7 @@ describe('createPermixTrpc', () => {
   })
 
   it('should save types for context and input', async () => {
-    const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => ({
+    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: true,
@@ -224,7 +224,7 @@ describe('createPermixTrpc', () => {
 
     const router = t.router({
       createAndReadPost: protectedProcedure
-        .use(permixTrpc.checkMiddleware('post', 'read'))
+        .use(permix.checkMiddleware('post', 'read'))
         .input(z.object({
           userId: z.string(),
         }))
@@ -246,7 +246,7 @@ describe('createPermixTrpc', () => {
   })
 
   it('should work with template', async () => {
-    const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(permixTrpc.template({
+    const protectedProcedure = t.procedure.use(permix.setupMiddleware(permix.template({
       post: {
         create: true,
         read: false,
@@ -259,7 +259,7 @@ describe('createPermixTrpc', () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permixTrpc.checkMiddleware('post', 'create'))
+        .use(permix.checkMiddleware('post', 'create'))
         .query(() => {
           return { success: true }
         }),

@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { CheckFunctionParams, PermixDefinition, PermixRules } from '../core/createPermix'
-import type { PermixServerOptions } from '../server/createPermixServer'
-import { createPermixServer } from '../server/createPermixServer'
+import type { PermixOptions as PermixServerOptions } from '../server/createPermix'
+import { createPermix as createPermixServer } from '../server/createPermix'
 
-export interface PermixExpressOptions<T extends PermixDefinition> {
+export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
@@ -20,10 +20,10 @@ export interface PermixExpressOptions<T extends PermixDefinition> {
  *
  * @link https://permix.letstri.dev/docs/integrations/express
  */
-export function createPermixExpress<Definition extends PermixDefinition>(
+export function createPermix<Definition extends PermixDefinition>(
   {
     onForbidden = ({ res }) => res.status(403).json({ error: 'Forbidden' }),
-  }: PermixExpressOptions<Definition> = {},
+  }: PermixOptions<Definition> = {},
 ) {
   const serverOptions: PermixServerOptions<Definition> = {
     onForbidden: ({ req, res, entity, actions }) => {
@@ -39,11 +39,10 @@ export function createPermixExpress<Definition extends PermixDefinition>(
     },
   }
 
-  const permixServer = createPermixServer<Definition>(serverOptions)
+  const permix = createPermixServer<Definition>(serverOptions)
 
-  // Wrap server functions to adapt Express types
   function setupMiddleware(callback: (params: { req: Request }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
-    const serverMiddleware = permixServer.setupMiddleware(({ req }) => callback({ req: req as unknown as Request }))
+    const serverMiddleware = permix.setupMiddleware(({ req }) => callback({ req: req as unknown as Request }))
 
     return (req: Request, res: Response, next: NextFunction) => {
       return serverMiddleware(
@@ -55,7 +54,7 @@ export function createPermixExpress<Definition extends PermixDefinition>(
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
-    const serverMiddleware = permixServer.checkMiddleware(...params)
+    const serverMiddleware = permix.checkMiddleware(...params)
 
     return (req: Request, res: Response, next: NextFunction) => {
       return serverMiddleware(
@@ -67,11 +66,11 @@ export function createPermixExpress<Definition extends PermixDefinition>(
   }
 
   function getPermix(req: Request) {
-    return permixServer.get(req as unknown as globalThis.Request)
+    return permix.get(req as unknown as globalThis.Request)
   }
 
   return {
-    template: permixServer.template,
+    template: permix.template,
     setupMiddleware,
     get: getPermix,
     checkMiddleware,

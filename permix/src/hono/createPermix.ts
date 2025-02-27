@@ -1,12 +1,12 @@
 import type { Context, MiddlewareHandler } from 'hono'
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
-import { createPermix } from '../core/createPermix'
+import { createPermix as createPermixCore } from '../core/createPermix'
 import { templator } from '../core/template'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol.for('permix')
 
-export interface PermixHonoOptions<T extends PermixDefinition> {
+export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
@@ -22,10 +22,10 @@ export interface PermixHonoOptions<T extends PermixDefinition> {
  *
  * @link https://permix.letstri.dev/docs/integrations/hono
  */
-export function createPermixHono<Definition extends PermixDefinition>(
+export function createPermix<Definition extends PermixDefinition>(
   {
     onForbidden = ({ c }) => c.json({ error: 'Forbidden' }, 403),
-  }: PermixHonoOptions<Definition> = {},
+  }: PermixOptions<Definition> = {},
 ) {
   type PermixHono = Pick<Permix<Definition>, 'check' | 'checkAsync'>
 
@@ -42,7 +42,7 @@ export function createPermixHono<Definition extends PermixDefinition>(
 
   function setupMiddleware(callback: (params: { c: Context }) => PermixRules<Definition> | Promise<PermixRules<Definition>>): MiddlewareHandler {
     return async (c, next) => {
-      const permix = createPermix<Definition>()
+      const permix = createPermixCore<Definition>()
 
       c.set(permixSymbol as unknown as string, permix)
 
@@ -56,7 +56,6 @@ export function createPermixHono<Definition extends PermixDefinition>(
     return async function (c, next) {
       const permix = getPermix(c)
 
-      // Handle case when permix is not found
       if (!permix) {
         console.error('[Permix]: Permix not found. Please use the `setupMiddleware` function to set the permix.')
         return onForbidden({

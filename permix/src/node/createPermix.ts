@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { CheckFunctionParams, PermixDefinition, PermixRules } from '../core/createPermix'
-import type { PermixServerOptions } from '../server/createPermixServer'
-import { createPermixServer } from '../server/createPermixServer'
+import type { PermixOptions as PermixServerOptions } from '../server/createPermix'
+import { createPermix as createPermixServer } from '../server/createPermix'
 
-export interface PermixNodeOptions<T extends PermixDefinition> {
+export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
@@ -21,18 +21,17 @@ export interface PermixNodeOptions<T extends PermixDefinition> {
  *
  * @link https://permix.letstri.dev/docs/integrations/server
  */
-export function createPermixNode<Definition extends PermixDefinition>(
+export function createPermix<Definition extends PermixDefinition>(
   {
     onForbidden = ({ res }) => {
       res.statusCode = 403
       res.setHeader('Content-Type', 'application/json')
       res.end(JSON.stringify({ error: 'Forbidden' }))
     },
-  }: PermixNodeOptions<Definition> = {},
+  }: PermixOptions<Definition> = {},
 ) {
   const serverOptions: PermixServerOptions<Definition> = {
     onForbidden: ({ req, res, entity, actions }) => {
-      // Cast standard Request/Response to Node.js types
       const nodeReq = req as unknown as IncomingMessage
       const nodeRes = res as unknown as ServerResponse
 
@@ -47,7 +46,6 @@ export function createPermixNode<Definition extends PermixDefinition>(
 
   const permixServer = createPermixServer<Definition>(serverOptions)
 
-  // Wrap server functions to adapt Node.js types
   function setupMiddleware(callback: (params: { req: IncomingMessage }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     const serverMiddleware = permixServer.setupMiddleware(({ req }) => callback({ req: req as unknown as IncomingMessage }))
 

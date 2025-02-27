@@ -1,1 +1,1 @@
-export { createPermixServer, type PermixServerOptions } from './createPermixServer'
+export { createPermix, type PermixOptions } from './createPermix'

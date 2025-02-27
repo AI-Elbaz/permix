@@ -2,10 +2,10 @@ import type { MiddlewareFunction, ProcedureParams } from '@trpc/server'
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
 import { TRPCError } from '@trpc/server'
 import { templator } from '../core'
-import { createPermix } from '../core/createPermix'
+import { createPermix as createPermixCore } from '../core/createPermix'
 import { pick } from '../utils'
 
-export interface PermixTrpcOptions<T extends PermixDefinition> {
+export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error to throw when permission is denied
    */
@@ -17,13 +17,13 @@ export interface PermixTrpcOptions<T extends PermixDefinition> {
  *
  * @link https://permix.letstri.dev/docs/integrations/trpc
  */
-export function createPermixTrpc<Definition extends PermixDefinition>(
+export function createPermix<Definition extends PermixDefinition>(
   {
     forbiddenError = new TRPCError({
       code: 'FORBIDDEN',
       message: 'You do not have permission to perform this action',
     }),
-  }: PermixTrpcOptions<Definition> = {},
+  }: PermixOptions<Definition> = {},
 ) {
   type PermixTrpc = Pick<Permix<Definition>, 'check' | 'checkAsync'>
 
@@ -34,7 +34,7 @@ export function createPermixTrpc<Definition extends PermixDefinition>(
     callback: (params: { ctx: TParams['_ctx_out'] }) => PermixRules<Definition> | Promise<PermixRules<Definition>>,
   ): MiddlewareFunction<TParams, TParamsAfter> {
     return async ({ ctx, next }) => {
-      const permix = createPermix<Definition>()
+      const permix = createPermixCore<Definition>()
 
       permix.setup(await callback({ ctx }))
 

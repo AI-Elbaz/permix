@@ -1,6 +1,6 @@
 import type { PermixDefinition } from 'permix'
 import express from 'express'
-import { createPermixExpress } from 'permix/express'
+import { createPermix } from 'permix/express'
 
 const app = express()
 
@@ -10,11 +10,11 @@ type PermissionsDefinition = PermixDefinition<{
   }
 }>
 
-const permixExpress = createPermixExpress<PermissionsDefinition>({
+const permix = createPermix<PermissionsDefinition>({
   onForbidden: ({ res }) => res.status(403).json({ error: 'You do not have permission to access this resource' }),
 })
 
-app.use(permixExpress.setupMiddleware(() => ({
+app.use(permix.setupMiddleware(() => ({
   user: {
     read: true,
     write: false,
@@ -23,16 +23,16 @@ app.use(permixExpress.setupMiddleware(() => ({
 
 const router = express.Router()
 
-router.get('/', permixExpress.checkMiddleware('user', 'read'), (req, res) => {
+router.get('/', permix.checkMiddleware('user', 'read'), (req, res) => {
   res.send('Hello World')
 })
 
-router.get('/write', permixExpress.checkMiddleware('user', 'write'), (req, res) => {
+router.get('/write', permix.checkMiddleware('user', 'write'), (req, res) => {
   res.send('Hello World')
 })
 
 router.get('/permix', (req, res) => {
-  res.json({ canRead: permixExpress.get(req).check('user', 'read') })
+  res.json({ canRead: permix.get(req).check('user', 'read') })
 })
 
 app.use(router)

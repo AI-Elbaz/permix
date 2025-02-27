@@ -2,7 +2,7 @@ import type { PermixDefinition } from '../core/createPermix'
 import express from 'express'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
-import { createPermixExpress } from './createPermixExpress'
+import { createPermix } from './createPermix'
 
 interface Post {
   id: string
@@ -20,7 +20,7 @@ type PermissionsDefinition = PermixDefinition<{
 }>
 
 describe('createPermix', () => {
-  const permixExpress = createPermixExpress<PermissionsDefinition>()
+  const permix = createPermix<PermissionsDefinition>()
 
   it('should throw ts error', () => {
     // @ts-expect-error should throw
@@ -30,7 +30,7 @@ describe('createPermix', () => {
   it('should allow access when permission is granted', async () => {
     const app = express()
 
-    app.use(permixExpress.setupMiddleware(() => ({
+    app.use(permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: false,
@@ -41,7 +41,7 @@ describe('createPermix', () => {
       },
     })))
 
-    app.post('/posts', permixExpress.checkMiddleware('post', 'create'), (req, res) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (req, res) => {
       res.json({ success: true })
     })
 
@@ -56,7 +56,7 @@ describe('createPermix', () => {
   it('should deny access when permission is not granted', async () => {
     const app = express()
 
-    app.use(permixExpress.setupMiddleware(() => ({
+    app.use(permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -67,7 +67,7 @@ describe('createPermix', () => {
       },
     })))
 
-    app.post('/posts', permixExpress.checkMiddleware('post', 'create'), (req, res) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (req, res) => {
       res.json({ success: true })
     })
 
@@ -80,13 +80,13 @@ describe('createPermix', () => {
   })
 
   it('should work with custom error handler', async () => {
-    const permixExpress = createPermixExpress<PermissionsDefinition>({
+    const permix = createPermix<PermissionsDefinition>({
       onForbidden: ({ res }) => res.status(403).json({ error: 'Custom error' }),
     })
 
     const app = express()
 
-    app.use(permixExpress.setupMiddleware(() => ({
+    app.use(permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -97,7 +97,7 @@ describe('createPermix', () => {
       },
     })))
 
-    app.post('/posts', permixExpress.checkMiddleware('post', 'create'), (req, res) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (req, res) => {
       res.json({ success: true })
     })
 
@@ -110,13 +110,13 @@ describe('createPermix', () => {
   })
 
   it('should work with custom error and params', async () => {
-    const permixExpress = createPermixExpress<PermissionsDefinition>({
+    const permix = createPermix<PermissionsDefinition>({
       onForbidden: ({ res, entity, actions }) => res.status(403).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }),
     })
 
     const app = express()
 
-    app.use(permixExpress.setupMiddleware(() => ({
+    app.use(permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -127,7 +127,7 @@ describe('createPermix', () => {
       },
     })))
 
-    app.post('/posts', permixExpress.checkMiddleware('post', 'create'), (req, res) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (req, res) => {
       res.json({ success: true })
     })
 
@@ -142,7 +142,7 @@ describe('createPermix', () => {
   it('should save permix instance in request', async () => {
     const app = express()
 
-    app.use(permixExpress.setupMiddleware(() => ({
+    app.use(permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: false,
@@ -154,8 +154,8 @@ describe('createPermix', () => {
     })))
 
     app.get('/', (req, res) => {
-      const permix = permixExpress.get(req)
-      res.json({ success: permix.check('post', 'create') })
+      const p = permix.get(req)
+      res.json({ success: p.check('post', 'create') })
     })
 
     const response = await request(app).get('/')
@@ -168,8 +168,8 @@ describe('createPermix', () => {
     const app = express()
 
     app.get('/', (req, res) => {
-      const permix = permixExpress.get(req)
-      res.json({ permix })
+      const p = permix.get(req)
+      res.json({ permix: p })
     })
 
     const response = await request(app).get('/')
@@ -180,7 +180,7 @@ describe('createPermix', () => {
   it('should work with template', async () => {
     const app = express()
 
-    app.use(permixExpress.setupMiddleware(permixExpress.template({
+    app.use(permix.setupMiddleware(permix.template({
       post: {
         create: true,
         read: false,
@@ -191,7 +191,7 @@ describe('createPermix', () => {
       },
     })))
 
-    app.post('/posts', permixExpress.checkMiddleware('post', 'create'), (req, res) => {
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (req, res) => {
       res.json({ success: true })
     })
 

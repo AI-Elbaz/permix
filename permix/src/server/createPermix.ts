@@ -1,11 +1,11 @@
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
-import { createPermix } from '../core/createPermix'
+import { createPermix as createPermixCore } from '../core/createPermix'
 import { templator } from '../core/template'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix')
 
-export interface PermixServerOptions<T extends PermixDefinition> {
+export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
@@ -23,7 +23,7 @@ export interface PermixServerOptions<T extends PermixDefinition> {
  *
  * @link https://permix.letstri.dev/docs/integrations/server
  */
-export function createPermixServer<Definition extends PermixDefinition>(
+export function createPermix<Definition extends PermixDefinition>(
   {
     onForbidden = ({ res }) => {
       // Express-like response
@@ -47,7 +47,7 @@ export function createPermixServer<Definition extends PermixDefinition>(
         nodeRes.end(JSON.stringify({ error: 'Forbidden' }))
       }
     },
-  }: PermixServerOptions<Definition> = {},
+  }: PermixOptions<Definition> = {},
 ) {
   type PermixServer = Pick<Permix<Definition>, 'check' | 'checkAsync'>
   type PermixRequest = Request & { [permixSymbol]: PermixServer }
@@ -65,7 +65,7 @@ export function createPermixServer<Definition extends PermixDefinition>(
 
   function setupMiddleware(callback: (params: { req: Request }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     return async (req: Request, res: Response, next?: () => void) => {
-      const permix = createPermix<Definition>()
+      const permix = createPermixCore<Definition>()
 
       ;(req as PermixRequest)[permixSymbol] = permix
 

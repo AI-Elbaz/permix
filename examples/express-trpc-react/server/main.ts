@@ -4,7 +4,7 @@ import { initTRPC, TRPCError } from '@trpc/server'
 import * as trpcExpress from '@trpc/server/adapters/express'
 import cors from 'cors'
 import express from 'express'
-import { createPermixTrpc } from 'permix/trpc'
+import { createPermix } from 'permix/trpc'
 import { z } from 'zod'
 
 const app = express()
@@ -13,7 +13,7 @@ app.use(cors())
 
 const t = initTRPC.context<{ extraInfo: string }>().create()
 
-export const permixTrpc = createPermixTrpc<PermissionsDefinition>({
+export const permix = createPermix<PermissionsDefinition>({
   forbiddenError: new TRPCError({
     code: 'FORBIDDEN',
     message: 'You do not have permission to access this resource',
@@ -21,7 +21,7 @@ export const permixTrpc = createPermixTrpc<PermissionsDefinition>({
 })
 
 export const router = t.router
-export const publicProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => {
+export const publicProcedure = t.procedure.use(permix.setupMiddleware(() => {
   // Imagine this is a middleware that gets the user from the request
   const user = {
     role: 'admin' as const,
@@ -32,7 +32,7 @@ export const publicProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => 
 
 export const appRouter = router({
   userList: publicProcedure
-    .use(permixTrpc.checkMiddleware('user', 'read'))
+    .use(permix.checkMiddleware('user', 'read'))
     // Imagine this is a database query
     .query(() => [
       {
@@ -47,7 +47,7 @@ export const appRouter = router({
       },
     ]),
   userWrite: publicProcedure
-    .use(permixTrpc.checkMiddleware('user', 'create'))
+    .use(permix.checkMiddleware('user', 'create'))
     .input(z.object({
       name: z.string(),
       email: z.string().email(),

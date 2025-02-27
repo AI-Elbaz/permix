@@ -1,6 +1,6 @@
 import type { PermixDefinition } from '../core/createPermix'
 import { describe, expect, it, vi } from 'vitest'
-import { createPermixServer } from './createPermixServer'
+import { createPermix } from './createPermix'
 
 interface Post {
   id: string
@@ -17,7 +17,6 @@ type PermissionsDefinition = PermixDefinition<{
   }
 }>
 
-// Define custom mock types to simulate framework responses
 interface MockExpressResponse {
   status: (code: number) => { json: (data: any) => void }
   json: (data: any) => void
@@ -29,7 +28,6 @@ interface MockNodeResponse {
   end: (data: string) => void
 }
 
-// Mock request and response objects
 function createMockRequest(): Request {
   return {} as Request
 }
@@ -53,12 +51,12 @@ function createMockNodeResponse(): Response {
   return res
 }
 
-describe('createPermixServer', () => {
-  const permixServer = createPermixServer<PermissionsDefinition>()
+describe('createPermix', () => {
+  const permix = createPermix<PermissionsDefinition>()
 
   it('should throw ts error', () => {
     // @ts-expect-error should throw
-    expect(() => permixServer.checkMiddleware('post', 'delete')()).toThrow()
+    expect(() => permix.checkMiddleware('post', 'delete')()).toThrow()
   })
 
   it('should allow access when permission is granted', async () => {
@@ -66,7 +64,7 @@ describe('createPermixServer', () => {
     const res = createMockExpressResponse()
     const next = vi.fn()
 
-    const setupMiddleware = permixServer.setupMiddleware(() => ({
+    const setupMiddleware = permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: false,
@@ -80,7 +78,7 @@ describe('createPermixServer', () => {
     await setupMiddleware(req, res, next)
     expect(next).toHaveBeenCalled()
 
-    const checkMiddleware = permixServer.checkMiddleware('post', 'create')
+    const checkMiddleware = permix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
     checkMiddleware(req, res, nextCheck)
@@ -93,7 +91,7 @@ describe('createPermixServer', () => {
     const next = vi.fn()
     const expressRes = res as unknown as MockExpressResponse
 
-    const setupMiddleware = permixServer.setupMiddleware(() => ({
+    const setupMiddleware = permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -107,7 +105,7 @@ describe('createPermixServer', () => {
     await setupMiddleware(req, res, next)
     expect(next).toHaveBeenCalled()
 
-    const checkMiddleware = permixServer.checkMiddleware('post', 'create')
+    const checkMiddleware = permix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
     checkMiddleware(req, res, nextCheck)
@@ -123,7 +121,7 @@ describe('createPermixServer', () => {
     const next = vi.fn()
     const nodeRes = res as unknown as MockNodeResponse
 
-    const setupMiddleware = permixServer.setupMiddleware(() => ({
+    const setupMiddleware = permix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -137,7 +135,7 @@ describe('createPermixServer', () => {
     await setupMiddleware(req, res, next)
     expect(next).toHaveBeenCalled()
 
-    const checkMiddleware = permixServer.checkMiddleware('post', 'create')
+    const checkMiddleware = permix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
     checkMiddleware(req, res, nextCheck)
@@ -149,7 +147,7 @@ describe('createPermixServer', () => {
   })
 
   it('should work with custom error handler', async () => {
-    const customPermixServer = createPermixServer<PermissionsDefinition>({
+    const custompermix = createPermix<PermissionsDefinition>({
       onForbidden: ({ res }) => {
         if ('status' in res && 'json' in res) {
           const expressRes = res as unknown as MockExpressResponse
@@ -163,7 +161,7 @@ describe('createPermixServer', () => {
     const next = vi.fn()
     const expressRes = res as unknown as MockExpressResponse
 
-    const setupMiddleware = customPermixServer.setupMiddleware(() => ({
+    const setupMiddleware = custompermix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -176,7 +174,7 @@ describe('createPermixServer', () => {
 
     await setupMiddleware(req, res, next)
 
-    const checkMiddleware = customPermixServer.checkMiddleware('post', 'create')
+    const checkMiddleware = custompermix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
     checkMiddleware(req, res, nextCheck)
@@ -187,7 +185,7 @@ describe('createPermixServer', () => {
   })
 
   it('should work with custom error and params', async () => {
-    const customPermixServer = createPermixServer<PermissionsDefinition>({
+    const custompermix = createPermix<PermissionsDefinition>({
       onForbidden: ({ res, entity, actions }) => {
         if ('status' in res && 'json' in res) {
           const expressRes = res as unknown as MockExpressResponse
@@ -201,7 +199,7 @@ describe('createPermixServer', () => {
     const next = vi.fn()
     const expressRes = res as unknown as MockExpressResponse
 
-    const setupMiddleware = customPermixServer.setupMiddleware(() => ({
+    const setupMiddleware = custompermix.setupMiddleware(() => ({
       post: {
         create: false,
         read: false,
@@ -214,7 +212,7 @@ describe('createPermixServer', () => {
 
     await setupMiddleware(req, res, next)
 
-    const checkMiddleware = customPermixServer.checkMiddleware('post', 'create')
+    const checkMiddleware = custompermix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
     checkMiddleware(req, res, nextCheck)
@@ -229,7 +227,7 @@ describe('createPermixServer', () => {
     const res = createMockExpressResponse()
     const next = vi.fn()
 
-    const setupMiddleware = permixServer.setupMiddleware(() => ({
+    const setupMiddleware = permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: false,
@@ -242,16 +240,16 @@ describe('createPermixServer', () => {
 
     await setupMiddleware(req, res, next)
 
-    const permix = permixServer.get(req)
-    expect(permix.check('post', 'create')).toBe(true)
-    expect(permix.check('post', 'read')).toBe(false)
+    const p = permix.get(req)
+    expect(p.check('post', 'create')).toBe(true)
+    expect(p.check('post', 'read')).toBe(false)
   })
 
   it('should return null when permix is not found', () => {
     const req = createMockRequest()
 
-    const permix = permixServer.get(req)
-    expect(permix).toBeNull()
+    const p = permix.get(req)
+    expect(p).toBeNull()
   })
 
   it('should work with template', async () => {
@@ -259,7 +257,7 @@ describe('createPermixServer', () => {
     const res = createMockExpressResponse()
     const next = vi.fn()
 
-    const setupMiddleware = permixServer.setupMiddleware(permixServer.template({
+    const setupMiddleware = permix.setupMiddleware(permix.template({
       post: {
         create: true,
         read: false,
@@ -273,7 +271,7 @@ describe('createPermixServer', () => {
     await setupMiddleware(req, res, next)
     expect(next).toHaveBeenCalled()
 
-    const checkMiddleware = permixServer.checkMiddleware('post', 'create')
+    const checkMiddleware = permix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
     checkMiddleware(req, res, nextCheck)
