@@ -110,15 +110,15 @@ app.get('/posts', (req, res) => {
 
 ## Custom Error Handling
 
-By default, the middleware returns a 403 Forbidden response. You can customize this behavior by providing an `onUnauthorized` handler:
+By default, the middleware returns a 403 Forbidden response. You can customize this behavior by providing an `onForbidden` handler:
 
 ### Basic Error Handler
 
 ```ts
 const permixExpress = createPermixExpress<Definition>({
-  onUnauthorized: ({ res }) => {
+  onForbidden: ({ res }) => {
     res.status(403).json({
-      error: 'Custom unauthorized message',
+      error: 'Custom forbidden message',
     })
   }
 })
@@ -130,7 +130,7 @@ You can also provide a handler that returns different responses based on the ent
 
 ```ts
 const permixExpress = createPermixExpress<Definition>({
-  onUnauthorized: ({ res, entity, actions }) => {
+  onForbidden: ({ res, entity, actions }) => {
     if (entity === 'post' && actions.includes('create')) {
       res.status(403).json({
         error: `You don't have permission to ${actions.join('/')} a ${entity}`,
@@ -138,14 +138,14 @@ const permixExpress = createPermixExpress<Definition>({
       return
     }
 
-    res.status(401).json({
+    res.status(403).json({
       error: 'You do not have permission to perform this action',
     })
   }
 })
 ```
 
-The `onUnauthorized` handler receives:
+The `onForbidden` handler receives:
 - `req`: Express Request object
 - `res`: Express Response object
 - `next`: Express NextFunction

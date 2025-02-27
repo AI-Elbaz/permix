@@ -86,11 +86,11 @@ describe('createPermixTrpc', () => {
   it('should work with custom error', async () => {
     const customError = new TRPCError({
       code: 'FORBIDDEN',
-      message: 'Custom unauthorized message',
+      message: 'Custom forbidden message',
     })
 
     const permixTrpc = createPermixTrpc({
-      unauthorizedError: customError,
+      forbiddenError: customError,
     })
 
     const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => ({
@@ -112,12 +112,12 @@ describe('createPermixTrpc', () => {
         }),
     })
 
-    await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost()).rejects.toThrow('Custom unauthorized message')
+    await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost()).rejects.toThrow('Custom forbidden message')
   })
 
   it('should work with custom error and params', async () => {
     const permixTrpc = createPermixTrpc({
-      unauthorizedError: ({ entity, actions }) => {
+      forbiddenError: ({ entity, actions }) => {
         if (entity === 'post' && actions.includes('create')) {
           return new TRPCError({
             code: 'FORBIDDEN',
@@ -126,7 +126,7 @@ describe('createPermixTrpc', () => {
         }
 
         return new TRPCError({
-          code: 'UNAUTHORIZED',
+          code: 'FORBIDDEN',
           message: 'You do not have permission to perform this action',
         })
       },
@@ -156,10 +156,10 @@ describe('createPermixTrpc', () => {
       .toThrow('You do not have permission to create a post')
   })
 
-  it('should throw error if unauthorizedError is not TRPCError', async () => {
+  it('should throw error if forbiddenError is not TRPCError', async () => {
     const permixTrpc = createPermixTrpc<PermissionsDefinition>({
       // @ts-expect-error Testing invalid error type
-      unauthorizedError: { message: 'Invalid error' },
+      forbiddenError: { message: 'Invalid error' },
     })
 
     const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(() => ({

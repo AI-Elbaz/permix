@@ -9,12 +9,11 @@ export interface PermixServerOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onUnauthorized?: (params: {
+  onForbidden?: (params: {
     req: Request
     res: Response
     entity: keyof T
     actions: T[keyof T]['action'][]
-    next?: () => void
   }) => void
 }
 
@@ -26,7 +25,7 @@ export interface PermixServerOptions<T extends PermixDefinition> {
  */
 export function createPermixServer<Definition extends PermixDefinition>(
   {
-    onUnauthorized = ({ res }) => {
+    onForbidden = ({ res }) => {
       // Express-like response
       if ('status' in res && typeof res.status === 'function' && 'json' in res && typeof res.json === 'function') {
         const expressRes = res as unknown as {
@@ -83,10 +82,9 @@ export function createPermixServer<Definition extends PermixDefinition>(
       const hasPermission = getPermix(req).check(...params)
 
       if (!hasPermission) {
-        return onUnauthorized({
+        return onForbidden({
           req,
           res,
-          next,
           entity: params[0],
           actions: Array.isArray(params[1]) ? params[1] : [params[1]],
         })

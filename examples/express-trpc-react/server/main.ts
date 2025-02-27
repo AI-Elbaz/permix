@@ -14,9 +14,9 @@ app.use(cors())
 const t = initTRPC.context<{ extraInfo: string }>().create()
 
 export const permixTrpc = createPermixTrpc<PermissionsDefinition>({
-  unauthorizedError: new TRPCError({
+  forbiddenError: new TRPCError({
     code: 'FORBIDDEN',
-    message: 'You are not authorized to access this resource',
+    message: 'You do not have permission to access this resource',
   }),
 })
 

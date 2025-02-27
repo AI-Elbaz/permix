@@ -10,7 +10,7 @@ export interface PermixHonoOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onUnauthorized?: (params: {
+  onForbidden?: (params: {
     c: Context
     entity: keyof T
     actions: T[keyof T]['action'][]
@@ -24,7 +24,7 @@ export interface PermixHonoOptions<T extends PermixDefinition> {
  */
 export function createPermixHono<Definition extends PermixDefinition>(
   {
-    onUnauthorized = ({ c }) => c.json({ error: 'Forbidden' }, 403),
+    onForbidden = ({ c }) => c.json({ error: 'Forbidden' }, 403),
   }: PermixHonoOptions<Definition> = {},
 ) {
   type PermixHono = Pick<Permix<Definition>, 'check' | 'checkAsync'>
@@ -59,7 +59,7 @@ export function createPermixHono<Definition extends PermixDefinition>(
       // Handle case when permix is not found
       if (!permix) {
         console.error('[Permix]: Permix not found. Please use the `setupMiddleware` function to set the permix.')
-        return onUnauthorized({
+        return onForbidden({
           c,
           entity: params[0],
           actions: Array.isArray(params[1]) ? params[1] : [params[1]],
@@ -69,7 +69,7 @@ export function createPermixHono<Definition extends PermixDefinition>(
       const hasPermission = permix.check(...params)
 
       if (!hasPermission) {
-        return onUnauthorized({
+        return onForbidden({
           c,
           entity: params[0],
           actions: Array.isArray(params[1]) ? params[1] : [params[1]],

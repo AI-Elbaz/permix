@@ -150,10 +150,10 @@ describe('createPermixServer', () => {
 
   it('should work with custom error handler', async () => {
     const customPermixServer = createPermixServer<PermissionsDefinition>({
-      onUnauthorized: ({ res, next: _next }) => {
+      onForbidden: ({ res }) => {
         if ('status' in res && 'json' in res) {
           const expressRes = res as unknown as MockExpressResponse
-          expressRes.status(401).json({ error: 'Custom error' })
+          expressRes.status(403).json({ error: 'Custom error' })
         }
       },
     })
@@ -182,16 +182,16 @@ describe('createPermixServer', () => {
     checkMiddleware(req, res, nextCheck)
 
     expect(nextCheck).not.toHaveBeenCalled()
-    expect(expressRes.status).toHaveBeenCalledWith(401)
+    expect(expressRes.status).toHaveBeenCalledWith(403)
     expect(expressRes.json).toHaveBeenCalledWith({ error: 'Custom error' })
   })
 
   it('should work with custom error and params', async () => {
     const customPermixServer = createPermixServer<PermissionsDefinition>({
-      onUnauthorized: ({ res, entity, actions }) => {
+      onForbidden: ({ res, entity, actions }) => {
         if ('status' in res && 'json' in res) {
           const expressRes = res as unknown as MockExpressResponse
-          expressRes.status(401).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` })
+          expressRes.status(403).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` })
         }
       },
     })
@@ -220,7 +220,7 @@ describe('createPermixServer', () => {
     checkMiddleware(req, res, nextCheck)
 
     expect(nextCheck).not.toHaveBeenCalled()
-    expect(expressRes.status).toHaveBeenCalledWith(401)
+    expect(expressRes.status).toHaveBeenCalledWith(403)
     expect(expressRes.json).toHaveBeenCalledWith({ error: 'You do not have permission to create a post' })
   })
 

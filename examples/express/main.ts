@@ -11,7 +11,7 @@ type PermissionsDefinition = PermixDefinition<{
 }>
 
 const permixExpress = createPermixExpress<PermissionsDefinition>({
-  onUnauthorized: ({ res }) => res.status(403).json({ error: 'You are not authorized to access this resource' }),
+  onForbidden: ({ res }) => res.status(403).json({ error: 'You do not have permission to access this resource' }),
 })
 
 app.use(permixExpress.setupMiddleware(() => ({

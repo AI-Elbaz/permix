@@ -1,1 +1,1 @@
-export { createPermixTrpc } from './createPermixTrpc'
+export { createPermixTrpc, type PermixTrpcOptions } from './createPermixTrpc'

@@ -121,15 +121,15 @@ const router = t.router({
 
 ## Custom Error Handling
 
-By default, the middleware throws a `TRPCError` with code `UNAUTHORIZED`. You can customize this behavior by providing an `unauthorizedError` option:
+By default, the middleware throws a `TRPCError` with code `FORBIDDEN`. You can customize this behavior by providing an `forbiddenError` option:
 
 ### Static Error
 
 ```ts
 const permixTrpc = createPermixTrpc({
-  unauthorizedError: new TRPCError({
+  forbiddenError: new TRPCError({
     code: 'FORBIDDEN',
-    message: 'Custom unauthorized message',
+    message: 'Custom forbidden message',
   })
 })
 ```
@@ -140,7 +140,7 @@ You can also provide a function that returns different errors based on the entit
 
 ```ts
 const permixTrpc = createPermixTrpc({
-  unauthorizedError: ({ entity, actions }) => {
+  forbiddenError: ({ entity, actions }) => {
     if (entity === 'post' && actions.includes('create')) {
       return new TRPCError({
         code: 'FORBIDDEN',
@@ -149,7 +149,7 @@ const permixTrpc = createPermixTrpc({
     }
 
     return new TRPCError({
-      code: 'UNAUTHORIZED',
+      code: 'FORBIDDEN',
       message: 'You do not have permission to perform this action',
     })
   },

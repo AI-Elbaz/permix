@@ -1,1 +1,1 @@
-export { createPermixHono } from './createPermixHono'
+export { createPermixHono, type PermixHonoOptions } from './createPermixHono'

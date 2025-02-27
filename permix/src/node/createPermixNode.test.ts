@@ -99,8 +99,8 @@ describe('createPermixNode', () => {
 
   it('should work with custom error handler', async () => {
     const customPermixServer = createPermixNode<PermissionsDefinition>({
-      onUnauthorized: ({ res }) => {
-        res.statusCode = 401
+      onForbidden: ({ res }) => {
+        res.statusCode = 403
         res.setHeader('Content-Type', 'application/json')
         res.end(JSON.stringify({ error: 'Custom error' }))
       },
@@ -129,14 +129,14 @@ describe('createPermixNode', () => {
     checkMiddleware(req, res, nextCheck)
 
     expect(nextCheck).not.toHaveBeenCalled()
-    expect(res.statusCode).toBe(401)
+    expect(res.statusCode).toBe(403)
     expect(res.end).toHaveBeenCalledWith(JSON.stringify({ error: 'Custom error' }))
   })
 
   it('should work with custom error and params', async () => {
     const customPermixServer = createPermixNode<PermissionsDefinition>({
-      onUnauthorized: ({ res, entity, actions }) => {
-        res.statusCode = 401
+      onForbidden: ({ res, entity, actions }) => {
+        res.statusCode = 403
         res.setHeader('Content-Type', 'application/json')
         res.end(JSON.stringify({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }))
       },
@@ -165,7 +165,7 @@ describe('createPermixNode', () => {
     checkMiddleware(req, res, nextCheck)
 
     expect(nextCheck).not.toHaveBeenCalled()
-    expect(res.statusCode).toBe(401)
+    expect(res.statusCode).toBe(403)
     expect(res.end).toHaveBeenCalledWith(JSON.stringify({ error: 'You do not have permission to create a post' }))
   })
 

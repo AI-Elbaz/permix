@@ -81,7 +81,7 @@ describe('createPermix', () => {
 
   it('should work with custom error handler', async () => {
     const permixExpress = createPermixExpress<PermissionsDefinition>({
-      onUnauthorized: ({ res }) => res.status(401).json({ error: 'Custom error' }),
+      onForbidden: ({ res }) => res.status(403).json({ error: 'Custom error' }),
     })
 
     const app = express()
@@ -105,13 +105,13 @@ describe('createPermix', () => {
       .post('/posts')
       .send({ title: 'Test Post' })
 
-    expect(response.status).toBe(401)
+    expect(response.status).toBe(403)
     expect(response.body).toEqual({ error: 'Custom error' })
   })
 
   it('should work with custom error and params', async () => {
     const permixExpress = createPermixExpress<PermissionsDefinition>({
-      onUnauthorized: ({ res, entity, actions }) => res.status(401).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }),
+      onForbidden: ({ res, entity, actions }) => res.status(403).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }),
     })
 
     const app = express()
@@ -135,7 +135,7 @@ describe('createPermix', () => {
       .post('/posts')
       .send({ title: 'Test Post' })
 
-    expect(response.status).toBe(401)
+    expect(response.status).toBe(403)
     expect(response.body).toEqual({ error: 'You do not have permission to create a post' })
   })
 

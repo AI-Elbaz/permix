@@ -1,17 +1,13 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
+import type { CheckFunctionParams, PermixDefinition, PermixRules } from '../core/createPermix'
+import type { PermixServerOptions } from '../server/createPermixServer'
+import { createPermixServer } from '../server/createPermixServer'
 
-import { createPermix } from '../core/createPermix'
-import { templator } from '../core/template'
-import { pick } from '../utils'
-
-const permixSymbol = Symbol('permix')
-
-export interface PermixServerOptions<T extends PermixDefinition> {
+export interface PermixNodeOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onUnauthorized?: (params: {
+  onForbidden?: (params: {
     req: IncomingMessage
     res: ServerResponse
     entity: keyof T
@@ -27,62 +23,66 @@ export interface PermixServerOptions<T extends PermixDefinition> {
  */
 export function createPermixNode<Definition extends PermixDefinition>(
   {
-    onUnauthorized = ({ res }) => {
+    onForbidden = ({ res }) => {
       res.statusCode = 403
       res.setHeader('Content-Type', 'application/json')
       res.end(JSON.stringify({ error: 'Forbidden' }))
     },
-  }: PermixServerOptions<Definition> = {},
+  }: PermixNodeOptions<Definition> = {},
 ) {
-  type PermixServerReq = Pick<Permix<Definition>, 'check' | 'checkAsync'>
-  type PermixRequest = IncomingMessage & { [permixSymbol]: PermixServerReq }
+  const serverOptions: PermixServerOptions<Definition> = {
+    onForbidden: ({ req, res, entity, actions }) => {
+      // Cast standard Request/Response to Node.js types
+      const nodeReq = req as unknown as IncomingMessage
+      const nodeRes = res as unknown as ServerResponse
 
-  function getPermix(req: IncomingMessage) {
-    const permix = (req as PermixRequest)[permixSymbol]
-
-    if (!permix) {
-      console.error('[Permix]: Permix not found. Please use the `setupMiddleware` function to set the permix.')
-      return null!
-    }
-
-    return pick(permix, ['check', 'checkAsync'])
+      return onForbidden({
+        req: nodeReq,
+        res: nodeRes,
+        entity,
+        actions,
+      })
+    },
   }
 
+  const permixServer = createPermixServer<Definition>(serverOptions)
+
+  // Wrap server functions to adapt Node.js types
   function setupMiddleware(callback: (params: { req: IncomingMessage, res: ServerResponse }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
-    return async (req: IncomingMessage, res: ServerResponse, next?: () => void) => {
-      const permix = createPermix<Definition>()
+    const serverMiddleware = permixServer.setupMiddleware(
+      ({ req, res }) => callback({
+        req: req as unknown as IncomingMessage,
+        res: res as unknown as ServerResponse,
+      }),
+    )
 
-      ;(req as PermixRequest)[permixSymbol] = permix
-
-      permix.setup(await callback({ req, res }))
-
-      if (typeof next === 'function') {
-        next()
-      }
+    return (req: IncomingMessage, res: ServerResponse, next?: () => void) => {
+      return serverMiddleware(
+        req as unknown as globalThis.Request,
+        res as unknown as globalThis.Response,
+        next,
+      )
     }
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
+    const serverMiddleware = permixServer.checkMiddleware(...params)
+
     return (req: IncomingMessage, res: ServerResponse, next?: () => void) => {
-      const hasPermission = getPermix(req).check(...params)
-
-      if (!hasPermission) {
-        return onUnauthorized({
-          req,
-          res,
-          entity: params[0],
-          actions: Array.isArray(params[1]) ? params[1] : [params[1]],
-        })
-      }
-
-      if (typeof next === 'function') {
-        return next()
-      }
+      return serverMiddleware(
+        req as unknown as globalThis.Request,
+        res as unknown as globalThis.Response,
+        next,
+      )
     }
   }
 
+  function getPermix(req: IncomingMessage) {
+    return permixServer.get(req as unknown as globalThis.Request)
+  }
+
   return {
-    template: templator<Definition>(),
+    template: permixServer.template,
     setupMiddleware,
     get: getPermix,
     checkMiddleware,

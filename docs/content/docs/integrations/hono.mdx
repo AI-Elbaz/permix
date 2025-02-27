@@ -110,14 +110,14 @@ app.get('/posts', (c) => {
 
 ## Custom Error Handling
 
-By default, the middleware returns a 403 Forbidden response. You can customize this behavior by providing an `onUnauthorized` handler:
+By default, the middleware returns a 403 Forbidden response. You can customize this behavior by providing an `onForbidden` handler:
 
 ### Basic Error Handler
 
 ```ts
 const permixHono = createPermixHono<Definition>({
-  onUnauthorized: ({ c }) => {
-    return c.json({ error: 'Custom unauthorized message' }, 403)
+  onForbidden: ({ c }) => {
+    return c.json({ error: 'Custom forbidden message' }, 403)
   }
 })
 ```
@@ -128,7 +128,7 @@ You can also provide a handler that returns different responses based on the ent
 
 ```ts
 const permixHono = createPermixHono<Definition>({
-  onUnauthorized: ({ c, entity, actions }) => {
+  onForbidden: ({ c, entity, actions }) => {
     if (entity === 'post' && actions.includes('create')) {
       return c.json({
         error: `You don't have permission to ${actions.join('/')} a ${entity}`
@@ -137,12 +137,12 @@ const permixHono = createPermixHono<Definition>({
 
     return c.json({
       error: 'You do not have permission to perform this action'
-    }, 401)
+    }, 403)
   }
 })
 ```
 
-The `onUnauthorized` handler receives:
+The `onForbidden` handler receives:
 - `c`: Hono Context object
 - `entity`: The entity that was checked
 - `actions`: Array of actions that were checked

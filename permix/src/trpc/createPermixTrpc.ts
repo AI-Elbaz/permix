@@ -1,15 +1,15 @@
 import type { MiddlewareFunction, ProcedureParams } from '@trpc/server'
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
 import { TRPCError } from '@trpc/server'
+import { templator } from '../core'
 import { createPermix } from '../core/createPermix'
-import { templator } from '../core/template'
 import { pick } from '../utils'
 
-export interface PermixMiddlewareOptions<T extends PermixDefinition> {
+export interface PermixTrpcOptions<T extends PermixDefinition> {
   /**
    * Custom error to throw when permission is denied
    */
-  unauthorizedError?: TRPCError | ((params: { entity: keyof T, actions: T[keyof T]['action'][] }) => TRPCError)
+  forbiddenError?: TRPCError | ((params: { entity: keyof T, actions: T[keyof T]['action'][] }) => TRPCError)
 }
 
 /**
@@ -19,11 +19,11 @@ export interface PermixMiddlewareOptions<T extends PermixDefinition> {
  */
 export function createPermixTrpc<Definition extends PermixDefinition>(
   {
-    unauthorizedError = new TRPCError({
-      code: 'UNAUTHORIZED',
+    forbiddenError = new TRPCError({
+      code: 'FORBIDDEN',
       message: 'You do not have permission to perform this action',
     }),
-  }: PermixMiddlewareOptions<Definition> = {},
+  }: PermixTrpcOptions<Definition> = {},
 ) {
   type PermixTrpc = Pick<Permix<Definition>, 'check' | 'checkAsync'>
 
@@ -47,20 +47,15 @@ export function createPermixTrpc<Definition extends PermixDefinition>(
       const hasPermission = ctx.permix.check(...params)
 
       if (!hasPermission) {
-        let error: TRPCError
-
-        if (typeof unauthorizedError === 'function') {
-          error = unauthorizedError({
-            entity: params[0],
-            actions: Array.isArray(params[1]) ? params[1] : [params[1]],
-          })
-        }
-        else {
-          error = unauthorizedError
-        }
+        const error = typeof forbiddenError === 'function'
+          ? forbiddenError({
+              entity: params[0],
+              actions: Array.isArray(params[1]) ? params[1] : [params[1]],
+            })
+          : forbiddenError
 
         if (!(error instanceof TRPCError)) {
-          console.error('unauthorizedError is not TRPCError')
+          console.error('forbiddenError is not TRPCError')
 
           throw new TRPCError({
             code: 'FORBIDDEN',
@@ -76,8 +71,8 @@ export function createPermixTrpc<Definition extends PermixDefinition>(
   }
 
   return {
+    template: templator<Definition>(),
     setupMiddleware,
     checkMiddleware,
-    template: templator<Definition>(),
   }
 }

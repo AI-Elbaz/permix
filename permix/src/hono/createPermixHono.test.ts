@@ -94,7 +94,7 @@ describe('createPermixHono', () => {
 
   it('should work with custom error handler', async () => {
     const permixHono = createPermixHono<Definition>({
-      onUnauthorized: ({ c }) => c.json({ error: 'Custom error' }, 401),
+      onForbidden: ({ c }) => c.json({ error: 'Custom error' }, 403),
     })
 
     const app = new Hono()
@@ -119,13 +119,13 @@ describe('createPermixHono', () => {
       body: JSON.stringify({ title: 'Test Post' }),
     })
 
-    expect(res.status).toBe(401)
+    expect(res.status).toBe(403)
     expect(await res.json()).toEqual({ error: 'Custom error' })
   })
 
   it('should work with custom error and params', async () => {
     const permixHono = createPermixHono<Definition>({
-      onUnauthorized: ({ c, entity, actions }) => c.json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }, 401),
+      onForbidden: ({ c, entity, actions }) => c.json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }, 403),
     })
 
     const app = new Hono()
@@ -150,7 +150,7 @@ describe('createPermixHono', () => {
       body: JSON.stringify({ title: 'Test Post' }),
     })
 
-    expect(res.status).toBe(401)
+    expect(res.status).toBe(403)
     expect(await res.json()).toEqual({ error: 'You do not have permission to create a post' })
   })
 
