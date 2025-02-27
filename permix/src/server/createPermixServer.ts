@@ -63,13 +63,13 @@ export function createPermixServer<Definition extends PermixDefinition>(
     return pick(permix, ['check', 'checkAsync'])
   }
 
-  function setupMiddleware(callback: (params: { req: Request, res: Response }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
+  function setupMiddleware(callback: (params: { req: Request }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     return async (req: Request, res: Response, next?: () => void) => {
       const permix = createPermix<Definition>()
 
       ;(req as PermixRequest)[permixSymbol] = permix
 
-      permix.setup(await callback({ req, res }))
+      permix.setup(await callback({ req }))
 
       if (typeof next === 'function') {
         next()

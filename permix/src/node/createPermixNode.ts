@@ -48,13 +48,8 @@ export function createPermixNode<Definition extends PermixDefinition>(
   const permixServer = createPermixServer<Definition>(serverOptions)
 
   // Wrap server functions to adapt Node.js types
-  function setupMiddleware(callback: (params: { req: IncomingMessage, res: ServerResponse }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
-    const serverMiddleware = permixServer.setupMiddleware(
-      ({ req, res }) => callback({
-        req: req as unknown as IncomingMessage,
-        res: res as unknown as ServerResponse,
-      }),
-    )
+  function setupMiddleware(callback: (params: { req: IncomingMessage }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
+    const serverMiddleware = permixServer.setupMiddleware(({ req }) => callback({ req: req as unknown as IncomingMessage }))
 
     return (req: IncomingMessage, res: ServerResponse, next?: () => void) => {
       return serverMiddleware(
