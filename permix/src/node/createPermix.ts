@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { PermixDefinition } from '../core/createPermix'
-import type { PermixServerOptions } from '../core/createPermixServer'
+import type { PermixServer, PermixServerOptions } from '../core/createPermixServer'
 import { createPermixServer } from '../core/createPermixServer'
 
 /**
@@ -11,6 +11,6 @@ import { createPermixServer } from '../core/createPermixServer'
  */
 export function createPermix<Definition extends PermixDefinition>(
   options: PermixServerOptions<Definition, IncomingMessage, ServerResponse<IncomingMessage>> = {},
-) {
-  return createPermixServer<Definition, IncomingMessage, ServerResponse<IncomingMessage>>(options)
+): PermixServer<Definition, IncomingMessage, ServerResponse<IncomingMessage>> {
+  return createPermixServer(options)
 }

@@ -11,5 +11,5 @@ import { createPermixServer } from '../core/createPermixServer'
 export function createPermix<Definition extends PermixDefinition>(
   options: PermixServerOptions<Definition, Request, Response> = {},
 ): PermixServer<Definition, Request, Response> {
-  return createPermixServer<Definition, Request, Response>(options)
+  return createPermixServer(options)
 }
