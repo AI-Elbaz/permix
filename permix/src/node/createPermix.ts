@@ -1,19 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { CheckFunctionParams, PermixDefinition, PermixRules } from '../core/createPermix'
-import type { PermixOptions as PermixServerOptions } from '../server/createPermix'
-import { createPermix as createPermixServer } from '../server/createPermix'
-
-export interface PermixOptions<T extends PermixDefinition> {
-  /**
-   * Custom error handler
-   */
-  onForbidden?: (params: {
-    req: IncomingMessage
-    res: ServerResponse
-    entity: keyof T
-    actions: T[keyof T]['action'][]
-  }) => void
-}
+import type { PermixDefinition } from '../core/createPermix'
+import type { PermixServerOptions } from '../core/createPermixServer'
+import { createPermixServer } from '../core/createPermixServer'
 
 /**
  * Create a middleware function that checks permissions for Node.js HTTP servers.
@@ -22,62 +10,7 @@ export interface PermixOptions<T extends PermixDefinition> {
  * @link https://permix.letstri.dev/docs/integrations/server
  */
 export function createPermix<Definition extends PermixDefinition>(
-  {
-    onForbidden = ({ res }) => {
-      res.statusCode = 403
-      res.setHeader('Content-Type', 'application/json')
-      res.end(JSON.stringify({ error: 'Forbidden' }))
-    },
-  }: PermixOptions<Definition> = {},
+  options: PermixServerOptions<Definition, IncomingMessage, ServerResponse<IncomingMessage>> = {},
 ) {
-  const serverOptions: PermixServerOptions<Definition> = {
-    onForbidden: ({ req, res, entity, actions }) => {
-      const nodeReq = req as unknown as IncomingMessage
-      const nodeRes = res as unknown as ServerResponse
-
-      return onForbidden({
-        req: nodeReq,
-        res: nodeRes,
-        entity,
-        actions,
-      })
-    },
-  }
-
-  const permixServer = createPermixServer<Definition>(serverOptions)
-
-  function setupMiddleware(callback: (params: { req: IncomingMessage }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
-    const serverMiddleware = permixServer.setupMiddleware(({ req }) => callback({ req: req as unknown as IncomingMessage }))
-
-    return (req: IncomingMessage, res: ServerResponse, next?: () => void) => {
-      return serverMiddleware(
-        req as unknown as globalThis.Request,
-        res as unknown as globalThis.Response,
-        next,
-      )
-    }
-  }
-
-  function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
-    const serverMiddleware = permixServer.checkMiddleware(...params)
-
-    return (req: IncomingMessage, res: ServerResponse, next?: () => void) => {
-      return serverMiddleware(
-        req as unknown as globalThis.Request,
-        res as unknown as globalThis.Response,
-        next,
-      )
-    }
-  }
-
-  function getPermix(req: IncomingMessage) {
-    return permixServer.get(req as unknown as globalThis.Request)
-  }
-
-  return {
-    template: permixServer.template,
-    setupMiddleware,
-    get: getPermix,
-    checkMiddleware,
-  }
+  return createPermixServer<Definition, IncomingMessage, ServerResponse<IncomingMessage>>(options)
 }
