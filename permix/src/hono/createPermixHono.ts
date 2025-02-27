@@ -10,7 +10,11 @@ export interface PermixHonoOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onUnauthorized?: (params: { c: Context, entity: keyof T, actions: T[keyof T]['action'][] }) => Response | Promise<Response>
+  onUnauthorized?: (params: {
+    c: Context
+    entity: keyof T
+    actions: T[keyof T]['action'][]
+  }) => Response | Promise<Response>
 }
 
 /**

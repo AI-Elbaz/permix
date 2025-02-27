@@ -10,6 +10,8 @@ export default defineBuildConfig({
     './src/trpc/index.ts',
     './src/express/index.ts',
     './src/hono/index.ts',
+    './src/node/index.ts',
+    './src/server/index.ts',
   ],
   declaration: true,
   hooks: {
