@@ -46,9 +46,9 @@ const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(({ ctx }) 
   // You can access ctx.user or other properties to determine permissions
   return {
     post: {
-      create: true, // Allow post creation
-      read: true,   // Allow post reading
-      update: ctx.user.id === 'admin' // Only allow updates for admin
+      create: true,
+      read: true,
+      update: ctx.user.id === 'admin'
     }
   }
 }))

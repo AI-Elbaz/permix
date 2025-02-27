@@ -46,9 +46,9 @@ app.use(permixExpress.setupMiddleware(({ req }) => {
   // You can access req.user or other properties to determine permissions
   return {
     post: {
-      create: true, // Allow post creation
-      read: true,   // Allow post reading
-      update: false // Disallow post updates
+      create: true,
+      read: true,
+      update: false
     }
   }
 }))
