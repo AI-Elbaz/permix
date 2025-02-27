@@ -191,7 +191,7 @@ export interface Permix<Definition extends PermixDefinition> {
    * permix.setup(adminPermissions)
    * ```
    */
-  template: typeof template<Definition>
+  template: <T = void>(rules: Parameters<typeof template<Definition, T>>[0]) => ReturnType<typeof template<Definition, T>>
 
   /**
    * Check if the setup was called.

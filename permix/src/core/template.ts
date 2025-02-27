@@ -6,13 +6,13 @@ import { isRulesValid } from './utils'
  *
  * @example
  * ```ts
- * const template = createTemplateBuilder<Definition>()
+ * const template = templator<Definition>()
  * const rules = template(({ user }: { user: { role: string } }) => ({
  *   post: { create: user.role === 'admin' },
  * }))
  */
-export function createTemplateBuilder<Definition extends PermixDefinition>() {
-  return <P = void>(rules: PermixRules<Definition> | ((param: P) => PermixRules<Definition>)) => template<Definition, P>(rules)
+export function templator<Definition extends PermixDefinition>() {
+  return <P = void>(rules: Parameters<typeof template<Definition, P>>[0]) => template<Definition, P>(rules)
 }
 
 /**

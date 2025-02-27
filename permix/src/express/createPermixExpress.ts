@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
 import { createPermix } from '../core/createPermix'
-import { createTemplateBuilder } from '../core/template'
+import { templator } from '../core/template'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix')
@@ -62,7 +62,7 @@ export function createPermixExpress<Definition extends PermixDefinition>(
   }
 
   return {
-    template: createTemplateBuilder<Definition>(),
+    template: templator<Definition>(),
     setupMiddleware,
     get: getPermix,
     checkMiddleware,

@@ -1,7 +1,7 @@
 import type { PermixDefinition } from './createPermix'
 import { describe, expect, it } from 'vitest'
 import { createPermix } from './createPermix'
-import { createTemplateBuilder, template } from './template'
+import { template, templator } from './template'
 
 type Definition = PermixDefinition<{
   post: {
@@ -96,13 +96,21 @@ describe('template', () => {
   it('should work with template function with param', () => {
     const permix = createPermix<Definition>()
 
-    const template = createTemplateBuilder<Definition>()
+    const rules1 = permix.template(({ user }: { user: { role: string } }) => ({
+      post: { create: user.role !== 'admin' },
+    }))
 
-    const rules = template(({ user }: { user: { role: string } }) => ({
+    const template = templator<Definition>()
+
+    const rules2 = template(({ user }: { user: { role: string } }) => ({
       post: { create: user.role === 'admin' },
     }))
 
-    permix.setup(rules({ user: { role: 'admin' } }))
+    permix.setup(rules1({ user: { role: 'admin' } }))
+
+    expect(permix.check('post', 'create')).toBe(false)
+
+    permix.setup(rules2({ user: { role: 'admin' } }))
 
     expect(permix.check('post', 'create')).toBe(true)
   })

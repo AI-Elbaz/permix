@@ -1,5 +1,5 @@
 import type { PermixDefinition } from 'permix'
-import { createTemplateBuilder } from 'permix'
+import { templator } from 'permix'
 
 export type PermissionsDefinition = PermixDefinition<{
   user: {
@@ -7,7 +7,7 @@ export type PermissionsDefinition = PermixDefinition<{
   }
 }>
 
-const template = createTemplateBuilder<PermissionsDefinition>()
+const template = templator<PermissionsDefinition>()
 
 const adminPermissions = template({
   user: {

@@ -1,7 +1,7 @@
 import type { Context, MiddlewareHandler } from 'hono'
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
 import { createPermix } from '../core/createPermix'
-import { createTemplateBuilder } from '../core/template'
+import { templator } from '../core/template'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol.for('permix')
@@ -49,7 +49,7 @@ export function createPermixHono<Definition extends PermixDefinition>(
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>): MiddlewareHandler {
-    return async (c, next) => {
+    return async function (c, next) {
       const permix = getPermix(c)
 
       // Handle case when permix is not found
@@ -80,6 +80,6 @@ export function createPermixHono<Definition extends PermixDefinition>(
     setupMiddleware,
     get: getPermix,
     checkMiddleware,
-    template: createTemplateBuilder<Definition>(),
+    template: templator<Definition>(),
   }
 }

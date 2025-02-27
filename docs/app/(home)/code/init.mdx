@@ -1,5 +1,6 @@
 ```tsx
 // Init wherever you want
+import type { PermixDefinition } from 'permix'
 import { createPermix } from 'permix'
 
 interface Post {
@@ -7,10 +8,12 @@ interface Post {
   published: boolean
 }
 
-export const permix = createPermix<{
+type PermissionsDefinition = PermixDefinition<{
   post: {
     dataType: Post
     action: 'create' | 'update' | 'delete'
   }
-}>()
+}>
+
+export const permix = createPermix<PermissionsDefinition>()
 ```
