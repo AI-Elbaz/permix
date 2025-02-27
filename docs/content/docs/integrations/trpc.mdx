@@ -77,14 +77,12 @@ const router = t.router({
   updatePost: protectedProcedure
     .use(permixTrpc.checkMiddleware('post', ['read', 'update']))
     .query(() => {
-      // Only executes if user has both 'read' and 'update' permissions
       return { success: true }
     }),
 
   adminAction: protectedProcedure
     .use(permixTrpc.checkMiddleware('post', 'all'))
     .query(() => {
-      // Only executes if user has all permissions for 'post'
       return { success: true }
     })
 })

@@ -68,19 +68,16 @@ Use the `checkMiddleware` function in your Hono routes to check permissions:
 
 ```ts
 app.post('/posts', permixHono.checkMiddleware('post', 'create'), (c) => {
-  // Only executes if user has 'create' permission for 'post'
   return c.json({ success: true })
 })
 
 // Check multiple actions
 app.put('/posts/:id', permixHono.checkMiddleware('post', ['read', 'update']), (c) => {
-  // Only executes if user has both 'read' and 'update' permissions
   return c.json({ success: true })
 })
 
 // Check all actions
 app.delete('/posts/:id', permixHono.checkMiddleware('post', 'all'), (c) => {
-  // Only executes if user has all permissions for 'post'
   return c.json({ success: true })
 })
 ```

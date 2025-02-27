@@ -68,19 +68,16 @@ Use the `checkMiddleware` function in your Express routes to check permissions:
 
 ```ts
 app.post('/posts', permixExpress.checkMiddleware('post', 'create'), (req, res) => {
-  // Only executes if user has 'create' permission for 'post'
   res.json({ success: true })
 })
 
 // Check multiple actions
 app.put('/posts/:id', permixExpress.checkMiddleware('post', ['read', 'update']), (req, res) => {
-  // Only executes if user has both 'read' and 'update' permissions
   res.json({ success: true })
 })
 
 // Check all actions
 app.delete('/posts/:id', permixExpress.checkMiddleware('post', 'all'), (req, res) => {
-  // Only executes if user has all permissions for 'post'
   res.json({ success: true })
 })
 ```
