@@ -75,10 +75,10 @@ export interface PermixServer<Definition extends PermixDefinition, Req extends o
  */
 export function createPermixServer<Definition extends PermixDefinition, Req extends object = Request, Res extends object = Response>(
   {
-    onForbidden = (context) => {
+    onForbidden = ({ res }) => {
       // Express-like response
-      if ('status' in context.res && typeof context.res.status === 'function' && 'json' in context.res && typeof context.res.json === 'function') {
-        const expressRes = context.res as unknown as {
+      if ('status' in res && typeof res.status === 'function' && 'json' in res && typeof res.json === 'function') {
+        const expressRes = res as unknown as {
           status: (code: number) => { json: (data: any) => void }
         }
         expressRes.status(403).json({ error: 'Forbidden' })
@@ -86,8 +86,8 @@ export function createPermixServer<Definition extends PermixDefinition, Req exte
       }
 
       // Node.js-like response
-      if ('statusCode' in context.res && 'setHeader' in context.res && 'end' in context.res) {
-        const nodeRes = context.res as unknown as {
+      if ('statusCode' in res && 'setHeader' in res && 'end' in res) {
+        const nodeRes = res as unknown as {
           statusCode: number
           setHeader: (name: string, value: string) => void
           end: (data: string) => void
