@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
 import { createPermix } from '../core/createPermix'
+import { createTemplateBuilder } from '../core/template'
+import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix')
 
@@ -21,7 +23,8 @@ export function createPermixExpress<Definition extends PermixDefinition>(
     onUnauthorized = ({ res }) => res.status(403).json({ error: 'Forbidden' }),
   }: PermixExpressOptions<Definition> = {},
 ) {
-  type PermixRequest = Request & { [permixSymbol]: Permix<Definition> }
+  type PermixExpress = Pick<Permix<Definition>, 'check' | 'checkAsync'>
+  type PermixRequest = Request & { [permixSymbol]: PermixExpress }
 
   function getPermix(req: Request) {
     const permix = (req as PermixRequest)[permixSymbol]
@@ -31,18 +34,14 @@ export function createPermixExpress<Definition extends PermixDefinition>(
       return null!
     }
 
-    return permix
-  }
-
-  function setPermix(req: Request, permix: Permix<Definition>) {
-    (req as PermixRequest)[permixSymbol] = permix
+    return pick(permix, ['check', 'checkAsync'])
   }
 
   function setupMiddleware(callback: (params: { req: Request, res: Response }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const permix = createPermix<Definition>()
 
-      setPermix(req, permix)
+      ;(req as PermixRequest)[permixSymbol] = permix
 
       permix.setup(await callback({ req, res }))
 
@@ -62,5 +61,10 @@ export function createPermixExpress<Definition extends PermixDefinition>(
     }
   }
 
-  return { setupMiddleware, get: getPermix, checkMiddleware }
+  return {
+    template: createTemplateBuilder<Definition>(),
+    setupMiddleware,
+    get: getPermix,
+    checkMiddleware,
+  }
 }

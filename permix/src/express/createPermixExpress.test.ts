@@ -9,7 +9,7 @@ interface Post {
   authorId: string
 }
 
-type Definition = PermixDefinition<{
+type PermissionsDefinition = PermixDefinition<{
   post: {
     dataType: Post
     action: 'create' | 'read' | 'update'
@@ -20,7 +20,7 @@ type Definition = PermixDefinition<{
 }>
 
 describe('createPermix', () => {
-  const permixExpress = createPermixExpress<Definition>()
+  const permixExpress = createPermixExpress<PermissionsDefinition>()
 
   it('should throw ts error', () => {
     // @ts-expect-error should throw
@@ -80,7 +80,7 @@ describe('createPermix', () => {
   })
 
   it('should work with custom error handler', async () => {
-    const permixExpress = createPermixExpress<Definition>({
+    const permixExpress = createPermixExpress<PermissionsDefinition>({
       onUnauthorized: ({ res }) => res.status(401).json({ error: 'Custom error' }),
     })
 
@@ -110,7 +110,7 @@ describe('createPermix', () => {
   })
 
   it('should work with custom error and params', async () => {
-    const permixExpress = createPermixExpress<Definition>({
+    const permixExpress = createPermixExpress<PermissionsDefinition>({
       onUnauthorized: ({ res, entity, actions }) => res.status(401).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }),
     })
 
@@ -175,5 +175,31 @@ describe('createPermix', () => {
     const response = await request(app).get('/')
 
     expect(response.body).toEqual({ permix: null })
+  })
+
+  it('should work with template', async () => {
+    const app = express()
+
+    app.use(permixExpress.setupMiddleware(permixExpress.template({
+      post: {
+        create: true,
+        read: false,
+        update: false,
+      },
+      user: {
+        delete: false,
+      },
+    })))
+
+    app.post('/posts', permixExpress.checkMiddleware('post', 'create'), (req, res) => {
+      res.json({ success: true })
+    })
+
+    const response = await request(app)
+      .post('/posts')
+      .send({ title: 'Test Post' })
+
+    expect(response.status).toBe(200)
+    expect(response.body).toEqual({ success: true })
   })
 })

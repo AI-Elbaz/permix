@@ -191,4 +191,31 @@ describe('createPermixHono', () => {
 
     expect(await res.json()).toEqual({ permix: null })
   })
+
+  it('should work with template', async () => {
+    const app = new Hono()
+
+    app.use('*', permixHono.setupMiddleware(permixHono.template({
+      post: {
+        create: true,
+        read: false,
+        update: false,
+      },
+      user: {
+        delete: false,
+      },
+    })))
+
+    app.post('/posts', permixHono.checkMiddleware('post', 'create'), (c) => {
+      return c.json({ success: true })
+    })
+
+    const res = await app.request('/posts', {
+      method: 'POST',
+      body: JSON.stringify({ title: 'Test Post' }),
+    })
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ success: true })
+  })
 })

@@ -1,6 +1,8 @@
 import type { Context, MiddlewareHandler } from 'hono'
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
 import { createPermix } from '../core/createPermix'
+import { createTemplateBuilder } from '../core/template'
+import { pick } from '../utils'
 
 const permixSymbol = Symbol.for('permix')
 
@@ -21,15 +23,17 @@ export function createPermixHono<Definition extends PermixDefinition>(
     onUnauthorized = ({ c }) => c.json({ error: 'Forbidden' }, 403),
   }: PermixHonoOptions<Definition> = {},
 ) {
+  type PermixHono = Pick<Permix<Definition>, 'check' | 'checkAsync'>
+
   function getPermix(c: Context) {
-    const permix = c.get(permixSymbol as unknown as string) as Permix<Definition>
+    const permix = c.get(permixSymbol as unknown as string) as PermixHono
 
     if (!permix) {
       console.error('[Permix]: Permix not found. Please use the `setupMiddleware` function to set the permix.')
       return null!
     }
 
-    return permix
+    return pick(permix, ['check', 'checkAsync'])
   }
 
   function setupMiddleware(callback: (params: { c: Context }) => PermixRules<Definition> | Promise<PermixRules<Definition>>): MiddlewareHandler {
@@ -72,5 +76,10 @@ export function createPermixHono<Definition extends PermixDefinition>(
     }
   }
 
-  return { setupMiddleware, get: getPermix, checkMiddleware }
+  return {
+    setupMiddleware,
+    get: getPermix,
+    checkMiddleware,
+    template: createTemplateBuilder<Definition>(),
+  }
 }

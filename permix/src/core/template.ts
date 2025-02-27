@@ -2,6 +2,20 @@ import type { PermixDefinition, PermixRules } from './createPermix'
 import { isRulesValid } from './utils'
 
 /**
+ * Builder for template function.
+ *
+ * @example
+ * ```ts
+ * const template = createTemplateBuilder<Definition>()
+ * const rules = template(({ user }: { user: { role: string } }) => ({
+ *   post: { create: user.role === 'admin' },
+ * }))
+ */
+export function createTemplateBuilder<Definition extends PermixDefinition>() {
+  return <P = void>(rules: PermixRules<Definition> | ((param: P) => PermixRules<Definition>)) => template<Definition, P>(rules)
+}
+
+/**
  * Define permissions in different place to setup them later.
  *
  * @link https://permix.letstri.dev/docs/guide/template
@@ -20,13 +34,29 @@ import { isRulesValid } from './utils'
  * })
  *
  * // Now you can use setup
- * permix.setup(adminPermissions)
+ * permix.setup(adminPermissions())
  * ```
  */
-export function template<Definition extends PermixDefinition>(rules: PermixRules<Definition>) {
-  if (!isRulesValid(rules)) {
-    throw new Error('[Permix]: Permissions in template are not valid.')
+export function template<Definition extends PermixDefinition, P = void>(
+  rules: PermixRules<Definition> | ((param: P) => PermixRules<Definition>),
+) {
+  function validate(p: PermixRules<Definition>) {
+    if (!isRulesValid(p)) {
+      throw new Error('[Permix]: Permissions in template are not valid.')
+    }
   }
 
-  return rules
+  if (typeof rules === 'function') {
+    return (param: P) => {
+      const p = rules(param)
+
+      validate(p)
+
+      return p
+    }
+  }
+
+  validate(rules)
+
+  return () => rules
 }

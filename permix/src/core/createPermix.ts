@@ -344,7 +344,7 @@ export function createPermix<Definition extends PermixDefinition>(): Permix<Defi
     },
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
-    template: template<Definition>,
+    template,
     isReady: () => isReady,
     isReadyAsync: async () => {
       await setupPromise

@@ -2,6 +2,8 @@ import type { MiddlewareFunction, ProcedureParams } from '@trpc/server'
 import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
 import { TRPCError } from '@trpc/server'
 import { createPermix } from '../core/createPermix'
+import { createTemplateBuilder } from '../core/template'
+import { pick } from '../utils'
 
 export interface PermixMiddlewareOptions<T extends PermixDefinition> {
   /**
@@ -23,9 +25,11 @@ export function createPermixTrpc<Definition extends PermixDefinition>(
     }),
   }: PermixMiddlewareOptions<Definition> = {},
 ) {
+  type PermixTrpc = Pick<Permix<Definition>, 'check' | 'checkAsync'>
+
   function setupMiddleware<
     TParams extends ProcedureParams,
-    TParamsAfter extends ProcedureParams = TParams & { _ctx_out: { permix: Permix<Definition> } },
+    TParamsAfter extends ProcedureParams = TParams & { _ctx_out: { permix: PermixTrpc } },
   >(
     callback: (params: { ctx: TParams['_ctx_out'] }) => PermixRules<Definition> | Promise<PermixRules<Definition>>,
   ): MiddlewareFunction<TParams, TParamsAfter> {
@@ -34,12 +38,12 @@ export function createPermixTrpc<Definition extends PermixDefinition>(
 
       permix.setup(await callback({ ctx }))
 
-      return next({ ctx: { ...ctx, permix } })
+      return next({ ctx: { ...ctx, permix: pick(permix, ['check', 'checkAsync']) } })
     }
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
-    function middleware<C extends { permix: Permix<Definition> }>({ ctx, next }: { ctx: C, next: (...args: any[]) => Promise<any> }) {
+    function middleware<C extends { permix: PermixTrpc }>({ ctx, next }: { ctx: C, next: (...args: any[]) => Promise<any> }) {
       const hasPermission = ctx.permix.check(...params)
 
       if (!hasPermission) {
@@ -73,5 +77,9 @@ export function createPermixTrpc<Definition extends PermixDefinition>(
     return middleware
   }
 
-  return { setupMiddleware, checkMiddleware }
+  return {
+    setupMiddleware,
+    checkMiddleware,
+    template: createTemplateBuilder<Definition>(),
+  }
 }

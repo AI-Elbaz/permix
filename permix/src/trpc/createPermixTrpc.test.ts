@@ -244,4 +244,28 @@ describe('createPermixTrpc', () => {
       inputUserId: 1,
     })
   })
+
+  it('should work with template', async () => {
+    const protectedProcedure = t.procedure.use(permixTrpc.setupMiddleware(permixTrpc.template({
+      post: {
+        create: true,
+        read: false,
+        update: false,
+      },
+      user: {
+        delete: false,
+      },
+    })))
+
+    const router = t.router({
+      createPost: protectedProcedure
+        .use(permixTrpc.checkMiddleware('post', 'create'))
+        .query(() => {
+          return { success: true }
+        }),
+    })
+
+    const result = await t.createCallerFactory(router)({ user: { id: '1' } }).createPost()
+    expect(result).toEqual({ success: true })
+  })
 })
