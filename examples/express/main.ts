@@ -11,7 +11,9 @@ type PermissionsDefinition = PermixDefinition<{
 }>
 
 const permix = createPermix<PermissionsDefinition>({
-  onForbidden: ({ res }) => res.status(403).json({ error: 'You do not have permission to access this resource' }),
+  onForbidden: ({ res }) => {
+    res.status(403).json({ error: 'You do not have permission to access this resource' })
+  },
 })
 
 app.use(permix.setupMiddleware(() => ({
@@ -32,7 +34,7 @@ router.get('/write', permix.checkMiddleware('user', 'write'), (req, res) => {
 })
 
 router.get('/permix', (req, res) => {
-  res.json({ canRead: permix.get(req).check('user', 'read') })
+  res.json({ canRead: permix.get(req, res).check('user', 'read') })
 })
 
 app.use(router)
