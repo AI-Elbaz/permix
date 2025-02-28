@@ -8,7 +8,7 @@ description: Learn how to use the `isReady()` method to check if permissions are
 Sometimes you need to know when permissions are ready to use. For example, you might want to wait for permissions to be ready before rendering a component. That's where the `isReady()` and `isReadyAsync()` methods come in.
 
 <Callout type="warn">
-Note that `isReady()` and `isReadyAsync()` will always return `false` during server-side rendering. It only becomes `true` after the first successful call to `setup()` on the client.
+Note that `isReady()` and `isReadyAsync()` will always return `false` on server-side. It only becomes `true` after the first successful call to `setup()` on the client.
 </Callout>
 
 
