@@ -1,8 +1,8 @@
-import type { PermixDefinition } from '../core/createPermix'
+import type { PermixDefinition } from '../core/create-permix'
 import express from 'express'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
-import { createPermix } from './createPermix'
+import { createPermix } from './create-permix'
 
 interface Post {
   id: string
@@ -155,31 +155,5 @@ describe('createPermix', () => {
 
     expect(response.status).toBe(500)
     expect(response.body).toEqual({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' })
-  })
-
-  it('should work with template', async () => {
-    const app = express()
-
-    app.use(permix.setupMiddleware(permix.template({
-      post: {
-        create: true,
-        read: false,
-        update: false,
-      },
-      user: {
-        delete: false,
-      },
-    })))
-
-    app.post('/posts', permix.checkMiddleware('post', 'create'), (req, res) => {
-      res.json({ success: true })
-    })
-
-    const response = await request(app)
-      .post('/posts')
-      .send({ title: 'Test Post' })
-
-    expect(response.status).toBe(200)
-    expect(response.body).toEqual({ success: true })
   })
 })

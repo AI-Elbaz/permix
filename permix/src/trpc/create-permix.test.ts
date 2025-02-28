@@ -1,8 +1,8 @@
-import type { Permix, PermixDefinition } from '../core/createPermix'
+import type { Permix, PermixDefinition } from '../core/create-permix'
 import { initTRPC, TRPCError } from '@trpc/server'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
-import { createPermix } from './createPermix'
+import { createPermix } from './create-permix'
 
 interface Context {
   user: {

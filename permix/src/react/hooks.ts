@@ -1,6 +1,6 @@
-import type { Permix, PermixDefinition, PermixRules } from '../core/createPermix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
 import * as React from 'react'
-import { validatePermix } from '../core/createPermix'
+import { validatePermix } from '../core/create-permix'
 
 export const Context = React.createContext<{
   permix: Permix<any>

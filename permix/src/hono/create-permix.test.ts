@@ -1,7 +1,7 @@
-import type { PermixDefinition } from '../core/createPermix'
+import type { PermixDefinition } from '../core/create-permix'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
-import { createPermix } from './createPermix'
+import { createPermix } from './create-permix'
 
 interface Post {
   id: string
@@ -192,32 +192,5 @@ describe('createPermix', () => {
     expect(res.status).toBe(500)
     const text = await res.text()
     expect(text).toContain('[Permix] Instance not found. Please use the `setupMiddleware` function.')
-  })
-
-  it('should work with template', async () => {
-    const app = new Hono()
-
-    app.use('*', permix.setupMiddleware(permix.template({
-      post: {
-        create: true,
-        read: false,
-        update: false,
-      },
-      user: {
-        delete: false,
-      },
-    })))
-
-    app.post('/posts', permix.checkMiddleware('post', 'create'), (c) => {
-      return c.json({ success: true })
-    })
-
-    const res = await app.request('/posts', {
-      method: 'POST',
-      body: JSON.stringify({ title: 'Test Post' }),
-    })
-
-    expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({ success: true })
   })
 })

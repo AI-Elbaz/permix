@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createApp } from 'vue'
-import { createPermix } from '../core/createPermix'
+import { createPermix } from '../core/create-permix'
 import { permixPlugin } from './plugin'
 
 describe('permixPlugin', () => {

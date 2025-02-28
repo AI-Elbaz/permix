@@ -1,7 +1,7 @@
 import type { Plugin } from 'vue'
 import type { Permix } from '../core'
 import { ref } from 'vue'
-import { validatePermix } from '../core/createPermix'
+import { validatePermix } from '../core/create-permix'
 
 export const PERMIX_CONTEXT_KEY = 'vue-permix'
 

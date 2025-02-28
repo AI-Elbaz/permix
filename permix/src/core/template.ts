@@ -1,4 +1,4 @@
-import type { PermixDefinition, PermixRules } from './createPermix'
+import type { PermixDefinition, PermixRules } from './create-permix'
 import { isRulesValid } from './utils'
 
 /**

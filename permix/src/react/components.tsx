@@ -1,10 +1,10 @@
 import type { Permix, PermixDefinition } from '../core'
-import type { CheckFunctionObject, PermixStateJSON } from '../core/createPermix'
+import type { PermixStateJSON } from '../core/create-permix'
+import type { CheckFunctionObject } from '../core/params'
 import * as React from 'react'
 import { hydrate } from '../core'
-import { validatePermix } from '../core/createPermix'
+import { validatePermix } from '../core/create-permix'
 import { Context, usePermix, usePermixContext } from './hooks'
-
 /**
  * Provider that provides the Permix context to your React components.
  *

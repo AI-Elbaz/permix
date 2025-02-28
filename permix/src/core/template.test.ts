@@ -1,6 +1,6 @@
-import type { PermixDefinition } from './createPermix'
+import type { PermixDefinition } from './create-permix'
 import { describe, expect, it } from 'vitest'
-import { createPermix } from './createPermix'
+import { createPermix } from './create-permix'
 import { template, templator } from './template'
 
 type Definition = PermixDefinition<{

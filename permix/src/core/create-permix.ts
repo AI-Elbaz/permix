@@ -1,3 +1,4 @@
+import type { CheckFunctionParams } from './params'
 import { createHooks as hooks } from './hooks'
 import { template } from './template'
 import { isRulesValid } from './utils'
@@ -32,18 +33,6 @@ export type PermixRules<Definition extends PermixDefinition = PermixDefinition> 
       | boolean
       | ((data: Definition[Key]['dataType']) => boolean);
   };
-}
-
-export type CheckFunctionParams<Definition extends PermixDefinition, K extends keyof Definition> = [
-  entity: K,
-  action: 'all' | Definition[K]['action'] | Definition[K]['action'][],
-  data?: Definition[K]['dataType'],
-]
-
-export interface CheckFunctionObject<Definition extends PermixDefinition, K extends keyof Definition> {
-  entity: K
-  action: 'all' | Definition[K]['action'] | Definition[K]['action'][]
-  data?: Definition[K]['dataType']
 }
 
 function checkWithState<Definition extends PermixDefinition, K extends keyof Definition>(state: PermixRules<Definition>, ...params: CheckFunctionParams<Definition, K>) {

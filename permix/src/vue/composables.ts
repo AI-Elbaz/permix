@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
-import type { Permix, PermixDefinition, PermixRules } from '../core/createPermix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
 import { computed, inject } from 'vue'
-import { validatePermix } from '../core/createPermix'
+import { validatePermix } from '../core/create-permix'
 import { PERMIX_CONTEXT_KEY } from './plugin'
 
 function usePermixContext() {

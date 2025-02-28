@@ -1,17 +1,17 @@
 import type { MiddlewareFunction, ProcedureParams } from '@trpc/server'
-import type { PermixForbiddenContext } from '../core/adapter'
-import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { CheckContext, CheckFunctionParams } from '../core/params'
 import { TRPCError } from '@trpc/server'
 import { templator } from '../core'
-import { createPermixForbiddenContext } from '../core/adapter'
-import { createPermix as createPermixCore } from '../core/createPermix'
+import { createPermix as createPermixCore } from '../core/create-permix'
+import { createCheckContext } from '../core/params'
 import { pick } from '../utils'
 
 export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error to throw when permission is denied
    */
-  forbiddenError?: <C = unknown>(params: PermixForbiddenContext<T> & { ctx: C }) => TRPCError
+  forbiddenError?: <C = unknown>(params: CheckContext<T> & { ctx: C }) => TRPCError
 }
 
 /**
@@ -61,7 +61,7 @@ export function createPermix<Definition extends PermixDefinition>(
       if (!hasPermission) {
         const error = typeof forbiddenError === 'function'
           ? forbiddenError({
-              ...createPermixForbiddenContext(...params),
+              ...createCheckContext(...params),
               ctx,
             })
           : forbiddenError

@@ -1,11 +1,11 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import type { PermixForbiddenContext } from '../core/adapter'
-import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
 import { HTTPException } from 'hono/http-exception'
 import { templator } from '../core'
-import { createPermixForbiddenContext } from '../core/adapter'
-import { createPermix as createPermixCore } from '../core/createPermix'
+import { createPermix as createPermixCore } from '../core/create-permix'
+import { createCheckContext } from '../core/params'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix') as unknown as string
@@ -14,7 +14,7 @@ export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onForbidden?: (params: PermixForbiddenContext<T> & { c: Context }) => MaybePromise<Response>
+  onForbidden?: (params: CheckContext<T> & { c: Context }) => MaybePromise<Response>
 }
 
 /**
@@ -68,13 +68,13 @@ export function createPermix<Definition extends PermixDefinition>(
         const hasPermission = permix.check(...params)
 
         if (!hasPermission) {
-          return await onForbidden({ c, ...createPermixForbiddenContext(...params) })
+          return await onForbidden({ c, ...createCheckContext(...params) })
         }
 
         await next()
       }
       catch {
-        return await onForbidden({ c, ...createPermixForbiddenContext(...params) })
+        return await onForbidden({ c, ...createCheckContext(...params) })
       }
     }
   }

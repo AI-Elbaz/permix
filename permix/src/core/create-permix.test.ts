@@ -1,7 +1,7 @@
 import type { Permix } from '.'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPermix } from '.'
-import { validatePermix } from './createPermix'
+import { validatePermix } from './create-permix'
 
 interface Post {
   id: string

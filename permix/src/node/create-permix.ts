@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { PermixForbiddenContext } from '../core/adapter'
-import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { CheckContext, CheckFunctionParams } from '../core/params'
 import { templator } from '../core'
-import { createPermixForbiddenContext } from '../core/adapter'
-import { createPermix as createPermixCore } from '../core/createPermix'
+import { createPermix as createPermixCore } from '../core/create-permix'
+import { createCheckContext } from '../core/params'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix')
@@ -11,24 +11,23 @@ const permixSymbol = Symbol('permix')
 /**
  * Custom context type for Node adapter
  */
-export interface NodeMiddlewareContext {
+export interface NodeCheckContext {
   req: IncomingMessage
   res: ServerResponse<IncomingMessage>
-  next?: () => void
 }
 
 export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onForbidden?: (params: PermixForbiddenContext<T> & NodeMiddlewareContext) => void
+  onForbidden?: (params: CheckContext<T> & NodeCheckContext) => void
 }
 
 /**
  * Create a middleware function that checks permissions for Node.js HTTP servers.
  * Compatible with raw Node.js HTTP servers.
  *
- * @link https://permix.letstri.dev/docs/integrations/server
+ * @link https://permix.letstri.dev/docs/integrations/node
  */
 export function createPermix<Definition extends PermixDefinition>(
   {
@@ -61,20 +60,16 @@ export function createPermix<Definition extends PermixDefinition>(
     }
   }
 
-  function setupMiddleware(callback: (context: NodeMiddlewareContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
-    return async (context: NodeMiddlewareContext) => {
+  function setupMiddleware(callback: (context: NodeCheckContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
+    return async (context: NodeCheckContext) => {
       const permix = createPermixCore<Definition>()
       permix.setup(await callback(context))
       setPermix(context.req, permix)
-
-      if (typeof context.next === 'function') {
-        context.next()
-      }
     }
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
-    return async (context: NodeMiddlewareContext) => {
+    return async (context: NodeCheckContext) => {
       const permix = getPermix(context.req, context.res)
 
       if (!permix)
@@ -83,23 +78,11 @@ export function createPermix<Definition extends PermixDefinition>(
       const hasPermission = permix.check(...params)
 
       if (!hasPermission) {
-        await onForbidden({
-          ...createPermixForbiddenContext(...params),
+        onForbidden({
+          ...createCheckContext(...params),
           req: context.req,
           res: context.res,
         })
-        return
-      }
-
-      try {
-        if (typeof context.next === 'function') {
-          context.next()
-        }
-      }
-      catch {
-        context.res.statusCode = 500
-        context.res.setHeader('Content-Type', 'application/json')
-        context.res.end(JSON.stringify({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' }))
       }
     }
   }

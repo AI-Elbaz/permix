@@ -1,5 +1,5 @@
-import type { Permix, PermixDefinition, PermixStateJSON } from './createPermix'
-import { validatePermix } from './createPermix'
+import type { Permix, PermixDefinition, PermixStateJSON } from './create-permix'
+import { validatePermix } from './create-permix'
 
 export type DehydratedState<Permissions extends PermixDefinition> = PermixStateJSON<Permissions>
 
