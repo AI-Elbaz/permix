@@ -62,7 +62,7 @@ The middleware preserves full type safety from your Permix definition, ensuring 
 
 <Step>
 
-## Usage
+## Checking Permissions
 
 Use the `checkMiddleware` function in your Express routes to check permissions:
 
@@ -86,22 +86,59 @@ app.delete('/posts/:id', permix.checkMiddleware('post', 'all'), (req, res) => {
 
 <Step>
 
-## Accessing Permix in Route Handlers
+## Accessing Permix Directly
 
 You can access the Permix instance directly in your route handlers using the `get` function:
 
 ```ts
 app.get('/posts', (req, res) => {
-  const p = permix.get(req)
+  const permix = permix.get(req, res)
 
   // Check permissions manually
-  if (p.check('post', 'read')) {
+  if (permix.check('post', 'read')) {
     // User has permission to read posts
     res.json({ posts: getAllPosts() })
   } else {
     res.status(403).json({ error: 'You do not have permission to read posts' })
   }
 })
+```
+
+The `get` function returns the Permix instance with available methods.
+
+</Step>
+
+<Step>
+
+## Using Templates
+
+Permix provides a template helper to create reusable permission rule sets:
+
+```ts
+// Create a template for admin permissions
+const adminTemplate = permix.template({
+  post: {
+    create: true,
+    read: true,
+    update: true
+  }
+})
+
+// Use the template in your middleware
+app.use(permix.setupMiddleware(({ req }) => {
+  // You can still customize the template based on request data
+  if (req.user?.role === 'admin') {
+    return adminTemplate
+  }
+
+  return {
+    post: {
+      create: false,
+      read: true,
+      update: false
+    }
+  }
+}))
 ```
 
 </Step>
@@ -148,6 +185,45 @@ const permix = createPermix<Definition>({
 The `onForbidden` handler receives:
 - `req`: Express Request object
 - `res`: Express Response object
-- `next`: Express NextFunction
 - `entity`: The entity that was checked
 - `actions`: Array of actions that were checked
+
+## Advanced Usage
+
+### Async Permission Rules
+
+You can use async functions in your permission setup:
+
+```ts
+app.use(permix.setupMiddleware(async ({ req }) => {
+  // Fetch user permissions from database
+  const userPermissions = await getUserPermissions(req.user.id)
+
+  return {
+    post: {
+      create: userPermissions.canCreatePosts,
+      read: userPermissions.canReadPosts,
+      update: userPermissions.canUpdatePosts
+    }
+  }
+}))
+```
+
+### Dynamic Data-Based Permissions
+
+You can check permissions based on the specific data being accessed:
+
+```ts
+app.put('/posts/:id', async (req, res, next) => {
+  const post = await getPostById(req.params.id)
+
+  const permix = permix.get(req, res)
+
+  // Check if user can update this specific post
+  if (permix.check('post', 'update', post)) {
+    next()
+  } else {
+    res.status(403).json({ error: 'You cannot update this post' })
+  }
+})
+```

@@ -8,12 +8,10 @@ interface Post {
   published: boolean
 }
 
-type PermissionsDefinition = PermixDefinition<{
+export const permix = createPermix<{
   post: {
     dataType: Post
     action: 'create' | 'update' | 'delete'
   }
-}>
-
-export const permix = createPermix<PermissionsDefinition>()
+}>()
 ```

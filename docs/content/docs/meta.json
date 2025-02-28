@@ -15,6 +15,7 @@
     "---Integrations---",
     "integrations/react",
     "integrations/vue",
+    "integrations/node",
     "integrations/trpc",
     "integrations/express",
     "integrations/hono",

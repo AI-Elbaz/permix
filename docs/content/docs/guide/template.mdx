@@ -7,6 +7,11 @@ description: Learn how to define permissions using templates
 
 Permix provides a `template` method that allows you to define permissions in a separate location from where they are set up. This is useful for organizing permission definitions and reusing them across different parts of your application.
 
+<Callout>
+Templates are validated when they are created, ensuring your permission definitions are correct before runtime.
+</Callout>
+
+
 ## Basic Usage
 
 The simplest way to use templates is to define static permissions:
@@ -45,6 +50,48 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
 const user = await getUser()
 permix.setup(userPermissions(user))
 ```
+
+## Using Templator
+
+Permix also provides a `templator` function, which is useful when you need to create multiple templates with the same definition type without Permix instance.
+
+```ts
+import { templator } from 'permix'
+import type { Definition } from './permix'
+
+// Create a template builder for your specific definition
+const template = templator<Definition>()
+
+// Use the template builder to create multiple templates
+const adminTemplate = template(({ user }) => ({
+  post: {
+    create: true,
+    read: true,
+    update: true,
+    delete: true
+  }
+}))
+
+const moderatorTemplate = template(({ user }) => ({
+  post: {
+    create: true,
+    read: true,
+    update: post => !post.published,
+    delete: false
+  }
+}))
+
+// Use the templates
+const admin = await getAdmin()
+const moderator = await getModerator()
+
+permix.setup(adminTemplate(admin))
+// Later, you can switch to another template
+permix.setup(moderatorTemplate(moderator))
+```
+
+The `templator` function helps maintain type safety and consistency when working with multiple permission templates in your application.
+
 
 ## Type Safety
 
@@ -102,7 +149,3 @@ function setupPermissions() {
   return permix.setup(permissionsMap[user.role]())
 }
 ```
-
-<Callout>
-Templates are validated when they are created, ensuring your permission definitions are correct before runtime.
-</Callout>

@@ -37,18 +37,22 @@ const app = new Hono()
 const permix = createPermix<{
   post: {
     dataType: Post
-    action: 'create' | 'read' | 'update'
+    action: 'create' | 'read' | 'update' | 'delete'
   }
 }>()
 
 // Set up the middleware with your permission rules
 app.use('*', permix.setupMiddleware(({ c }) => {
   // You can access c.get('user') or other properties to determine permissions
+  const user = c.get('user')
+  const isAdmin = user?.role === 'admin'
+
   return {
     post: {
       create: true,
       read: true,
-      update: false
+      update: isAdmin || false,
+      delete: isAdmin
     }
   }
 }))
@@ -62,22 +66,25 @@ The middleware preserves full type safety from your Permix definition, ensuring 
 
 <Step>
 
-## Usage
+## Checking Permissions
 
 Use the `checkMiddleware` function in your Hono routes to check permissions:
 
 ```ts
 app.post('/posts', permix.checkMiddleware('post', 'create'), (c) => {
+  // Create post logic here
   return c.json({ success: true })
 })
 
 // Check multiple actions
 app.put('/posts/:id', permix.checkMiddleware('post', ['read', 'update']), (c) => {
+  // Update post logic here
   return c.json({ success: true })
 })
 
 // Check all actions
 app.delete('/posts/:id', permix.checkMiddleware('post', 'all'), (c) => {
+  // Delete post logic here
   return c.json({ success: true })
 })
 ```
@@ -86,7 +93,7 @@ app.delete('/posts/:id', permix.checkMiddleware('post', 'all'), (c) => {
 
 <Step>
 
-## Accessing Permix in Route Handlers
+## Accessing Permix Directly
 
 You can access the Permix instance directly in your route handlers using the `get` function:
 
@@ -102,6 +109,49 @@ app.get('/posts', (c) => {
     return c.json({ error: 'You do not have permission to read posts' }, 403)
   }
 })
+```
+
+The `get` function returns the Permix instance with available methods.
+
+</Step>
+
+<Step>
+
+## Using Templates
+
+Permix provides a template helper to create reusable permission rule sets:
+
+```ts
+// Create a template for admin permissions
+const adminTemplate = permix.template({
+  post: {
+    create: true,
+    read: true,
+    update: true,
+    delete: true
+  }
+})
+
+// Create a template for regular user permissions
+const userTemplate = permix.template({
+  post: {
+    create: true,
+    read: true,
+    update: false,
+    delete: false
+  }
+})
+
+// Use templates in your middleware
+app.use('*', permix.setupMiddleware(({ c }) => {
+  const user = c.get('user')
+
+  if (user?.role === 'admin') {
+    return adminTemplate
+  }
+
+  return userTemplate
+}))
 ```
 
 </Step>
@@ -146,3 +196,47 @@ The `onForbidden` handler receives:
 - `c`: Hono Context object
 - `entity`: The entity that was checked
 - `actions`: Array of actions that were checked
+
+## Advanced Usage
+
+### Async Permission Rules
+
+You can use async functions in your permission setup:
+
+```ts
+app.use('*', permix.setupMiddleware(async ({ c }) => {
+  // Fetch user permissions from database
+  const user = c.get('user')
+  const userPermissions = await getUserPermissions(user.id)
+
+  return {
+    post: {
+      create: userPermissions.canCreatePosts,
+      read: userPermissions.canReadPosts,
+      update: userPermissions.canUpdatePosts,
+      delete: userPermissions.canDeletePosts
+    }
+  }
+}))
+```
+
+### Dynamic Data-Based Permissions
+
+You can check permissions based on the specific data being accessed:
+
+```ts
+app.put('/posts/:id', async (c) => {
+  const postId = c.req.param('id')
+  const post = await getPostById(postId)
+
+  const permix = permix.get(c)
+
+  // Check if user can update this specific post
+  if (permix.check('post', 'update', post)) {
+    // Update post logic
+    return c.json({ success: true })
+  } else {
+    return c.json({ error: 'You cannot update this post' }, 403)
+  }
+})
+```
