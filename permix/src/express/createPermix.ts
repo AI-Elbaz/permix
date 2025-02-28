@@ -31,10 +31,10 @@ export function createPermix<Definition extends PermixDefinition>(
   }: PermixOptions<Definition> = {},
 ) {
   const permixAdapter = createPermixAdapter<Definition, ExpressMiddlewareContext>({
-    setPermix: ({ req }, permix) => {
+    setPermix({ req }, permix) {
       (req as any)[permixSymbol] = permix
     },
-    getPermix: ({ req }) => {
+    getPermix({ req }) {
       return (req as any)[permixSymbol]
     },
   })
