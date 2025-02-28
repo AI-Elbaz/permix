@@ -18,7 +18,7 @@ export type PermixDefinition<T extends Record<string, {
   action: string
 }>> = T
 
-const permixSymbol = Symbol.for('permix')
+const permixSymbol = Symbol('permix')
 
 export type PermixStateJSON<Definition extends PermixDefinition = PermixDefinition> = {
   [Key in keyof Definition]: {
