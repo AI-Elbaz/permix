@@ -1,7 +1,9 @@
 import type { PermixForbiddenContext } from '../core/adapter'
-import type { CheckFunctionParams, PermixDefinition, PermixRules } from '../core/createPermix'
+import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
 import type { MaybePromise } from '../core/utils'
-import { createPermixAdapter, createPermixForbiddenContext } from '../core/adapter'
+import { templator } from '../core'
+import { createPermixForbiddenContext } from '../core/adapter'
+import { createPermix as createPermixCore } from '../core/createPermix'
 
 const permixSymbol = Symbol('permix')
 
@@ -18,7 +20,7 @@ export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onForbidden?: (params: PermixForbiddenContext<T, ServerMiddlewareContext>) => MaybePromise<void>
+  onForbidden?: (params: PermixForbiddenContext<T> & ServerMiddlewareContext) => MaybePromise<void>
 }
 
 /**
@@ -53,18 +55,43 @@ export function createPermix<Definition extends PermixDefinition>(
     },
   }: PermixOptions<Definition> = {},
 ) {
-  const permixAdapter = createPermixAdapter<Definition, ServerMiddlewareContext>({
-    setPermix: (context, permix) => {
-      (context.req as any)[permixSymbol] = permix
-    },
-    getPermix: (context) => {
-      return (context.req as any)[permixSymbol]
-    },
-  })
+  function setPermix(context: ServerMiddlewareContext, permix: Permix<Definition>) {
+    (context.req as any)[permixSymbol] = permix
+  }
+
+  function getPermix(context: ServerMiddlewareContext) {
+    try {
+      const permix = (context.req as any)[permixSymbol] as Permix<Definition> | undefined
+
+      if (!permix) {
+        throw new Error('Not found')
+      }
+
+      return permix
+    }
+    catch {
+      // Try both response styles for error handling
+      if ('status' in context.res && typeof context.res.status === 'function') {
+        (context.res as any).status(500).json({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' })
+      }
+      else if ('statusCode' in context.res) {
+        (context.res as any).statusCode = 500
+        if ('setHeader' in context.res) {
+          (context.res as any).setHeader('Content-Type', 'application/json')
+        }
+        if ('end' in context.res) {
+          (context.res as any).end(JSON.stringify({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' }))
+        }
+      }
+      return null!
+    }
+  }
 
   function setupMiddleware(callback: (context: ServerMiddlewareContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     return async (context: ServerMiddlewareContext) => {
-      await permixAdapter.setupFunction(context, callback)
+      const permix = createPermixCore<Definition>()
+      permix.setup(await callback(context))
+      setPermix(context, permix)
 
       if (typeof context.next === 'function') {
         context.next()
@@ -74,10 +101,11 @@ export function createPermix<Definition extends PermixDefinition>(
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
     return async (context: ServerMiddlewareContext) => {
-      const hasPermission = permixAdapter.checkFunction(context, ...params)
+      const permix = getPermix(context)
+      const hasPermission = permix.check(...params)
 
       if (!hasPermission) {
-        await onForbidden(createPermixForbiddenContext(context, ...params))
+        await onForbidden({ ...createPermixForbiddenContext(...params), ...context })
         return
       }
 
@@ -107,30 +135,8 @@ export function createPermix<Definition extends PermixDefinition>(
     }
   }
 
-  function getPermix(context: ServerMiddlewareContext) {
-    try {
-      return permixAdapter.get(context)
-    }
-    catch {
-      // Try both response styles for error handling
-      if ('status' in context.res && typeof context.res.status === 'function') {
-        (context.res as any).status(500).json({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' })
-      }
-      else if ('statusCode' in context.res) {
-        (context.res as any).statusCode = 500
-        if ('setHeader' in context.res) {
-          (context.res as any).setHeader('Content-Type', 'application/json')
-        }
-        if ('end' in context.res) {
-          (context.res as any).end(JSON.stringify({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' }))
-        }
-      }
-      return null!
-    }
-  }
-
   return {
-    template: permixAdapter.template,
+    template: templator<Definition>(),
     setupMiddleware,
     get: getPermix,
     checkMiddleware,

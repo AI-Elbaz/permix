@@ -1,4 +1,4 @@
-import type { PermixDefinition } from '../core/createPermix'
+import type { Permix, PermixDefinition } from '../core/createPermix'
 import { initTRPC, TRPCError } from '@trpc/server'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
@@ -8,6 +8,7 @@ interface Context {
   user: {
     id: string
   }
+  permix?: Pick<Permix<any>, 'check' | 'checkAsync'>
 }
 
 describe('createPermix', () => {
@@ -51,7 +52,7 @@ describe('createPermix', () => {
       createPost: protectedProcedure
         .use(permix.checkMiddleware('post', 'create'))
         .query(({ ctx }) => {
-          ctx.permix.check('post', 'update')
+          ctx.permix!.check('post', 'update')
           return { success: true }
         }),
     })
@@ -90,7 +91,7 @@ describe('createPermix', () => {
     })
 
     const permix = createPermix({
-      forbiddenError: customError,
+      forbiddenError: () => customError,
     })
 
     const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({

@@ -147,7 +147,7 @@ describe('createPermix', () => {
     const app = express()
 
     app.get('/', (req, res) => {
-      const p = permix.get({ req, res })
+      const p = permix.get(req, res)
       res.json({ permix: p })
     })
 

@@ -187,7 +187,7 @@ describe('createPermix', () => {
 
     await setupMiddleware({ req, res, next })
 
-    const p = permix.get({ req, res, next })
+    const p = permix.get(req, res)
     expect(p.check('post', 'create')).toBe(true)
     expect(p.check('post', 'read')).toBe(false)
   })
@@ -195,9 +195,8 @@ describe('createPermix', () => {
   it('should return an error when permix is not found', () => {
     const req = createMockRequest()
     const res = createMockResponse()
-    const next = vi.fn()
 
-    const p = permix.get({ req, res, next })
+    const p = permix.get(req, res)
     expect(p).toBeNull()
     expect(res.statusCode).toBe(500)
     expect(res.end).toHaveBeenCalledWith(JSON.stringify({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' }))
