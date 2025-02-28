@@ -1,6 +1,7 @@
 import type { Permix } from '.'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPermix } from '.'
+import { validatePermix } from './createPermix'
 
 interface Post {
   id: string
@@ -325,5 +326,37 @@ describe('createPermix', () => {
     }, 100)
 
     expect(await permix.isReadyAsync()).toBe(true)
+  })
+
+  it('should throw an error if permissions in setup are not valid', () => {
+    const permix = createPermix()
+
+    const invalidPermissions = {
+      post: {
+        create: 'not a boolean or function',
+      },
+    }
+
+    expect(() => {
+      permix.setup(invalidPermissions as any)
+    }).toThrow('[Permix]: Permissions in setup are not valid.')
+  })
+})
+
+describe('validatePermix', () => {
+  it('should throw error if permix instance is not valid', () => {
+    const invalidPermix = { _: {} } as any
+
+    expect(() => {
+      validatePermix(invalidPermix)
+    }).toThrow('[Permix]: Permix instance is not valid')
+  })
+
+  it('should not throw error if permix instance is valid', () => {
+    const validPermix = createPermix()
+
+    expect(() => {
+      validatePermix(validPermix)
+    }).not.toThrow()
   })
 })
