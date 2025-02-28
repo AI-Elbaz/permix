@@ -179,7 +179,7 @@ describe('createPermix', () => {
     expect(await res.json()).toEqual({ success: true })
   })
 
-  it('should return null when permix is not found', async () => {
+  it('should return an error when permix is not found', async () => {
     const app = new Hono()
 
     app.get('/', (c) => {
@@ -189,7 +189,9 @@ describe('createPermix', () => {
 
     const res = await app.request('/')
 
-    expect(await res.json()).toEqual({ permix: null })
+    expect(res.status).toBe(500)
+    const text = await res.text()
+    expect(text).toContain('[Permix] Instance not found. Please use the `setupMiddleware` function.')
   })
 
   it('should work with template', async () => {

@@ -27,3 +27,5 @@ export function isRulesValid<T>(value: unknown): value is T {
     .every(action => Object.values(action)
       .every(action => typeof action === 'boolean' || typeof action === 'function'))
 }
+
+export type MaybePromise<T> = T | Promise<T>

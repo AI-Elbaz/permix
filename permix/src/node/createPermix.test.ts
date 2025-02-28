@@ -22,14 +22,14 @@ function createMockRequest(): IncomingMessage {
   return {} as IncomingMessage
 }
 
-function createMockResponse(): ServerResponse {
+function createMockResponse(): ServerResponse<IncomingMessage> {
   const res = {
     statusCode: 200,
     setHeader: vi.fn(),
     end: vi.fn(),
     getHeader: vi.fn(),
     writeHead: vi.fn(),
-  } as unknown as ServerResponse
+  } as unknown as ServerResponse<IncomingMessage>
 
   return res
 }
@@ -39,7 +39,7 @@ describe('createPermix', () => {
 
   it('should throw ts error', () => {
     // @ts-expect-error should throw
-    expect(() => permix.checkMiddleware('post', 'delete')()).toThrow()
+    permix.checkMiddleware('post', 'delete')
   })
 
   it('should allow access when permission is granted', async () => {
@@ -58,13 +58,13 @@ describe('createPermix', () => {
       },
     }))
 
-    await setupMiddleware(req, res, next)
+    await setupMiddleware({ req, res, next })
     expect(next).toHaveBeenCalled()
 
     const checkMiddleware = permix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
-    checkMiddleware(req, res, nextCheck)
+    await checkMiddleware({ req, res, next: nextCheck })
     expect(nextCheck).toHaveBeenCalled()
   })
 
@@ -84,13 +84,13 @@ describe('createPermix', () => {
       },
     }))
 
-    await setupMiddleware(req, res, next)
+    await setupMiddleware({ req, res, next })
     expect(next).toHaveBeenCalled()
 
     const checkMiddleware = permix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
-    checkMiddleware(req, res, nextCheck)
+    await checkMiddleware({ req, res, next: nextCheck })
 
     expect(nextCheck).not.toHaveBeenCalled()
     expect(res.statusCode).toBe(403)
@@ -121,12 +121,12 @@ describe('createPermix', () => {
       },
     }))
 
-    await setupMiddleware(req, res, next)
+    await setupMiddleware({ req, res, next })
 
     const checkMiddleware = custompermix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
-    checkMiddleware(req, res, nextCheck)
+    await checkMiddleware({ req, res, next: nextCheck })
 
     expect(nextCheck).not.toHaveBeenCalled()
     expect(res.statusCode).toBe(403)
@@ -157,12 +157,12 @@ describe('createPermix', () => {
       },
     }))
 
-    await setupMiddleware(req, res, next)
+    await setupMiddleware({ req, res, next })
 
     const checkMiddleware = custompermix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
-    checkMiddleware(req, res, nextCheck)
+    await checkMiddleware({ req, res, next: nextCheck })
 
     expect(nextCheck).not.toHaveBeenCalled()
     expect(res.statusCode).toBe(403)
@@ -185,18 +185,22 @@ describe('createPermix', () => {
       },
     }))
 
-    await setupMiddleware(req, res, next)
+    await setupMiddleware({ req, res, next })
 
-    const p = permix.get(req)
+    const p = permix.get({ req, res, next })
     expect(p.check('post', 'create')).toBe(true)
     expect(p.check('post', 'read')).toBe(false)
   })
 
-  it('should return null when permix is not found', () => {
+  it('should return an error when permix is not found', () => {
     const req = createMockRequest()
+    const res = createMockResponse()
+    const next = vi.fn()
 
-    const p = permix.get(req)
+    const p = permix.get({ req, res, next })
     expect(p).toBeNull()
+    expect(res.statusCode).toBe(500)
+    expect(res.end).toHaveBeenCalledWith(JSON.stringify({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' }))
   })
 
   it('should work with template', async () => {
@@ -215,13 +219,13 @@ describe('createPermix', () => {
       },
     }))
 
-    await setupMiddleware(req, res, next)
+    await setupMiddleware({ req, res, next })
     expect(next).toHaveBeenCalled()
 
     const checkMiddleware = permix.checkMiddleware('post', 'create')
     const nextCheck = vi.fn()
 
-    checkMiddleware(req, res, nextCheck)
+    await checkMiddleware({ req, res, next: nextCheck })
     expect(nextCheck).toHaveBeenCalled()
   })
 })

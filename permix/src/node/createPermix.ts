@@ -1,23 +1,30 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import type { PermixForbiddenContext } from '../core/adapter'
 import type { CheckFunctionParams, PermixDefinition, PermixRules } from '../core/createPermix'
-import type { PermixOptions as PermixServerOptions } from '../server/createPermix'
-import { createPermix as createPermixServer } from '../server/createPermix'
+import type { MaybePromise } from '../core/utils'
+import { createPermixAdapter, createPermixForbiddenContext } from '../core/adapter'
+
+const permixSymbol = Symbol('permix')
+
+/**
+ * Custom context type for Node adapter
+ */
+export interface NodeMiddlewareContext {
+  req: IncomingMessage
+  res: ServerResponse<IncomingMessage>
+  next?: () => void
+}
 
 export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onForbidden?: (params: {
-    req: IncomingMessage
-    res: ServerResponse
-    entity: keyof T
-    actions: T[keyof T]['action'][]
-  }) => void
+  onForbidden?: (params: PermixForbiddenContext<T, NodeMiddlewareContext>) => MaybePromise<void>
 }
 
 /**
  * Create a middleware function that checks permissions for Node.js HTTP servers.
- * Compatible with Next.js, Nuxt.js, and raw Node.js HTTP servers.
+ * Compatible with raw Node.js HTTP servers.
  *
  * @link https://permix.letstri.dev/docs/integrations/server
  */
@@ -30,52 +37,61 @@ export function createPermix<Definition extends PermixDefinition>(
     },
   }: PermixOptions<Definition> = {},
 ) {
-  const serverOptions: PermixServerOptions<Definition> = {
-    onForbidden: ({ req, res, entity, actions }) => {
-      const nodeReq = req as unknown as IncomingMessage
-      const nodeRes = res as unknown as ServerResponse
-
-      return onForbidden({
-        req: nodeReq,
-        res: nodeRes,
-        entity,
-        actions,
-      })
+  const permixAdapter = createPermixAdapter<Definition, NodeMiddlewareContext>({
+    setPermix: (context, permix) => {
+      (context.req as any)[permixSymbol] = permix
     },
-  }
+    getPermix: (context) => {
+      return (context.req as any)[permixSymbol]
+    },
+  })
 
-  const permixServer = createPermixServer<Definition>(serverOptions)
+  function setupMiddleware(callback: (context: NodeMiddlewareContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
+    return async (context: NodeMiddlewareContext) => {
+      await permixAdapter.setupFunction(context, callback)
 
-  function setupMiddleware(callback: (params: { req: IncomingMessage }) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
-    const serverMiddleware = permixServer.setupMiddleware(({ req }) => callback({ req: req as unknown as IncomingMessage }))
-
-    return (req: IncomingMessage, res: ServerResponse, next?: () => void) => {
-      return serverMiddleware(
-        req as unknown as globalThis.Request,
-        res as unknown as globalThis.Response,
-        next,
-      )
+      if (typeof context.next === 'function') {
+        context.next()
+      }
     }
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
-    const serverMiddleware = permixServer.checkMiddleware(...params)
+    return async (context: NodeMiddlewareContext) => {
+      const hasPermission = permixAdapter.checkFunction(context, ...params)
 
-    return (req: IncomingMessage, res: ServerResponse, next?: () => void) => {
-      return serverMiddleware(
-        req as unknown as globalThis.Request,
-        res as unknown as globalThis.Response,
-        next,
-      )
+      if (!hasPermission) {
+        await onForbidden(createPermixForbiddenContext(context, ...params))
+        return
+      }
+
+      try {
+        if (typeof context.next === 'function') {
+          context.next()
+        }
+      }
+      catch {
+        context.res.statusCode = 500
+        context.res.setHeader('Content-Type', 'application/json')
+        context.res.end(JSON.stringify({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' }))
+      }
     }
   }
 
-  function getPermix(req: IncomingMessage) {
-    return permixServer.get(req as unknown as globalThis.Request)
+  function getPermix(context: NodeMiddlewareContext) {
+    try {
+      return permixAdapter.get(context)
+    }
+    catch {
+      context.res.statusCode = 500
+      context.res.setHeader('Content-Type', 'application/json')
+      context.res.end(JSON.stringify({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' }))
+      return null!
+    }
   }
 
   return {
-    template: permixServer.template,
+    template: permixAdapter.template,
     setupMiddleware,
     get: getPermix,
     checkMiddleware,

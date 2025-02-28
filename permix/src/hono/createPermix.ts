@@ -1,20 +1,22 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import type { CheckFunctionParams, Permix, PermixDefinition, PermixRules } from '../core/createPermix'
-import { createPermix as createPermixCore } from '../core/createPermix'
-import { templator } from '../core/template'
-import { pick } from '../utils'
+import type { PermixForbiddenContext } from '../core/adapter'
+import type { CheckFunctionParams, PermixDefinition, PermixRules } from '../core/createPermix'
+import type { MaybePromise } from '../core/utils'
+import { HTTPException } from 'hono/http-exception'
+import { createPermixAdapter, createPermixForbiddenContext } from '../core/adapter'
 
-const permixSymbol = Symbol.for('permix')
+const permixSymbol = Symbol('permix') as unknown as string
+
+/**
+ * Custom context type for Hono adapter
+ */
+type HonoMiddlewareContext = Context
 
 export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onForbidden?: (params: {
-    c: Context
-    entity: keyof T
-    actions: T[keyof T]['action'][]
-  }) => Response | Promise<Response>
+  onForbidden?: (params: PermixForbiddenContext<T, { c: HonoMiddlewareContext }>) => MaybePromise<Response>
 }
 
 /**
@@ -27,62 +29,54 @@ export function createPermix<Definition extends PermixDefinition>(
     onForbidden = ({ c }) => c.json({ error: 'Forbidden' }, 403),
   }: PermixOptions<Definition> = {},
 ) {
-  type PermixHono = Pick<Permix<Definition>, 'check' | 'checkAsync'>
+  const permixAdapter = createPermixAdapter<Definition, HonoMiddlewareContext>({
+    setPermix: (c, permix) => {
+      c.set(permixSymbol, permix)
+    },
+    getPermix: (c) => {
+      return c.get(permixSymbol)
+    },
+  })
 
-  function getPermix(c: Context) {
-    const permix = c.get(permixSymbol as unknown as string) as PermixHono
-
-    if (!permix) {
-      console.error('[Permix]: Permix not found. Please use the `setupMiddleware` function to set the permix.')
-      return null!
-    }
-
-    return pick(permix, ['check', 'checkAsync'])
-  }
-
-  function setupMiddleware(callback: (params: { c: Context }) => PermixRules<Definition> | Promise<PermixRules<Definition>>): MiddlewareHandler {
+  function setupMiddleware(callback: (context: HonoMiddlewareContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>): MiddlewareHandler {
     return async (c, next) => {
-      const permix = createPermixCore<Definition>()
-
-      c.set(permixSymbol as unknown as string, permix)
-
-      permix.setup(await callback({ c }))
-
+      await permixAdapter.setupFunction(c, callback)
       await next()
     }
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>): MiddlewareHandler {
-    return async function (c, next) {
-      const permix = getPermix(c)
+    return async (c, next) => {
+      try {
+        const hasPermission = permixAdapter.checkFunction(c, ...params)
 
-      if (!permix) {
-        console.error('[Permix]: Permix not found. Please use the `setupMiddleware` function to set the permix.')
-        return onForbidden({
-          c,
-          entity: params[0],
-          actions: Array.isArray(params[1]) ? params[1] : [params[1]],
-        })
+        if (!hasPermission) {
+          return await onForbidden(createPermixForbiddenContext({ c }, ...params))
+        }
+
+        await next()
       }
-
-      const hasPermission = permix.check(...params)
-
-      if (!hasPermission) {
-        return onForbidden({
-          c,
-          entity: params[0],
-          actions: Array.isArray(params[1]) ? params[1] : [params[1]],
-        })
+      catch {
+        return await onForbidden(createPermixForbiddenContext({ c }, ...params))
       }
+    }
+  }
 
-      await next()
+  function getPermix(c: Context) {
+    try {
+      return permixAdapter.get(c)
+    }
+    catch {
+      throw new HTTPException(500, {
+        message: '[Permix] Instance not found. Please use the `setupMiddleware` function.',
+      })
     }
   }
 
   return {
+    template: permixAdapter.template,
     setupMiddleware,
     get: getPermix,
     checkMiddleware,
-    template: templator<Definition>(),
   }
 }

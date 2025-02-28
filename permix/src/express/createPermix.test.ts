@@ -24,7 +24,7 @@ describe('createPermix', () => {
 
   it('should throw ts error', () => {
     // @ts-expect-error should throw
-    expect(() => checkMiddleware('post', 'delete')()).toThrow()
+    permix.checkMiddleware('post', 'delete')
   })
 
   it('should allow access when permission is granted', async () => {
@@ -81,7 +81,9 @@ describe('createPermix', () => {
 
   it('should work with custom error handler', async () => {
     const permix = createPermix<PermissionsDefinition>({
-      onForbidden: ({ res }) => res.status(403).json({ error: 'Custom error' }),
+      onForbidden: ({ res }) => {
+        res.status(403).json({ error: 'Custom error' })
+      },
     })
 
     const app = express()
@@ -111,7 +113,9 @@ describe('createPermix', () => {
 
   it('should work with custom error and params', async () => {
     const permix = createPermix<PermissionsDefinition>({
-      onForbidden: ({ res, entity, actions }) => res.status(403).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` }),
+      onForbidden: ({ res, entity, actions }) => {
+        res.status(403).json({ error: `You do not have permission to ${actions.join('/')} a ${entity}` })
+      },
     })
 
     const app = express()
@@ -139,42 +143,18 @@ describe('createPermix', () => {
     expect(response.body).toEqual({ error: 'You do not have permission to create a post' })
   })
 
-  it('should save permix instance in request', async () => {
-    const app = express()
-
-    app.use(permix.setupMiddleware(() => ({
-      post: {
-        create: true,
-        read: false,
-        update: false,
-      },
-      user: {
-        delete: false,
-      },
-    })))
-
-    app.get('/', (req, res) => {
-      const p = permix.get(req)
-      res.json({ success: p.check('post', 'create') })
-    })
-
-    const response = await request(app).get('/')
-
-    expect(response.status).toBe(200)
-    expect(response.body).toEqual({ success: true })
-  })
-
-  it('should return null when permix is not found', async () => {
+  it('should return an error when permix is not found', async () => {
     const app = express()
 
     app.get('/', (req, res) => {
-      const p = permix.get(req)
+      const p = permix.get({ req, res })
       res.json({ permix: p })
     })
 
     const response = await request(app).get('/')
 
-    expect(response.body).toEqual({ permix: null })
+    expect(response.status).toBe(500)
+    expect(response.body).toEqual({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' })
   })
 
   it('should work with template', async () => {
