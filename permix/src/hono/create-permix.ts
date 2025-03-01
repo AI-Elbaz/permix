@@ -27,10 +27,6 @@ export function createPermix<Definition extends PermixDefinition>(
     onForbidden = ({ c }) => c.json({ error: 'Forbidden' }, 403),
   }: PermixOptions<Definition> = {},
 ) {
-  function setPermix(c: Context, permix: Permix<Definition>) {
-    c.set(permixSymbol, permix)
-  }
-
   function getPermix(c: Context) {
     try {
       const permix = c.get(permixSymbol) as Permix<Definition> | undefined
@@ -52,7 +48,7 @@ export function createPermix<Definition extends PermixDefinition>(
     return async (c, next) => {
       const permix = createPermixCore<Definition>()
       permix.setup(await callback({ c }))
-      setPermix(c, permix)
+      c.set(permixSymbol, permix)
       await next()
     }
   }
@@ -61,9 +57,6 @@ export function createPermix<Definition extends PermixDefinition>(
     return async (c, next) => {
       try {
         const permix = getPermix(c)
-
-        if (!permix)
-          return
 
         const hasPermission = permix.check(...params)
 

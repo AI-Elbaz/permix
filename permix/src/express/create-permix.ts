@@ -33,10 +33,6 @@ export function createPermix<Definition extends PermixDefinition>(
     },
   }: PermixOptions<Definition> = {},
 ) {
-  function setPermix(req: Request, permix: Permix<Definition>) {
-    (req as any)[permixSymbol] = permix
-  }
-
   function getPermix(req: Request, res: Response) {
     try {
       const permix = (req as any)[permixSymbol] as Permix<Definition> | undefined
@@ -59,7 +55,7 @@ export function createPermix<Definition extends PermixDefinition>(
 
       permix.setup(await callback({ req, res }))
 
-      setPermix(req, permix)
+      ;(req as any)[permixSymbol] = permix
 
       return next()
     }

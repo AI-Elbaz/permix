@@ -38,10 +38,6 @@ export function createPermix<Definition extends PermixDefinition>(
     },
   }: PermixOptions<Definition> = {},
 ) {
-  function setPermix(req: IncomingMessage, permix: Permix<Definition>) {
-    (req as any)[permixSymbol] = permix
-  }
-
   function getPermix(req: IncomingMessage, res: ServerResponse<IncomingMessage>) {
     try {
       const permix = (req as any)[permixSymbol] as Permix<Definition> | undefined
@@ -63,8 +59,10 @@ export function createPermix<Definition extends PermixDefinition>(
   function setupMiddleware(callback: (context: NodeCheckContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     return async (context: NodeCheckContext) => {
       const permix = createPermixCore<Definition>()
+
       permix.setup(await callback(context))
-      setPermix(context.req, permix)
+
+      ;(context.req as any)[permixSymbol] = permix
     }
   }
 
@@ -78,7 +76,7 @@ export function createPermix<Definition extends PermixDefinition>(
       const hasPermission = permix.check(...params)
 
       if (!hasPermission) {
-        onForbidden({
+        return onForbidden({
           ...createCheckContext(...params),
           req: context.req,
           res: context.res,
