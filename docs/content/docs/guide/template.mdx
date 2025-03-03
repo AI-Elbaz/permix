@@ -51,48 +51,6 @@ const user = await getUser()
 permix.setup(userPermissions(user))
 ```
 
-## Using Templator
-
-Permix also provides a `templator` function, which is useful when you need to create multiple templates with the same definition type without Permix instance.
-
-```ts
-import { templator } from 'permix'
-import type { Definition } from './permix'
-
-// Create a template builder for your specific definition
-const template = templator<Definition>()
-
-// Use the template builder to create multiple templates
-const adminTemplate = template(({ user }) => ({
-  post: {
-    create: true,
-    read: true,
-    update: true,
-    delete: true
-  }
-}))
-
-const moderatorTemplate = template(({ user }) => ({
-  post: {
-    create: true,
-    read: true,
-    update: post => !post.published,
-    delete: false
-  }
-}))
-
-// Use the templates
-const admin = await getAdmin()
-const moderator = await getModerator()
-
-permix.setup(adminTemplate(admin))
-// Later, you can switch to another template
-permix.setup(moderatorTemplate(moderator))
-```
-
-The `templator` function helps maintain type safety and consistency when working with multiple permission templates in your application.
-
-
 ## Type Safety
 
 Templates maintain full type safety from your Permix instance definition:
@@ -149,3 +107,44 @@ function setupPermissions() {
   return permix.setup(permissionsMap[user.role]())
 }
 ```
+
+## Standalone Templates
+
+You can define permission templates outside of the Permix instance using the `PermixRules` type. This is useful when you want to organize your permission logic in separate files:
+
+```ts twoslash
+import type { PermixRules } from 'permix'
+
+// Define your Permix definition type
+type Definition = {
+  post: {
+    dataType: { id: string; authorId: string }
+    action: 'create' | 'read' | 'update' | 'delete'
+  }
+}
+
+// It can be in separate file and imported here
+const permix = createPermix<Definition>()
+
+// Create a standalone template function
+function userPermissions(role: 'admin' | 'user'): PermixRules<Definition> {
+  return {
+    post: {
+      create: role === 'admin',
+      read: true,
+      update: role === 'admin' ? true : (post) => post.authorId === userId,
+      delete: role === 'admin'
+    }
+  }
+}
+
+// Later, use it with your Permix instance
+const permissions = userPermissions('admin')
+
+permix.setup(permissions)
+```
+
+This approach allows you to:
+- Keep permission logic separate from your Permix instance
+- Reuse permission templates across different parts of your application
+- Maintain full type safety with your Permix definition

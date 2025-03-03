@@ -2,14 +2,13 @@ import type { Handler, Request, Response } from 'express'
 import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
-import { templator } from '../core'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix')
 
-interface ExpressCheckContext {
+interface MiddlewareContext {
   req: Request
   res: Response
 }
@@ -18,7 +17,7 @@ export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onForbidden?: (params: CheckContext<T> & ExpressCheckContext) => MaybePromise<void>
+  onForbidden?: (params: CheckContext<T> & MiddlewareContext) => MaybePromise<void>
 }
 
 /**
@@ -49,7 +48,7 @@ export function createPermix<Definition extends PermixDefinition>(
     }
   }
 
-  function setupMiddleware(callback: (context: ExpressCheckContext) => MaybePromise<PermixRules<Definition>>): Handler {
+  function setupMiddleware(callback: (context: MiddlewareContext) => MaybePromise<PermixRules<Definition>>): Handler {
     return async (req, res, next) => {
       const permix = createPermixCore<Definition>()
 
@@ -84,7 +83,6 @@ export function createPermix<Definition extends PermixDefinition>(
   }
 
   return {
-    template: templator<Definition>(),
     setupMiddleware,
     get: getPermix,
     checkMiddleware,

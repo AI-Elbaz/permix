@@ -3,7 +3,6 @@ import type { Permix, PermixDefinition, PermixRules } from '../core/create-permi
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
 import { HTTPException } from 'hono/http-exception'
-import { templator } from '../core'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
 import { pick } from '../utils'
@@ -73,7 +72,6 @@ export function createPermix<Definition extends PermixDefinition>(
   }
 
   return {
-    template: templator<Definition>(),
     setupMiddleware,
     get: getPermix,
     checkMiddleware,

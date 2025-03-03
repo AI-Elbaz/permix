@@ -1,7 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
-import { templator } from '../core'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
 import { pick } from '../utils'
@@ -11,7 +10,7 @@ const permixSymbol = Symbol('permix')
 /**
  * Custom context type for Node adapter
  */
-export interface NodeCheckContext {
+export interface MiddlewareContext {
   req: IncomingMessage
   res: ServerResponse<IncomingMessage>
 }
@@ -20,7 +19,7 @@ export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
-  onForbidden?: (params: CheckContext<T> & NodeCheckContext) => void
+  onForbidden?: (params: CheckContext<T> & MiddlewareContext) => void
 }
 
 /**
@@ -56,8 +55,8 @@ export function createPermix<Definition extends PermixDefinition>(
     }
   }
 
-  function setupMiddleware(callback: (context: NodeCheckContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
-    return async (context: NodeCheckContext) => {
+  function setupMiddleware(callback: (context: MiddlewareContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
+    return async (context: MiddlewareContext) => {
       const permix = createPermixCore<Definition>()
 
       permix.setup(await callback(context))
@@ -67,7 +66,7 @@ export function createPermix<Definition extends PermixDefinition>(
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
-    return async (context: NodeCheckContext) => {
+    return async (context: MiddlewareContext) => {
       const permix = getPermix(context.req, context.res)
 
       if (!permix)
@@ -86,7 +85,6 @@ export function createPermix<Definition extends PermixDefinition>(
   }
 
   return {
-    template: templator<Definition>(),
     setupMiddleware,
     get: getPermix,
     checkMiddleware,
