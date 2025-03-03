@@ -1,5 +1,5 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
 import { HTTPException } from 'hono/http-exception'
@@ -9,11 +9,30 @@ import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix') as unknown as string
 
+export interface MiddlewareContext {
+  c: Context
+}
+
 export interface PermixOptions<T extends PermixDefinition> {
   /**
    * Custom error handler
    */
   onForbidden?: (params: CheckContext<T> & { c: Context }) => MaybePromise<Response>
+}
+
+export interface Permix<Definition extends PermixDefinition> {
+  /**
+   * Setup the middleware
+   */
+  setupMiddleware: (callback: (context: MiddlewareContext) => MaybePromise<PermixRules<Definition>>) => MiddlewareHandler
+  /**
+   * Get the Permix instance
+   */
+  get: (c: Context) => Pick<PermixCore<Definition>, 'check' | 'checkAsync'>
+  /**
+   * Check the middleware
+   */
+  checkMiddleware: <K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) => MiddlewareHandler
 }
 
 /**
@@ -25,10 +44,10 @@ export function createPermix<Definition extends PermixDefinition>(
   {
     onForbidden = ({ c }) => c.json({ error: 'Forbidden' }, 403),
   }: PermixOptions<Definition> = {},
-) {
+): Permix<Definition> {
   function getPermix(c: Context) {
     try {
-      const permix = c.get(permixSymbol) as Permix<Definition> | undefined
+      const permix = c.get(permixSymbol) as PermixCore<Definition> | undefined
 
       if (!permix) {
         throw new Error('Not found')

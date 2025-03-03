@@ -1,5 +1,5 @@
 import type { Handler, Request, Response } from 'express'
-import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
 import { createPermix as createPermixCore } from '../core/create-permix'
@@ -8,7 +8,7 @@ import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix')
 
-interface MiddlewareContext {
+export interface MiddlewareContext {
   req: Request
   res: Response
 }
@@ -18,6 +18,21 @@ export interface PermixOptions<T extends PermixDefinition> {
    * Custom error handler
    */
   onForbidden?: (params: CheckContext<T> & MiddlewareContext) => MaybePromise<void>
+}
+
+export interface Permix<Definition extends PermixDefinition> {
+  /**
+   * Setup the middleware
+   */
+  setupMiddleware: (callback: (context: MiddlewareContext) => MaybePromise<PermixRules<Definition>>) => Handler
+  /**
+   * Get the Permix instance
+   */
+  get: (req: Request, res: Response) => Pick<PermixCore<Definition>, 'check' | 'checkAsync'>
+  /**
+   * Check the middleware
+   */
+  checkMiddleware: <K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) => Handler
 }
 
 /**
@@ -31,10 +46,10 @@ export function createPermix<Definition extends PermixDefinition>(
       res.status(403).json({ error: 'Forbidden' })
     },
   }: PermixOptions<Definition> = {},
-) {
+): Permix<Definition> {
   function getPermix(req: Request, res: Response) {
     try {
-      const permix = (req as any)[permixSymbol] as Permix<Definition> | undefined
+      const permix = (req as any)[permixSymbol] as PermixCore<Definition> | undefined
 
       if (!permix) {
         throw new Error('Not found')

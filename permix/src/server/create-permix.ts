@@ -1,12 +1,24 @@
-import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { MaybePromise } from '../core/utils'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix')
 
-interface MiddlewareContext {
+export interface MiddlewareContext {
   req: Request
+}
+
+export interface Permix<Definition extends PermixDefinition> {
+  /**
+   * Setup the middleware
+   */
+  setup: (req: Request, callback: (context: MiddlewareContext) => MaybePromise<PermixRules<Definition>>) => MaybePromise<void>
+  /**
+   * Get the Permix instance
+   */
+  get: (req: Request) => Pick<PermixCore<Definition>, 'check' | 'checkAsync'>
+
 }
 
 /**
@@ -14,10 +26,10 @@ interface MiddlewareContext {
  *
  * @link https://permix.letstri.dev/docs/integrations/server
  */
-export function createPermix<Definition extends PermixDefinition>() {
+export function createPermix<Definition extends PermixDefinition>(): Permix<Definition> {
   function getPermix(req: Request) {
     try {
-      const permix = (req as any)[permixSymbol] as Permix<Definition> | undefined
+      const permix = (req as any)[permixSymbol] as PermixCore<Definition> | undefined
 
       if (!permix) {
         throw new Error('Not found')
