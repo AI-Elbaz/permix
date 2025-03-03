@@ -114,6 +114,7 @@ You can define permission templates outside of the Permix instance using the `Pe
 
 ```ts twoslash
 import type { PermixRules } from 'permix'
+import { createPermix } from 'permix'
 
 // Define your Permix definition type
 type Definition = {
@@ -127,7 +128,7 @@ type Definition = {
 const permix = createPermix<Definition>()
 
 // Create a standalone template function
-function userPermissions(role: 'admin' | 'user'): PermixRules<Definition> {
+function userPermissions(userId: string, role: 'admin' | 'user'): PermixRules<Definition> {
   return {
     post: {
       create: role === 'admin',
@@ -139,7 +140,7 @@ function userPermissions(role: 'admin' | 'user'): PermixRules<Definition> {
 }
 
 // Later, use it with your Permix instance
-const permissions = userPermissions('admin')
+const permissions = userPermissions('1', 'admin')
 
 permix.setup(permissions)
 ```
