@@ -210,11 +210,11 @@ export interface PermixInternal<Definition extends PermixDefinition> extends Per
      * permix.setup({
      *   post: { create: true, delete: post => !post.isPublished }
      * })
-     * const permissions = permix._.getState()
+     * const permissions = permix._.getRules()
      * // returns { post: { create: true, delete: post => !post.isPublished } }
      * ```
      */
-    getState: () => PermixRules<Definition>
+    getRules: () => PermixRules<Definition>
 
     /**
      * Set state.
@@ -351,7 +351,7 @@ export function createPermix<Definition extends PermixDefinition>(): Permix<Defi
     },
     _: {
       isSetupCalled: () => isSetupCalled,
-      getState: () => {
+      getRules: () => {
         return rules!
       },
       setState: (r) => {
@@ -400,8 +400,8 @@ export function validatePermix<Definition extends PermixDefinition>(permix: Perm
   }
 }
 
-export function getState<Definition extends PermixDefinition>(permix: Permix<Definition>): PermixRules<Definition> {
+export function getRules<Definition extends PermixDefinition>(permix: Permix<Definition>): PermixRules<Definition> {
   validatePermix(permix)
 
-  return permix._.getState()
+  return permix._.getRules()
 }
