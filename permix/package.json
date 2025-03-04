@@ -61,10 +61,6 @@
     "./node": {
       "types": "./dist/node/index.d.ts",
       "import": "./dist/node/index.mjs"
-    },
-    "./server": {
-      "types": "./dist/server/index.d.ts",
-      "import": "./dist/server/index.mjs"
     }
   },
   "main": "./dist/core/index.mjs",
