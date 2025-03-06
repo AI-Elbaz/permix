@@ -132,3 +132,49 @@ Not using TypeScript? Permix works perfectly fine even with plain JavaScript.
 ```js title="/lib/permix.js"
 const permix = createPermix()
 ```
+
+## Initial Rules
+
+You can provide initial rules when creating a Permix instance. This allows you to set up permissions immediately without calling `setup` separately.
+
+```ts twoslash title="/lib/permix.ts"
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'create' | 'edit'
+  }
+}>({
+  post: {
+    create: true,
+    edit: false
+  }
+})
+
+// Permissions are immediately available
+console.log(permix.check('post', 'create')) // true
+console.log(permix.isReady()) // true
+```
+
+This is equivalent to:
+
+```ts twoslash title="/lib/permix.ts"
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'create' | 'edit'
+  }
+}>({
+  post: {
+    create: true,
+    edit: false
+  }
+})
+```
+
+Initial rules are useful when you have permissions that are known at initialization time and don't need to be loaded asynchronously.
+
+<Callout type="warn">
+You still should pass generic type to `createPermix` even if you provide initial rules. Otherwise, Permix will not be able to validate your permissions.
+</Callout>

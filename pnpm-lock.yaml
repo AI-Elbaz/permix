@@ -69,8 +69,8 @@ importers:
         specifier: 15.2.1
         version: 15.2.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       permix:
-        specifier: 2.0.0-rc.9
-        version: 2.0.0-rc.9(@trpc/server@10.45.2)(express@4.21.2)(hono@4.7.2)(react@19.0.0)(vue@3.5.13(typescript@5.8.2))
+        specifier: 2.0.0
+        version: 2.0.0(@trpc/server@10.45.2)(express@4.21.2)(hono@4.7.2)(react@19.0.0)(vue@3.5.13(typescript@5.8.2))
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -4826,8 +4826,8 @@ packages:
     resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
     engines: {node: '>= 14.16'}
 
-  permix@2.0.0-rc.9:
-    resolution: {integrity: sha512-7UwrCO+iotUl791cR5K0fwOHkU83oV0kDLLGGyFnjx6ByiWOCAXv1U6PmrFrzE55UKE7Et9FE23LiLd7ghlCig==}
+  permix@2.0.0:
+    resolution: {integrity: sha512-DBvZCJvKJyYwbx65QxsnLFLvpgD2B1gRe1YtQArXcA0cYifvKl171Ub7eYm+AL888+rvareig8f40l3GLkJd9g==}
     engines: {node: '>=18'}
     peerDependencies:
       '@trpc/server': '>=10'
@@ -10703,7 +10703,7 @@ snapshots:
 
   pathval@2.0.0: {}
 
-  permix@2.0.0-rc.9(@trpc/server@10.45.2)(express@4.21.2)(hono@4.7.2)(react@19.0.0)(vue@3.5.13(typescript@5.8.2)):
+  permix@2.0.0(@trpc/server@10.45.2)(express@4.21.2)(hono@4.7.2)(react@19.0.0)(vue@3.5.13(typescript@5.8.2)):
     optionalDependencies:
       '@trpc/server': 10.45.2
       express: 4.21.2
