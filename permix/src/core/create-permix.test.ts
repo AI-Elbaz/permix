@@ -1,6 +1,7 @@
-import type { Permix } from '.'
+import type { Permix, PermixDefinition } from '.'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPermix } from '.'
+import { validatePermix } from './create-permix'
 
 interface Post {
   id: string
@@ -14,7 +15,7 @@ interface Comment {
   postId: string
 }
 
-let permix: Permix<{
+type Definition = PermixDefinition<{
   post: {
     dataType: Post
     action: 'create' | 'read'
@@ -24,6 +25,8 @@ let permix: Permix<{
     action: 'create' | 'read' | 'update'
   }
 }>
+
+let permix: Permix<Definition>
 
 describe('createPermix', () => {
   beforeEach(() => {
@@ -251,99 +254,6 @@ describe('createPermix', () => {
     expect(permix.check('post', 'all')).toBe(false)
   })
 
-  it('should define permissions with template', () => {
-    const permix = createPermix<{
-      post: {
-        action: 'create'
-      }
-    }>()
-
-    const permissions = permix.template({
-      post: {
-        create: true,
-      },
-    })
-
-    expect(permissions()).toEqual({
-      post: {
-        create: true,
-      },
-    })
-
-    permix.setup(permissions())
-
-    expect(permix.check('post', 'create')).toBe(true)
-  })
-
-  it('should define permissions with template and param', () => {
-    const permix = createPermix<{
-      post: {
-        action: 'create'
-      }
-    }>()
-
-    const permissions = permix.template(({ userId }: { userId: string }) => ({
-      post: { create: userId === '1' },
-    }))
-
-    permix.setup(permissions({ userId: '1' }))
-
-    expect(permix.check('post', 'create')).toBe(true)
-  })
-
-  it('should work with enum based permissions', () => {
-    enum PostPermission {
-      Create = 'create',
-      Read = 'read',
-      Update = 'update',
-      Delete = 'delete',
-    }
-
-    const permix = createPermix<{
-      post: {
-        action: PostPermission
-      }
-    }>()
-
-    permix.setup({
-      post: {
-        [PostPermission.Create]: true,
-        [PostPermission.Read]: true,
-        [PostPermission.Update]: true,
-        delete: true,
-      },
-    })
-
-    expect(permix.check('post', PostPermission.Create)).toBe(true)
-  })
-
-  it('should throw an error if permissions are not valid', () => {
-    expect(() => permix.template({
-      // @ts-expect-error create isn't valid
-      post: { create: 1 },
-    })).toThrow()
-    expect(() => permix.template({
-      // @ts-expect-error create isn't valid
-      post: { create: 'string' },
-    })).toThrow()
-    expect(() => permix.template({
-      // @ts-expect-error create isn't valid
-      post: { create: [] },
-    })).toThrow()
-    expect(() => permix.template({
-      // @ts-expect-error create isn't valid
-      post: { create: {} },
-    })).toThrow()
-    expect(() => permix.template({
-      // @ts-expect-error create isn't valid
-      post: { create: null },
-    })).toThrow()
-    // @ts-expect-error create isn't valid
-    expect(() => permix.template(() => ({
-      post: { create: null },
-    }))()).toThrow()
-  })
-
   it('should call setup hook', () => {
     const callback = vi.fn()
 
@@ -418,5 +328,167 @@ describe('createPermix', () => {
     }, 100)
 
     expect(await permix.isReadyAsync()).toBe(true)
+  })
+
+  it('should throw an error if permissions in setup are not valid', () => {
+    const permix = createPermix()
+
+    const invalidPermissions = {
+      post: {
+        create: 'not a boolean or function',
+      },
+    }
+
+    expect(() => {
+      permix.setup(invalidPermissions as any)
+    }).toThrow('[Permix]: Permissions in setup are not valid.')
+  })
+})
+
+describe('validatePermix', () => {
+  it('should throw error if permix instance is not valid', () => {
+    const invalidPermix = { _: {} } as any
+
+    expect(() => {
+      validatePermix(invalidPermix)
+    }).toThrow('[Permix]: Permix instance is not valid')
+  })
+
+  it('should not throw error if permix instance is valid', () => {
+    const validPermix = createPermix()
+
+    expect(() => {
+      validatePermix(validPermix)
+    }).not.toThrow()
+  })
+
+  it('should define permissions with template', () => {
+    const permix = createPermix<Definition>()
+
+    const permissions = permix.template({
+      post: {
+        create: true,
+        read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    expect(permissions()).toEqual({
+      post: {
+        create: true,
+        read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    permix.setup(permissions())
+
+    expect(permix.check('post', 'create')).toBe(true)
+  })
+
+  it('should work with enum based permissions', () => {
+    enum PostPermission {
+      Create = 'create',
+      Read = 'read',
+      Update = 'update',
+      Delete = 'delete',
+    }
+
+    const permix = createPermix<{
+      post: {
+        action: PostPermission
+      }
+    }>()
+
+    permix.setup({
+      post: {
+        [PostPermission.Create]: true,
+        [PostPermission.Read]: true,
+        [PostPermission.Update]: true,
+        delete: true,
+      },
+    })
+
+    expect(permix.check('post', PostPermission.Create)).toBe(true)
+  })
+
+  it('should throw an error if permissions are not valid', () => {
+    const permix = createPermix<Definition>()
+
+    expect(() => permix.template({
+      // @ts-expect-error create isn't valid
+      post: { create: 1 },
+    })).toThrow()
+    expect(() => permix.template({
+      // @ts-expect-error create isn't valid
+      post: { create: 'string' },
+    })).toThrow()
+    expect(() => permix.template({
+      // @ts-expect-error create isn't valid
+      post: { create: [] },
+    })).toThrow()
+    expect(() => permix.template({
+      // @ts-expect-error create isn't valid
+      post: { create: {} },
+    })).toThrow()
+    expect(() => permix.template({
+      // @ts-expect-error create isn't valid
+      post: { create: null },
+    })).toThrow()
+  })
+
+  it('should work with template function with param', () => {
+    const permix = createPermix<Definition>()
+
+    const rules1 = permix.template(({ user }: { user: { role: string } }) => ({
+      post: {
+        create: user.role !== 'admin',
+        read: true,
+        update: true,
+      },
+      comment: {
+        create: user.role !== 'admin',
+        read: true,
+        update: true,
+      },
+    }))
+
+    permix.setup(rules1({ user: { role: 'admin' } }))
+
+    expect(permix.check('post', 'create')).toBe(false)
+  })
+
+  it('should work with initial rules', () => {
+    const permix = createPermix<Definition>({
+      post: {
+        create: true,
+        read: true,
+      },
+      comment: {
+        create: false,
+        read: true,
+        update: true,
+      },
+    })
+
+    expect(permix.check('post', 'create')).toBe(true)
+    expect(permix.check('post', 'read')).toBe(true)
+    expect(permix.check('comment', 'create')).toBe(false)
+    expect(permix.check('comment', 'read')).toBe(true)
+    expect(permix.check('comment', 'update')).toBe(true)
+    // @ts-expect-error not valid
+    expect(permix.check('comment', '1update')).toBe(false)
+    // @ts-expect-error not valid
+    expect(permix.check('comment1', 'update')).toBe(false)
+
+    expect(permix.isReady()).toBe(true)
   })
 })

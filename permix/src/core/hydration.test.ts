@@ -151,4 +151,16 @@ describe('hydration', () => {
 
     expect(permix.check('post', 'create')).toBe(true)
   })
+
+  it('should throw error when trying to dehydrate without setup', () => {
+    const permix = createPermix<{
+      post: {
+        action: 'create'
+      }
+    }>()
+
+    expect(() => {
+      dehydrate(permix)
+    }).toThrow('[Permix]: To dehydrate Permix, `setup` must be called first.')
+  })
 })

@@ -26,7 +26,13 @@ jobs:
           NPM_VERSION=$(npm view permix version 2>/dev/null || echo "0.0.0")
           if [ "$PACKAGE_VERSION" != "$NPM_VERSION" ]; then
             npm config set sign-git-tag true
-            pnpm publish
+            if [[ "$PACKAGE_VERSION" == *"beta"* ]]; then
+              pnpm publish --no-git-checks --tag beta
+            elif [[ "$PACKAGE_VERSION" == *"rc"* ]]; then
+              pnpm publish --no-git-checks --tag rc
+            else
+              pnpm publish --no-git-checks
+            fi
           else
             echo "Package version $PACKAGE_VERSION is already published"
           fi

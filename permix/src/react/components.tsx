@@ -1,9 +1,10 @@
-import type { CheckFunctionObject, PermixStateJSON } from '../core/createPermix'
+import type { Permix, PermixDefinition } from '../core'
+import type { PermixStateJSON } from '../core/create-permix'
+import type { CheckFunctionObject } from '../core/params'
 import * as React from 'react'
-import { hydrate, type Permix, type PermixDefinition } from '../core'
-import { validatePermix } from '../core/createPermix'
+import { hydrate } from '../core'
+import { getRules, validatePermix } from '../core/create-permix'
 import { Context, usePermix, usePermixContext } from './hooks'
-
 /**
  * Provider that provides the Permix context to your React components.
  *
@@ -18,12 +19,12 @@ export function PermixProvider<Permissions extends PermixDefinition>({
   const [context, setContext] = React.useState({
     permix,
     isReady: false,
-    state: permix._.getState(),
+    state: getRules(permix),
   })
 
   function updateState() {
     validatePermix(permix)
-    setContext(c => ({ ...c, state: permix._.getState() }))
+    setContext(c => ({ ...c, state: getRules(permix) }))
   }
 
   function updateReady() {

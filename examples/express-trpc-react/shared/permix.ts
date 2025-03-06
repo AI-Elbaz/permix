@@ -1,30 +1,33 @@
-import { createPermix } from 'permix'
+import type { PermixDefinition } from 'permix'
+import { templator } from 'permix'
 
-export const permix = createPermix<{
+export type PermissionsDefinition = PermixDefinition<{
   user: {
     action: 'read' | 'create'
   }
-}>()
+}>
 
-const adminPermissions = permix.template({
+const template = templator<PermissionsDefinition>()
+
+const adminPermissions = template({
   user: {
     read: true,
     create: true,
   },
 })
 
-const userPermissions = permix.template({
+const userPermissions = template({
   user: {
     read: true,
     create: false,
   },
 })
 
-export function setupPermix(role: 'admin' | 'user') {
+export function getRules(role: 'admin' | 'user') {
   const rolesMap = {
     admin: () => adminPermissions(),
     user: () => userPermissions(),
   }
 
-  return permix.setup(rolesMap[role]())
+  return rolesMap[role]()
 }

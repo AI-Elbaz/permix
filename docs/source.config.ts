@@ -9,6 +9,7 @@ export const { docs, meta } = defineDocs({
 export default defineConfig({
   mdxOptions: {
     rehypeCodeOptions: {
+      ...rehypeCodeDefaultOptions,
       transformers: [
         ...(rehypeCodeDefaultOptions.transformers ?? []),
         transformerTwoslash(),

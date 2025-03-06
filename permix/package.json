@@ -2,9 +2,9 @@
   "name": "permix",
   "displayName": "Permix",
   "type": "module",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "private": false,
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.5.2",
   "description": "Permix is a lightweight, framework-agnostic, type-safe permissions management library for JavaScript applications on the client and server sides.",
   "author": "Valerii Strilets",
   "license": "MIT",
@@ -46,10 +46,6 @@
       "types": "./dist/vue/index.d.ts",
       "import": "./dist/vue/index.mjs"
     },
-    "./nuxt": {
-      "types": "./dist/nuxt/index.d.ts",
-      "import": "./dist/nuxt/index.mjs"
-    },
     "./trpc": {
       "types": "./dist/trpc/index.d.ts",
       "import": "./dist/trpc/index.mjs"
@@ -61,6 +57,10 @@
     "./hono": {
       "types": "./dist/hono/index.d.ts",
       "import": "./dist/hono/index.mjs"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.mjs"
     }
   },
   "main": "./dist/core/index.mjs",
@@ -73,19 +73,16 @@
   },
   "scripts": {
     "prepublishOnly": "run-p test build && pnpm run scripts:copy-readme",
-    "build": "run-p build:unbuild && pnpm run scripts:update-coverage",
+    "build": "run-p build:unbuild",
     "build:unbuild": "unbuild",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
     "check-types": "tsc --noEmit",
-    "scripts:copy-readme": "tsx ./scripts/copy-readme",
-    "scripts:update-coverage": "vitest run --coverage && tsx ./scripts/update-coverage"
+    "scripts:copy-readme": "tsx ./scripts/copy-readme"
   },
   "peerDependencies": {
     "@trpc/server": ">=10",
     "express": ">=4",
     "hono": ">=4",
-    "nuxt": ">=3",
     "react": ">=18",
     "vue": ">=3"
   },
@@ -99,9 +96,6 @@
     "hono": {
       "optional": true
     },
-    "nuxt": {
-      "optional": true
-    },
     "react": {
       "optional": true
     },
@@ -113,18 +107,19 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@types/express": "^5.0.0",
-    "@types/node": "^22.10.7",
-    "@types/react": "^19.0.7",
+    "@types/node": "^22.13.9",
+    "@types/react": "^19.0.10",
     "@types/supertest": "^6.0.2",
     "@vitejs/plugin-react": "^4.3.4",
-    "@vitest/coverage-v8": "3.0.3",
+    "@vitest/coverage-v8": "3.0.7",
     "@vue/test-utils": "^2.4.6",
-    "happy-dom": "^16.7.2",
+    "happy-dom": "^17.2.2",
     "supertest": "^7.0.0",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.3",
-    "unbuild": "^3.3.1",
-    "vitest": "^3.0.3",
-    "zod": "^3.24.1"
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "unbuild": "^3.5.0",
+    "vitest": "^3.0.7",
+    "vue": "^3.5.13",
+    "zod": "^3.24.2"
   }
 }

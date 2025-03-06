@@ -1,7 +1,7 @@
 import type { Permix } from '.'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPermix } from '.'
-import { validatePermix } from './createPermix'
+import { checkWithRules, getRules, validatePermix } from './create-permix'
 
 interface Post {
   id: string
@@ -48,7 +48,7 @@ describe('createPermixInternal', () => {
     expect(permix._.getSerializableState()).toEqual({
       post: { create: true, read: true, update: true },
     })
-    expect(permix._.checkWithState(permix._.getState(), 'post', 'create')).toBe(true)
+    expect(checkWithRules(permix._.getRules(), 'post', 'create')).toBe(true)
   })
 
   it('should return JSON permissions with setup', () => {
@@ -69,7 +69,10 @@ describe('createPermixInternal', () => {
     expect(permix._.getSerializableState()).toEqual({
       post: { create: false, read: true, update: true },
     })
-    expect(permix._.getState()).toEqual({
+    expect(permix._.getRules()).toEqual({
+      post: { create: validatePost, read: true, update: true },
+    })
+    expect(getRules(permix)).toEqual({
       post: { create: validatePost, read: true, update: true },
     })
   })

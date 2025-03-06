@@ -14,9 +14,8 @@
     "guide/ready",
     "---Integrations---",
     "integrations/react",
-    "integrations/next",
     "integrations/vue",
-    "integrations/nuxt",
+    "integrations/node",
     "integrations/trpc",
     "integrations/express",
     "integrations/hono",
@@ -26,8 +25,6 @@
     "[feature-flags](https://github.com/letstri/permix/tree/main/examples/feature-flags)",
     "[react](https://github.com/letstri/permix/tree/main/examples/react)",
     "[vue](https://github.com/letstri/permix/tree/main/examples/vue)",
-    "[nuxt](https://github.com/letstri/permix/tree/main/examples/nuxt)",
-    "[next](https://github.com/letstri/permix/tree/main/examples/next)",
     "[express](https://github.com/letstri/permix/tree/main/examples/express)",
     "[express-trpc-react](https://github.com/letstri/permix/tree/main/examples/express-trpc-react)"
   ]

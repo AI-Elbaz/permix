@@ -1,8 +1,9 @@
 import type { SetupContext, SlotsType, VNode } from 'vue'
-import type { CheckFunctionObject, Permix, PermixDefinition } from '../core/createPermix'
+import type { Permix, PermixDefinition } from '../core/create-permix'
+import type { CheckFunctionObject } from '../core/params'
 import { usePermix } from './composables'
 
-export interface CheckProps<Permissions extends PermixDefinition, K extends keyof Permissions> extends CheckFunctionObject<Permissions, K> {
+export interface CheckProps<Definition extends PermixDefinition, K extends keyof Definition> extends CheckFunctionObject<Definition, K> {
   reverse?: boolean
 }
 
@@ -11,16 +12,16 @@ type CheckContext = SetupContext<any, SlotsType<{
   otherwise?: void
 }>>
 
-export interface PermixComponents<Permissions extends PermixDefinition> {
-  Check: <K extends keyof Permissions>(
-    props: CheckProps<Permissions, K>,
+export interface PermixComponents<Definition extends PermixDefinition> {
+  Check: <K extends keyof Definition>(
+    props: CheckProps<Definition, K>,
     context: CheckContext,
   ) => VNode | VNode[] | undefined
 }
 
-export function createComponents<Permissions extends PermixDefinition>(permix: Permix<Permissions>): PermixComponents<Permissions> {
-  function Check<K extends keyof Permissions>(
-    props: CheckProps<Permissions, K>,
+export function createComponents<Definition extends PermixDefinition>(permix: Permix<Definition>): PermixComponents<Definition> {
+  function Check<K extends keyof Definition>(
+    props: CheckProps<Definition, K>,
     context: CheckContext,
   ) {
     const { check } = usePermix(permix)

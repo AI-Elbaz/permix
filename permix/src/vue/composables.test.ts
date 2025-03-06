@@ -2,7 +2,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createApp, defineComponent, onBeforeMount, onMounted, ref } from 'vue'
-import { createPermix } from '../core/createPermix'
+import { createPermix } from '../core/create-permix'
 import { permixPlugin, usePermix } from './index'
 
 describe('composables', () => {

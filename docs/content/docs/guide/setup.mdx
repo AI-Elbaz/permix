@@ -102,3 +102,18 @@ permix.setup({
   }
 })
 ```
+
+## Getting Rules
+
+You can get the current rules from an existing Permix instance using the `getRules` function:
+
+```ts
+import { getRules } from 'permix'
+
+// Get current rules
+const rules = getRules(permix)
+```
+
+<Callout>
+The `getRules` function returns the exact rules object that was set using `setup`, including any permission functions.
+</Callout>

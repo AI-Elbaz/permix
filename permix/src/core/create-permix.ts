@@ -1,9 +1,10 @@
+import type { CheckFunctionParams } from './params'
 import { createHooks as hooks } from './hooks'
-import { isPermissionsValid } from './utils'
+import { isRulesValid } from './utils'
 
 export function createHooks<Definition extends PermixDefinition>() {
   return hooks<{
-    setup: (state: PermixState<Definition>) => void
+    setup: (state: PermixRules<Definition>) => void
     ready: () => void
     hydrate: () => void
   }>()
@@ -17,7 +18,7 @@ export type PermixDefinition<T extends Record<string, {
   action: string
 }>> = T
 
-const permixSymbol = Symbol.for('permix')
+const permixSymbol = Symbol('permix')
 
 export type PermixStateJSON<Definition extends PermixDefinition = PermixDefinition> = {
   [Key in keyof Definition]: {
@@ -25,7 +26,7 @@ export type PermixStateJSON<Definition extends PermixDefinition = PermixDefiniti
   };
 }
 
-export type PermixState<Definition extends PermixDefinition = PermixDefinition> = {
+export type PermixRules<Definition extends PermixDefinition = PermixDefinition> = {
   [Key in keyof Definition]: {
     [Action in Definition[Key]['action']]:
       | boolean
@@ -33,19 +34,7 @@ export type PermixState<Definition extends PermixDefinition = PermixDefinition> 
   };
 }
 
-export type CheckFunctionParams<Definition extends PermixDefinition, K extends keyof Definition> = [
-  entity: K,
-  action: 'all' | Definition[K]['action'] | Definition[K]['action'][],
-  data?: Definition[K]['dataType'],
-]
-
-export interface CheckFunctionObject<Definition extends PermixDefinition, K extends keyof Definition> {
-  entity: K
-  action: 'all' | Definition[K]['action'] | Definition[K]['action'][]
-  data?: Definition[K]['dataType']
-}
-
-function checkWithState<Definition extends PermixDefinition, K extends keyof Definition>(state: PermixState<Definition>, ...params: CheckFunctionParams<Definition, K>) {
+export function checkWithRules<Definition extends PermixDefinition, K extends keyof Definition>(state: PermixRules<Definition> | null, ...params: CheckFunctionParams<Definition, K>) {
   const [entity, action, data] = params
 
   if (!state || !state[entity]) {
@@ -137,7 +126,7 @@ export interface Permix<Definition extends PermixDefinition> {
    * })
    * ```
    */
-  setup: <Rules extends PermixState<Definition>>(callback: Rules) => void
+  setup: <Rules extends PermixRules<Definition>>(callback: Rules) => void
 
   /**
    * Register event handler.
@@ -190,7 +179,7 @@ export interface Permix<Definition extends PermixDefinition> {
    * permix.setup(adminPermissions)
    * ```
    */
-  template: <T = void>(rules: PermixState<Definition> | ((param: T) => PermixState<Definition>)) => (param: T) => PermixState<Definition>
+  template: <T = void>(rules: PermixRules<Definition> | ((param: T) => PermixRules<Definition>)) => (param: T) => PermixRules<Definition>
 
   /**
    * Check if the setup was called.
@@ -221,11 +210,11 @@ export interface PermixInternal<Definition extends PermixDefinition> extends Per
      * permix.setup({
      *   post: { create: true, delete: post => !post.isPublished }
      * })
-     * const permissions = permix._.getState()
+     * const permissions = permix._.getRules()
      * // returns { post: { create: true, delete: post => !post.isPublished } }
      * ```
      */
-    getState: () => PermixState<Definition>
+    getRules: () => PermixRules<Definition>
 
     /**
      * Set state.
@@ -235,17 +224,7 @@ export interface PermixInternal<Definition extends PermixDefinition> extends Per
      * permix._.setState({ post: { create: true, delete: post => !post.isPublished } })
      * ```
      */
-    setState: (state: PermixState<Definition>) => void
-
-    /**
-     * Check if an action is allowed for an entity using provided permissions.
-     *
-     * @example
-     * ```ts
-     * permix._.checkWithState(permix._.getState(), 'post', 'create')
-     * ```
-     */
-    checkWithState: <K extends keyof Definition>(state: PermixState<Definition>, ...params: CheckFunctionParams<Definition, K>) => boolean
+    setState: (state: PermixRules<Definition>) => void
 
     /**
      * Get current permissions in JSON serializable format.
@@ -261,7 +240,7 @@ export interface PermixInternal<Definition extends PermixDefinition> extends Per
      */
     getSerializableState: () => PermixStateJSON<Definition>
 
-    parseSerializableState: (state: PermixStateJSON<Definition>) => PermixState<Definition>
+    parseSerializableState: (state: PermixStateJSON<Definition>) => PermixRules<Definition>
 
     hooks: ReturnType<typeof createHooks<Definition>>
 
@@ -298,8 +277,8 @@ export interface PermixInternal<Definition extends PermixDefinition> extends Per
  * console.log(permix.check('user', 'read')) // true
  * ```
  */
-export function createPermix<Definition extends PermixDefinition>(): Permix<Definition> {
-  let state: PermixState<Definition> | null = null
+export function createPermix<Definition extends PermixDefinition>(initial?: PermixRules<Definition>): Permix<Definition> {
+  let rules: PermixRules<Definition> | null = null
   let isSetupCalled = false
   let isReady = false
   let resolveSetup: () => void
@@ -316,8 +295,8 @@ export function createPermix<Definition extends PermixDefinition>(): Permix<Defi
     }
   })
 
-  hooks.hook('setup', (s) => {
-    state = s
+  hooks.hook('setup', (r) => {
+    rules = r
     isSetupCalled = true
     if (!isReady) {
       hooks.callHook('ready')
@@ -325,33 +304,37 @@ export function createPermix<Definition extends PermixDefinition>(): Permix<Defi
     resolveSetup()
   })
 
+  if (initial) {
+    hooks.callHook('setup', initial)
+  }
+
   const permix = {
     check(entity, action, data) {
-      return checkWithState(state as PermixState<Definition>, entity, action, data)
+      return checkWithRules(rules, entity, action, data)
     },
     async checkAsync(entity, action, data) {
       await setupPromise
 
-      return checkWithState(state as PermixState<Definition>, entity, action, data)
+      return checkWithRules(rules, entity, action, data)
     },
     setup(rules) {
+      if (!isRulesValid(rules)) {
+        throw new Error('[Permix]: Permissions in setup are not valid.')
+      }
+
       hooks.callHook('setup', rules)
     },
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
-    template: (rules) => {
-      function validate(p: PermixState<Definition>) {
-        if (!isPermissionsValid(p)) {
+    template(rules) {
+      function validate(p: PermixRules<Definition>) {
+        if (!isRulesValid(p)) {
           throw new Error('[Permix]: Permissions in template are not valid.')
         }
       }
 
-      if (typeof rules !== 'function') {
-        validate(rules)
-      }
-
       if (typeof rules === 'function') {
-        return (param: any) => {
+        return (param) => {
           const p = rules(param)
 
           validate(p)
@@ -359,6 +342,8 @@ export function createPermix<Definition extends PermixDefinition>(): Permix<Defi
           return p
         }
       }
+
+      validate(rules)
 
       return () => rules
     },
@@ -370,20 +355,19 @@ export function createPermix<Definition extends PermixDefinition>(): Permix<Defi
     },
     _: {
       isSetupCalled: () => isSetupCalled,
-      getState: () => {
-        return state as PermixState<Definition>
+      getRules: () => {
+        return rules!
       },
-      setState: (s) => {
-        state = s
+      setState: (r) => {
+        rules = r
       },
-      checkWithState,
       getSerializableState: () => {
         const processedSetup = {} as PermixStateJSON<Definition>
 
-        for (const entity in state) {
+        for (const entity in rules) {
           processedSetup[entity] = {} as any
-          for (const action in state[entity]) {
-            const value = state[entity][action]
+          for (const action in rules[entity]) {
+            const value = rules[entity][action]
 
             processedSetup[entity][action] = typeof value === 'function' ? false : value as boolean
           }
@@ -392,7 +376,7 @@ export function createPermix<Definition extends PermixDefinition>(): Permix<Defi
         return processedSetup
       },
       parseSerializableState: (state: PermixStateJSON<Definition>) => {
-        const parsedState = {} as PermixState<Definition>
+        const parsedState = {} as PermixRules<Definition>
 
         for (const entity in state) {
           parsedState[entity] = {} as any
@@ -418,4 +402,10 @@ export function validatePermix<Definition extends PermixDefinition>(permix: Perm
   if (!(permix as PermixInternal<Definition>)._[permixSymbol]) {
     throw new Error('[Permix]: Permix instance is not valid')
   }
+}
+
+export function getRules<Definition extends PermixDefinition>(permix: Permix<Definition>): PermixRules<Definition> {
+  validatePermix(permix)
+
+  return permix._.getRules()
 }
