@@ -465,4 +465,26 @@ describe('validatePermix', () => {
 
     expect(permix.check('post', 'create')).toBe(false)
   })
+
+  it('should work with initial rules', () => {
+    const permix = createPermix<Definition>({
+      post: {
+        create: true,
+        read: true,
+      },
+      comment: {
+        create: false,
+        read: true,
+        update: true,
+      },
+    })
+
+    expect(permix.check('post', 'create')).toBe(true)
+    expect(permix.check('post', 'read')).toBe(true)
+    expect(permix.check('comment', 'create')).toBe(false)
+    expect(permix.check('comment', 'read')).toBe(true)
+    expect(permix.check('comment', 'update')).toBe(true)
+
+    expect(permix.isReady()).toBe(true)
+  })
 })

@@ -34,7 +34,7 @@ export type PermixRules<Definition extends PermixDefinition = PermixDefinition> 
   };
 }
 
-export function checkWithRules<Definition extends PermixDefinition, K extends keyof Definition>(state: PermixRules<Definition>, ...params: CheckFunctionParams<Definition, K>) {
+export function checkWithRules<Definition extends PermixDefinition, K extends keyof Definition>(state: PermixRules<Definition> | null, ...params: CheckFunctionParams<Definition, K>) {
   const [entity, action, data] = params
 
   if (!state || !state[entity]) {
@@ -277,7 +277,7 @@ export interface PermixInternal<Definition extends PermixDefinition> extends Per
  * console.log(permix.check('user', 'read')) // true
  * ```
  */
-export function createPermix<Definition extends PermixDefinition>(): Permix<Definition> {
+export function createPermix<Definition extends PermixDefinition>(initial?: PermixRules<Definition>): Permix<Definition> {
   let rules: PermixRules<Definition> | null = null
   let isSetupCalled = false
   let isReady = false
@@ -304,14 +304,18 @@ export function createPermix<Definition extends PermixDefinition>(): Permix<Defi
     resolveSetup()
   })
 
+  if (initial) {
+    hooks.callHook('setup', initial)
+  }
+
   const permix = {
     check(entity, action, data) {
-      return checkWithRules(rules!, entity, action, data)
+      return checkWithRules(rules, entity, action, data)
     },
     async checkAsync(entity, action, data) {
       await setupPromise
 
-      return checkWithRules(rules!, entity, action, data)
+      return checkWithRules(rules, entity, action, data)
     },
     setup(rules) {
       if (!isRulesValid(rules)) {
