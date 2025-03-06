@@ -467,7 +467,7 @@ describe('validatePermix', () => {
   })
 
   it('should work with initial rules', () => {
-    const permix = createPermix<Definition>({
+    const permix = createPermix({
       post: {
         create: true,
         read: true,
@@ -477,7 +477,7 @@ describe('validatePermix', () => {
         read: true,
         update: true,
       },
-    })
+    } as const)
 
     expect(permix.check('post', 'create')).toBe(true)
     expect(permix.check('post', 'read')).toBe(true)
