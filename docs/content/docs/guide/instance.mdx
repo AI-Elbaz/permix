@@ -44,6 +44,7 @@ You can use `PermixDefinition` type to define your permissions separately from t
 
 ```ts twoslash title="/lib/permix.ts"
 import type { PermixDefinition } from 'permix'
+import { createPermix } from 'permix'
 
 type PermissionsDefinition = PermixDefinition<{
   post: {
