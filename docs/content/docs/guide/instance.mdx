@@ -23,49 +23,7 @@ const permix = createPermix<{
 
 ### Generic type
 
-Permix instance do not accept any parameters to configure something, only generic type that looks like this:
-
-```ts twoslash
-import type { PermixDefinition } from 'permix'
-//            ^?
-
-
-
-
-
-
-
-
-
-
-```
-
-You can use `PermixDefinition` type to define your permissions separately from the instance.
-
-```ts twoslash title="/lib/permix.ts"
-import type { PermixDefinition } from 'permix'
-import { createPermix } from 'permix'
-
-type PermissionsDefinition = PermixDefinition<{
-  post: {
-    action: 'create' | 'edit'
-  }
-}>
-
-async function getRules(): PermissionsDefinition {
-  // get user or something like that
-  return {
-    post: {
-      create: true,
-      edit: false
-    }
-  }
-}
-
-const permix = createPermix<PermissionsDefinition>()
-
-permix.setup(await getRules())
-```
+Permix instance accepts a generic type to define permissions.
 
 #### `action`
 
@@ -122,6 +80,35 @@ const somePost: Post = {
 }
 
 const canEdit = permix.check('post', 'edit', somePost)
+```
+
+#### `PermixDefinition`
+
+You can use `PermixDefinition` type to define your permissions separately from the instance.
+
+```ts twoslash title="/lib/permix.ts"
+import type { PermixDefinition, PermixRules } from 'permix'
+import { createPermix } from 'permix'
+
+type PermissionsDefinition = PermixDefinition<{
+  post: {
+    action: 'create' | 'edit'
+  }
+}>
+
+async function getRules(): Promise<PermixRules<PermissionsDefinition>> {
+  // get user or something like that
+  return {
+    post: {
+      create: true,
+      edit: false
+    }
+  }
+}
+
+const permix = createPermix<PermissionsDefinition>()
+
+permix.setup(await getRules())
 ```
 
 ### Return type
