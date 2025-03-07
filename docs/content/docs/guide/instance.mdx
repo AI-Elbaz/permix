@@ -40,9 +40,31 @@ import type { PermixDefinition } from 'permix'
 
 ```
 
-<Callout type="warn">
-You shouldn't use `PermixDefinition` type directly, it's used internally by Permix.
-</Callout>
+You can use `PermixDefinition` type to define your permissions separately from the instance.
+
+```ts twoslash title="/lib/permix.ts"
+import type { PermixDefinition } from 'permix'
+
+type PermissionsDefinition = PermixDefinition<{
+  post: {
+    action: 'create' | 'edit'
+  }
+}>
+
+async function getRules(): PermissionsDefinition {
+  // get user or something like that
+  return {
+    post: {
+      create: true,
+      edit: false
+    }
+  }
+}
+
+const permix = createPermix<PermissionsDefinition>()
+
+permix.setup(await getRules())
+```
 
 #### `action`
 
