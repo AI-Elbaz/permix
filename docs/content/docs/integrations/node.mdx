@@ -97,13 +97,13 @@ Use the `checkMiddleware` function to check permissions for specific routes:
 
 ```ts
 // Check a single action
-await permix.checkMiddleware('post', 'create')({ req, res, next })
+await permix.checkMiddleware('post', 'create')(context)
 
 // Check multiple actions
-await permix.checkMiddleware('post', ['read', 'update'])({ req, res, next })
+await permix.checkMiddleware('post', ['read', 'update'])(context)
 
 // Check all actions
-await permix.checkMiddleware('post', 'all')({ req, res, next })
+await permix.checkMiddleware('post', 'all')(context)
 ```
 
 </Step>
@@ -116,20 +116,13 @@ You can access the Permix instance directly in your request handlers using the `
 
 ```ts
 http.createServer((req, res) => {
-  const permix = permix.get(req, res)
+  const { check } = permix.get(req, res)
 
-  if (permix) {
-    // Check permissions manually
-    if (permix.check('post', 'read')) {
-      // User has permission to read posts
-      res.statusCode = 200
-      res.setHeader('Content-Type', 'application/json')
-      res.end(JSON.stringify({ posts: getAllPosts() }))
-    } else {
-      res.statusCode = 403
-      res.setHeader('Content-Type', 'application/json')
-      res.end(JSON.stringify({ error: 'You do not have permission to read posts' }))
-    }
+  // User has permission to read posts
+  if (check('post', 'read')) {
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify({ posts: getAllPosts() }))
   }
 })
 ```
@@ -174,7 +167,7 @@ permix.setupMiddleware(({ req }) => {
   }
 
   return userTemplate
-})
+})(context)
 ```
 
 </Step>
@@ -183,7 +176,7 @@ permix.setupMiddleware(({ req }) => {
 
 ## Custom Error Handling
 
-By default, the middleware returns a 403 Forbidden response. You can customize this behavior by providing an `onForbidden` handler:
+By default, the middleware returns a 403 Forbidden response if the user doesn't have permission. You can customize this behavior by providing an `onForbidden` handler:
 
 ### Basic Error Handler
 
@@ -249,7 +242,7 @@ permix.setupMiddleware(async ({ req }) => {
       delete: userPermissions.canDeletePosts
     }
   }
-})
+})(context)
 ```
 
 ### Dynamic Data-Based Permissions
@@ -270,10 +263,10 @@ http.createServer(async (req, res) => {
     const post = await getPostById(postId)
 
     // Get Permix instance
-    const permix = permix.get(req, res)
+    const { check } = permix.get(req, res)
 
     // Check if user can update this specific post
-    if (permix.check('post', 'update', post)) {
+    if (check('post', 'update', post)) {
       // Process update...
       res.statusCode = 200
       res.setHeader('Content-Type', 'application/json')
@@ -293,4 +286,3 @@ This integration is designed for raw Node.js HTTP servers. If you're using a web
 
 - For Express, use [Permix Express integration](/docs/integrations/express)
 - For Hono, use [Permix Hono integration](/docs/integrations/hono)
-- For a generic server framework, use [Permix Server integration](/docs/integrations/server)
