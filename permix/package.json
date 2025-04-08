@@ -50,6 +50,10 @@
       "types": "./dist/trpc/index.d.ts",
       "import": "./dist/trpc/index.mjs"
     },
+    "./orpc": {
+      "types": "./dist/orpc/index.d.ts",
+      "import": "./dist/orpc/index.mjs"
+    },
     "./express": {
       "types": "./dist/express/index.d.ts",
       "import": "./dist/express/index.mjs"
