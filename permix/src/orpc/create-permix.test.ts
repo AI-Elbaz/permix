@@ -97,6 +97,41 @@ describe('createPermix', () => {
     expect(await result.response?.json()).toEqual({ json: { success: true } })
   })
 
+  it('should allow access by context', async () => {
+    const protectedMiddleware = orpcPermix.use(permix.setupMiddleware<Context>(({ context }) => ({
+      post: {
+        create: context.user.id === '1',
+        read: context.user.id === '1',
+        update: context.user.id === '1',
+      },
+      user: {
+        delete: context.user.id === '1',
+      },
+    })))
+
+    const router = orpcPermix.router({
+      createPost: protectedMiddleware
+        .use(permix.checkMiddleware('post', 'create'))
+        .handler(() => {
+          return { success: true }
+        }),
+    })
+
+    const handler = new RPCHandler(router)
+    const result = await handler.handle(createRequest('/createPost'), {
+      context: { user: { id: '1' } },
+    })
+
+    expect(result.response?.status).toEqual(200)
+    expect(await result.response?.json()).toEqual({ json: { success: true } })
+
+    const result2 = await handler.handle(createRequest('/createPost'), {
+      context: { user: { id: '2' } },
+    })
+
+    expect(result2.response?.status).toEqual(403)
+  })
+
   it('should deny access when permission is not granted', async () => {
     const protectedMiddleware = orpcPermix.use(permix.setupMiddleware(() => ({
       post: {

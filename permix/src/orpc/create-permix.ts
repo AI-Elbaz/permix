@@ -27,18 +27,20 @@ export function createPermix<Definition extends PermixDefinition>(
 ) {
   const plugin = os.$context()
 
-  const setupMiddleware = (callback: () => MaybePromise<PermixRules<Definition>>) => plugin.middleware(async ({ context, next }) => {
-    const permix = createPermixCore<Definition>()
+  function setupMiddleware<TContext extends object>(callback: (params: { context: TContext }) => MaybePromise<PermixRules<Definition>>) {
+    return plugin.middleware(async ({ context, next }) => {
+      const permix = createPermixCore<Definition>()
 
-    permix.setup(await callback())
+      permix.setup(await callback({ context: context as TContext }))
 
-    return next({
-      context: {
-        ...context,
-        permix: pick(permix, ['check', 'checkAsync']),
-      },
+      return next({
+        context: {
+          ...context,
+          permix: pick(permix, ['check', 'checkAsync']),
+        },
+      })
     })
-  })
+  }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
     return plugin.$context<{ permix: Pick<PermixCore<Definition>, 'check' | 'checkAsync'> }>().middleware(async ({ context, next }) => {
