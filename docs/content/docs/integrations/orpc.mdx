@@ -1,0 +1,266 @@
+---
+title: oRPC
+description: Learn how to use Permix with oRPC
+---
+
+## Overview
+
+Permix provides a middleware for oRPC that allows you to easily check permissions in your middlewares. The middleware can be created using the `createPermix` function.
+
+<Callout>
+Before getting started with oRPC integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+</Callout>
+
+<Steps>
+
+<Step>
+
+## Setup
+
+Here's a basic example of how to use the Permix middleware with oRPC:
+
+```ts twoslash
+import { os } from '@orpc/server'
+import { createPermix } from 'permix/orpc'
+
+interface Post {
+  id: string
+  title: string
+}
+
+// Initialize oRPC with context
+interface Context {
+  user: {
+    id: string
+    role: string
+  }
+}
+
+const orpcPermix = os.$context<Context>()
+
+// Create your Permix instance
+const permix = createPermix<{
+  post: {
+    dataType: Post
+    action: 'create' | 'read' | 'update'
+  }
+  user: {
+    action: 'delete'
+  }
+}>()
+
+// Create a protected middleware with Permix
+const protectedMiddleware = orpcPermix.use(permix.setupMiddleware<Context>(({ context }) => {
+  // You can access context.user or other properties to determine permissions
+  const isAdmin = context.user.role === 'admin'
+
+  return {
+    post: {
+      create: true,
+      read: true,
+      update: isAdmin
+    },
+    user: {
+      delete: isAdmin
+    }
+  }
+}))
+```
+
+<Callout>
+The middleware preserves the context and input types from your oRPC middlewares, ensuring end-to-end type safety in your API.
+</Callout>
+
+</Step>
+
+<Step>
+
+## Checking Permissions
+
+Use the `checkMiddleware` function in your oRPC middlewares to check permissions:
+
+```ts
+const router = orpcPermix.router({
+  createPost: protectedMiddleware
+    .use(permix.checkMiddleware('post', 'create'))
+    .handler(({ context }) => {
+      // Create post logic here
+      return { success: true }
+    }),
+
+  updatePost: protectedMiddleware
+    .use(permix.checkMiddleware('post', ['read', 'update']))
+    .handler(({ context }) => {
+      // Update post logic here
+      return { success: true }
+    }),
+
+  deleteUser: protectedMiddleware
+    .use(permix.checkMiddleware('user', 'delete'))
+    .handler(({ context }) => {
+      // Delete user logic here
+      return { success: true }
+    })
+})
+```
+
+</Step>
+
+<Step>
+
+## Accessing Permix in Middlewares
+
+Permix is automatically added to your oRPC context, so you can access it directly:
+
+```ts
+const router = orpcPermix.router({
+  getPosts: protectedMiddleware
+    .handler(({ context }) => {
+      // Check permissions manually
+      if (context.permix.check('post', 'read')) {
+        // User has permission to read posts
+        return getAllPosts()
+      }
+
+      // If not explicitly blocked by middleware, you can handle permission failures here
+      throw new ORPCError('FORBIDDEN', {
+        message: 'You do not have permission to read posts'
+      })
+    })
+})
+```
+
+The `context.permix` object contains two methods:
+- `check`: Synchronously check a permission
+- `checkAsync`: Asynchronously check a permission
+
+</Step>
+
+<Step>
+
+## Using Templates
+
+Permix provides a template helper to create reusable permission rule sets:
+
+```ts
+// Create a template for admin permissions
+const adminTemplate = permix.template({
+  post: {
+    create: true,
+    read: true,
+    update: true
+  },
+  user: {
+    delete: true
+  }
+})
+
+// Create a template for regular user permissions
+const userTemplate = permix.template({
+  post: {
+    create: true,
+    read: true,
+    update: false
+  },
+  user: {
+    delete: false
+  }
+})
+
+// Use templates in your middleware
+const protectedMiddleware = orpcPermix.use(permix.setupMiddleware(({ context }) => {
+  if (context.user.role === 'admin') {
+    return adminTemplate
+  }
+
+  return userTemplate
+}))
+```
+
+</Step>
+
+</Steps>
+
+## Custom Error Handling
+
+By default, the middleware throws an `ORPCError` with code `FORBIDDEN`. You can customize this behavior by providing a `forbiddenError` option:
+
+### Static Error
+
+```ts
+const permix = createPermix({
+  forbiddenError: new ORPCError('FORBIDDEN', {
+    message: 'Custom forbidden message'
+  })
+})
+```
+
+### Dynamic Error
+
+You can also provide a function that returns different errors based on the entity and actions:
+
+```ts
+const permix = createPermix<Definition>({
+  forbiddenError: ({ entity, actions, context }) => {
+    if (entity === 'post' && actions.includes('create')) {
+      return new ORPCError('FORBIDDEN', {
+        message: `User ${context.user.id} doesn't have permission to ${actions.join('/')} a ${entity}`
+      })
+    }
+
+    return new ORPCError('FORBIDDEN', {
+      message: 'You do not have permission to perform this action'
+    })
+  }
+})
+```
+
+The `forbiddenError` handler receives:
+- `context`: Your oRPC context object
+- `entity`: The entity that was checked
+- `actions`: Array of actions that were checked
+
+## Advanced Usage
+
+### Async Permission Rules
+
+You can use async functions in your permission setup:
+
+```ts
+const protectedMiddleware = orpcPermix.use(permix.setupMiddleware(async ({ context }) => {
+  // Fetch user permissions from database
+  const userPermissions = await getUserPermissions(context.user.id)
+
+  return {
+    post: {
+      create: userPermissions.canCreatePosts,
+      read: userPermissions.canReadPosts,
+      update: userPermissions.canUpdatePosts
+    },
+    user: {
+      delete: userPermissions.canDeleteUsers
+    }
+  }
+}))
+```
+
+### Type Safety
+
+oRPC with Permix provides full type safety for your context and input parameters:
+
+```ts
+const router = orpcPermix.router({
+  createPost: protectedMiddleware
+    .use(permix.checkMiddleware('post', 'create'))
+    .input(z.object({
+      userId: z.string()
+    }))
+    .handler(({ context, input }) => {
+      // TypeScript will ensure type safety for both context and input
+      const userId = input.userId
+      const currentUser = context.user.id
+
+      return { success: true }
+    })
+})
+```

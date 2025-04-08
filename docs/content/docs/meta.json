@@ -17,6 +17,7 @@
     "integrations/vue",
     "integrations/node",
     "integrations/trpc",
+    "integrations/orpc",
     "integrations/express",
     "integrations/hono",
     "---Examples---",

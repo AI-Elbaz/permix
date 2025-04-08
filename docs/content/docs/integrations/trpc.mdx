@@ -30,8 +30,15 @@ interface Post {
   content: string
 }
 
+interface Context {
+  user: {
+    id: string
+    role: string
+  }
+}
+
 // Initialize tRPC
-const t = initTRPC.context<{ user: { id: string; role: string } }>().create()
+const t = initTRPC.context<Context>().create()
 
 // Create your Permix instance
 const permix = createPermix<{
@@ -42,7 +49,7 @@ const permix = createPermix<{
 }>()
 
 // Create a protected procedure with Permix
-const protectedProcedure = t.procedure.use(permix.setupMiddleware(({ ctx }) => {
+const protectedProcedure = t.procedure.use(permix.setupMiddleware<Context>(({ ctx }) => {
   // You can access ctx.user or other properties to determine permissions
   const isAdmin = ctx.user.role === 'admin'
 
