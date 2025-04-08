@@ -51,7 +51,7 @@ app.use('*', permix.setupMiddleware(({ c }) => {
     post: {
       create: true,
       read: true,
-      update: isAdmin || false,
+      update: isAdmin,
       delete: isAdmin
     }
   }

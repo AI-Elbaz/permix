@@ -8,6 +8,7 @@ export default defineBuildConfig({
     './src/react/index.ts',
     './src/vue/index.ts',
     './src/trpc/index.ts',
+    './src/orpc/index.ts',
     './src/express/index.ts',
     './src/hono/index.ts',
     './src/node/index.ts',

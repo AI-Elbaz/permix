@@ -1,4 +1,4 @@
-import type { Permix, PermixDefinition } from '../core/create-permix'
+import type { PermixDefinition } from '../core/create-permix'
 import { initTRPC, TRPCError } from '@trpc/server'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
@@ -8,7 +8,6 @@ interface Context {
   user: {
     id: string
   }
-  permix?: Pick<Permix<any>, 'check' | 'checkAsync'>
 }
 
 describe('createPermix', () => {
@@ -36,6 +35,21 @@ describe('createPermix', () => {
     permix.checkMiddleware('post', 'delete')
   })
 
+  it('should throw if called without setupMiddleware', async () => {
+    const router = t.router({
+      createPost: t.procedure
+        // @ts-expect-error should throw
+        .use(permix.checkMiddleware('post', 'create'))
+        .query(({ ctx }) => {
+          // @ts-expect-error should throw
+          ctx.permix.check('post', 'update')
+          return { success: true }
+        }),
+    })
+
+    await expect(t.createCallerFactory(router)({ user: { id: '1' } }).createPost()).rejects.toThrow()
+  })
+
   it('should allow access when permission is defined', async () => {
     const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
       post: {
@@ -52,7 +66,7 @@ describe('createPermix', () => {
       createPost: protectedProcedure
         .use(permix.checkMiddleware('post', 'create'))
         .query(({ ctx }) => {
-          ctx.permix!.check('post', 'update')
+          ctx.permix.check('post', 'update')
           return { success: true }
         }),
     })

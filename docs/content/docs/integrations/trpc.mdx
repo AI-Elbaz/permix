@@ -50,7 +50,7 @@ const protectedProcedure = t.procedure.use(permix.setupMiddleware(({ ctx }) => {
     post: {
       create: true,
       read: true,
-      update: isAdmin || false,
+      update: isAdmin,
       delete: isAdmin
     }
   }

@@ -388,6 +388,9 @@ importers:
 
   permix:
     dependencies:
+      '@orpc/server':
+        specifier: '>=0'
+        version: 0.52.0(hono@4.7.6)(next@15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
       '@trpc/server':
         specifier: '>=10'
         version: 11.0.3(typescript@5.8.3)
@@ -1476,6 +1479,30 @@ packages:
     resolution: {integrity: sha512-7tTuIdkzgRscJ7sGHVsoK9GtXSpwbfrj3WYnuSu/SepXHhshYiQaOeXc/aeLh4MfgIre6tEs/caIop8wrhMi3g==}
     engines: {node: '>= 16.0.0'}
 
+  '@orpc/client@0.52.0':
+    resolution: {integrity: sha512-g10uLY8o75dTOHuS1by1uJoNzM8jT64FB7B930mJysdyIFAmxmj65g1f7BMe2xOYGfyZaHjrFHLSLjLOHrnBtg==}
+
+  '@orpc/contract@0.52.0':
+    resolution: {integrity: sha512-3m4YmzJw7B9UUnhC344Xvl4Xjg8aNUIVtfKxGx21YpWy13s9Zga/f+dZ5xgeZTm+IEyB0b8h3S5rn1J7gqv/6w==}
+
+  '@orpc/server@0.52.0':
+    resolution: {integrity: sha512-phO8ynOqA3PcaYeTOTTlcqDStlv5tPEYNlxTSOjVRQ5AIoWqoFR2uFJGEJU6O6k9/CU3v/HjopvIeP6NPuiBgw==}
+    peerDependencies:
+      hono: '>=4.6.0'
+      next: '>=14.0.0'
+
+  '@orpc/shared@0.52.0':
+    resolution: {integrity: sha512-IUfucxardrgN2qZTgJtVc9wmEjFOMfoE41LOB+lvxfbYn/aK8qzWTY6+yWMWpC931k0DJj013tAuZ1F+TI7qXw==}
+
+  '@orpc/standard-server-fetch@0.52.0':
+    resolution: {integrity: sha512-SNu/5YlK9Z5fRrgsCNkfYLCHdOTVlFg8r04k5tZ+1WR2xpWLZx6RK5CIxI/ktEP7hIIFnymTq9t6RVieBPIXBg==}
+
+  '@orpc/standard-server-node@0.52.0':
+    resolution: {integrity: sha512-pwYMdInpS0ECshPQKPeoy+7hNy5S/xDTTlBCvz/QSAMd5MZvfHgE55raxt7QYAkMpsEUBN53oulVVKjzmxcIwg==}
+
+  '@orpc/standard-server@0.52.0':
+    resolution: {integrity: sha512-T6XnO6Sg1KTntMJ9BxfHEsQFkI4v/SlnHAqFsinWWzHJM2JI9LGDMWxcAuvbxGH2+4pKLuwHlvYnOskfhVjLkA==}
+
   '@petamoriken/float16@3.9.2':
     resolution: {integrity: sha512-VgffxawQde93xKxT3qap3OH+meZf7VaSB5Sqd4Rqc+FP5alWbpOyan/7tRbOAvynjpG3GpdtAuGU/NdhQpmrog==}
 
@@ -2142,6 +2169,10 @@ packages:
         optional: true
       '@types/react-dom':
         optional: true
+
+  '@tinyhttp/content-disposition@2.2.2':
+    resolution: {integrity: sha512-crXw1txzrS36huQOyQGYFvhTeLeG0Si1xu+/l6kXUVYpE0TjFjEZRqTbuadQLfKGZ0jaI+jJoRyqaWwxOSHW2g==}
+    engines: {node: '>=12.20.0'}
 
   '@trpc/client@11.0.3':
     resolution: {integrity: sha512-nUhRo/Ml3LQzs2USs5pfquNqETEQOMS6o9IR30cwn32oj4NuXXSqe9UqUc3hIBALtVzcfg6mLK43hGQA9O3X/Q==}
@@ -5094,6 +5125,10 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
+  radash@12.1.0:
+    resolution: {integrity: sha512-b0Zcf09AhqKS83btmUeYBS8tFK7XL2e3RvLmZcm0sTdF1/UUlHSsjXdCcWNxe7yfmAlPve5ym0DmKGtTzP6kVQ==}
+    engines: {node: '>=14.18.0'}
+
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
@@ -6903,6 +6938,50 @@ snapshots:
 
   '@orama/orama@3.1.4': {}
 
+  '@orpc/client@0.52.0':
+    dependencies:
+      '@orpc/shared': 0.52.0
+      '@orpc/standard-server': 0.52.0
+      '@orpc/standard-server-fetch': 0.52.0
+
+  '@orpc/contract@0.52.0':
+    dependencies:
+      '@orpc/client': 0.52.0
+      '@orpc/shared': 0.52.0
+      '@orpc/standard-server': 0.52.0
+      '@standard-schema/spec': 1.0.0
+
+  '@orpc/server@0.52.0(hono@4.7.6)(next@15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))':
+    dependencies:
+      '@orpc/client': 0.52.0
+      '@orpc/contract': 0.52.0
+      '@orpc/shared': 0.52.0
+      '@orpc/standard-server': 0.52.0
+      '@orpc/standard-server-fetch': 0.52.0
+      '@orpc/standard-server-node': 0.52.0
+      hono: 4.7.6
+      next: 15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+
+  '@orpc/shared@0.52.0':
+    dependencies:
+      radash: 12.1.0
+      type-fest: 4.39.1
+
+  '@orpc/standard-server-fetch@0.52.0':
+    dependencies:
+      '@orpc/shared': 0.52.0
+      '@orpc/standard-server': 0.52.0
+
+  '@orpc/standard-server-node@0.52.0':
+    dependencies:
+      '@orpc/shared': 0.52.0
+      '@orpc/standard-server': 0.52.0
+
+  '@orpc/standard-server@0.52.0':
+    dependencies:
+      '@orpc/shared': 0.52.0
+      '@tinyhttp/content-disposition': 2.2.2
+
   '@petamoriken/float16@3.9.2': {}
 
   '@pkgjs/parseargs@0.11.0':
@@ -7532,6 +7611,8 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.0
       '@types/react-dom': 19.1.1(@types/react@19.1.0)
+
+  '@tinyhttp/content-disposition@2.2.2': {}
 
   '@trpc/client@11.0.3(@trpc/server@11.0.3(typescript@5.8.3))(typescript@5.8.3)':
     dependencies:
@@ -10907,6 +10988,8 @@ snapshots:
   quansync@0.2.10: {}
 
   queue-microtask@1.2.3: {}
+
+  radash@12.1.0: {}
 
   range-parser@1.2.1: {}
 

@@ -80,6 +80,7 @@
     "scripts:copy-readme": "tsx ./scripts/copy-readme"
   },
   "peerDependencies": {
+    "@orpc/server": ">=0",
     "@trpc/server": ">=10",
     "express": ">=4",
     "hono": ">=4",
@@ -87,6 +88,9 @@
     "vue": ">=3"
   },
   "peerDependenciesMeta": {
+    "@orpc/server": {
+      "optional": true
+    },
     "@trpc/server": {
       "optional": true
     },
