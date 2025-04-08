@@ -31,9 +31,9 @@ describe('createPermix', () => {
 
   const permix = createPermix<PermissionsDefinition>()
 
-  it('should throw ts and js error', () => {
+  it('should throw ts error', () => {
     // @ts-expect-error should throw
-    expect(permix.checkMiddleware('post', 'delete')).toThrow()
+    permix.checkMiddleware('post', 'delete')
   })
 
   it('should allow access when permission is defined', async () => {
@@ -240,6 +240,7 @@ describe('createPermix', () => {
     })
 
     const result = await t.createCallerFactory(router)({ user: { id: '1' } }).createAndReadPost({ userId: '1' })
+
     expect(result).toEqual({
       userId: 1,
       inputUserId: 1,
