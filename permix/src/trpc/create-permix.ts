@@ -28,18 +28,20 @@ export function createPermix<Definition extends PermixDefinition>(
 ) {
   const plugin = initTRPC.context<{ permix: Pick<PermixCore<Definition>, 'check' | 'checkAsync'> }>().create()
 
-  const setupMiddleware = (callback: () => MaybePromise<PermixRules<Definition>>) => plugin.middleware(async ({ ctx, next }) => {
-    const permix = createPermixCore<Definition>()
+  function setupMiddleware<TContext extends object>(callback: (params: { ctx: TContext }) => MaybePromise<PermixRules<Definition>>) {
+    return plugin.middleware(async (params) => {
+      const permix = createPermixCore<Definition>()
 
-    permix.setup(await callback())
+      permix.setup(await callback({ ctx: params.ctx as TContext }))
 
-    return next({
-      ctx: {
-        ...ctx,
-        permix: pick(permix, ['check', 'checkAsync']),
-      },
+      return params.next({
+        ctx: {
+          ...params.ctx,
+          permix: pick(permix, ['check', 'checkAsync']),
+        },
+      })
     })
-  })
+  }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
     return plugin.middleware(async ({ ctx, next }) => {

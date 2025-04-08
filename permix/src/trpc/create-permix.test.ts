@@ -75,6 +75,32 @@ describe('createPermix', () => {
     expect(result).toEqual({ success: true })
   })
 
+  it('should allow access by context', async () => {
+    const protectedMiddleware = t.procedure.use(permix.setupMiddleware<Context>(({ ctx }) => ({
+      post: {
+        create: ctx.user.id === '1',
+        read: ctx.user.id === '1',
+        update: ctx.user.id === '1',
+      },
+      user: {
+        delete: ctx.user.id === '1',
+      },
+    })))
+
+    const router = t.router({
+      createPost: protectedMiddleware
+        .use(permix.checkMiddleware('post', 'create'))
+        .query(() => {
+          return { success: true }
+        }),
+    })
+
+    const result = await t.createCallerFactory(router)({ user: { id: '1' } }).createPost()
+    expect(result).toEqual({ success: true })
+
+    await expect(t.createCallerFactory(router)({ user: { id: '2' } }).createPost()).rejects.toThrow()
+  })
+
   it('should deny access when permission is not granted', async () => {
     const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
       post: {
