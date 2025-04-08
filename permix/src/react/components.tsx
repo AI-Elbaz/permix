@@ -5,6 +5,7 @@ import * as React from 'react'
 import { hydrate } from '../core'
 import { getRules, validatePermix } from '../core/create-permix'
 import { Context, usePermix, usePermixContext } from './hooks'
+
 /**
  * Provider that provides the Permix context to your React components.
  *
@@ -18,27 +19,18 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 
   const [context, setContext] = React.useState({
     permix,
-    isReady: false,
+    isReady: permix.isReady(),
     state: getRules(permix),
   })
 
-  function updateState() {
-    validatePermix(permix)
-    setContext(c => ({ ...c, state: getRules(permix) }))
-  }
-
-  function updateReady() {
-    setContext(c => ({ ...c, isReady: permix.isReady() }))
-  }
-
   React.useEffect(() => {
-    updateState()
-    return permix.hook('setup', () => updateState())
-  }, [permix])
+    const setup = permix.hook('setup', () => setContext(c => ({ ...c, state: getRules(permix) })))
+    const ready = permix.hook('ready', () => setContext(c => ({ ...c, isReady: permix.isReady() })))
 
-  React.useEffect(() => {
-    updateReady()
-    return permix.hook('ready', () => updateReady())
+    return () => {
+      setup()
+      ready()
+    }
   }, [permix])
 
   return (
