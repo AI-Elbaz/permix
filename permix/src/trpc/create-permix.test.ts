@@ -35,6 +35,29 @@ describe('createPermix', () => {
     permix.checkMiddleware('post', 'delete')
   })
 
+  it('should check with ctx', async () => {
+    const router = t.router({
+      createPost: t.procedure
+        .use(permix.setupMiddleware(() => ({
+          post: {
+            create: true,
+            read: true,
+            update: true,
+          },
+          user: {
+            delete: true,
+          },
+        })))
+        .use(permix.checkMiddleware('post', 'create'))
+        .query(({ ctx }) => {
+          return { success: ctx.permix.check('post', 'create') }
+        }),
+    })
+
+    const result = await t.createCallerFactory(router)({ user: { id: '1' } }).createPost()
+    expect(result).toEqual({ success: true })
+  })
+
   it('should throw if called without setupMiddleware', async () => {
     const router = t.router({
       createPost: t.procedure
@@ -42,8 +65,7 @@ describe('createPermix', () => {
         .use(permix.checkMiddleware('post', 'create'))
         .query(({ ctx }) => {
           // @ts-expect-error should throw
-          ctx.permix.check('post', 'update')
-          return { success: true }
+          return { success: ctx.permix.check('post', 'update') }
         }),
     })
 

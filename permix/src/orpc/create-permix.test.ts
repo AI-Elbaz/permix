@@ -46,6 +46,32 @@ describe('createPermix', () => {
     permix.checkMiddleware('post', 'delete')
   })
 
+  it('should check with ctx', async () => {
+    const router = orpcPermix.router({
+      createPost: orpcPermix
+        .use(permix.setupMiddleware(() => ({
+          post: {
+            create: true,
+            read: true,
+            update: true,
+          },
+          user: {
+            delete: true,
+          },
+        })))
+        .use(permix.checkMiddleware('post', 'create'))
+        .handler(({ context }) => {
+          return { success: context.permix.check('post', 'create') }
+        }),
+    })
+
+    const result = await new RPCHandler(router).handle(createRequest('/createPost'), {
+      context: { user: { id: '1' } },
+    })
+    expect(result.response?.status).toEqual(200)
+    expect(await result.response?.json()).toEqual({ json: { success: true } })
+  })
+
   it('should throw if called without setupMiddleware', async () => {
     const router = orpcPermix.router({
       // @ts-expect-error should throw
@@ -54,8 +80,7 @@ describe('createPermix', () => {
         .use(permix.checkMiddleware('post', 'create'))
         .handler(({ context }) => {
           // @ts-expect-error should throw
-          context.permix.check('post', 'update')
-          return { success: true }
+          return { success: context.permix.check('post', 'update') }
         }),
     })
 
