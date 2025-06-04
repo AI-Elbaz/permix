@@ -1,4 +1,3 @@
-import { source } from '@/lib/source'
 import { Popup, PopupContent, PopupTrigger } from 'fumadocs-twoslash/ui'
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
@@ -10,6 +9,7 @@ import {
   DocsTitle,
 } from 'fumadocs-ui/page'
 import { notFound } from 'next/navigation'
+import { source } from '@/lib/source'
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>

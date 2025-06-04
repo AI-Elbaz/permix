@@ -5,6 +5,7 @@ export default antfu({
   react: true,
   rules: {
     'node/prefer-global/process': 'off',
+    'react/no-use-context': 'off',
   },
   ignores: ['**/.source/**'],
 })

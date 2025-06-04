@@ -1,11 +1,11 @@
 import type { PermissionsDefinition } from '@/shared/permix'
-import { getRules } from '@/shared/permix'
 import { initTRPC, TRPCError } from '@trpc/server'
 import * as trpcExpress from '@trpc/server/adapters/express'
 import cors from 'cors'
 import express from 'express'
 import { createPermix } from 'permix/trpc'
 import { z } from 'zod'
+import { getRules } from '@/shared/permix'
 
 const app = express()
 

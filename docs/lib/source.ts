@@ -1,8 +1,8 @@
-import { docs, meta } from '@/.source'
 import * as icons from '@remixicon/react'
 import { loader } from 'fumadocs-core/source'
 import { createMDXSource } from 'fumadocs-mdx'
 import { createElement } from 'react'
+import { docs, meta } from '@/.source'
 
 export const source = loader({
   baseUrl: '/docs',

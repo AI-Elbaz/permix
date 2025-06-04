@@ -1,6 +1,6 @@
 import type { RouterOutput } from '@/shared/trpc'
-import { setupPermix } from '@/shared/permix'
 import { useEffect, useState } from 'react'
+import { setupPermix } from '@/shared/permix'
 import { Check } from './components/permix'
 import { usePermissions } from './hooks/use-permissions'
 import { trpc } from './trpc'

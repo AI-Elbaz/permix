@@ -10,27 +10,27 @@
     "drizzle:migrate": "cd server && drizzle-kit migrate"
   },
   "dependencies": {
-    "@trpc/client": "^11.0.3",
-    "@trpc/server": "^11.0.3",
+    "@trpc/client": "^11.2.0",
+    "@trpc/server": "^11.2.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.41.0",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.44.2",
     "express": ">=4",
     "permix": "workspace:*",
-    "pg": "^8.14.1",
+    "pg": "^8.16.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "zod": "^3.24.2"
+    "zod": "^3.25.51"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/pg": "^8.11.11",
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.1",
-    "@vitejs/plugin-react": "^4.3.4",
-    "drizzle-kit": "^0.30.6",
-    "tsx": "^4.19.3",
-    "vite": "^6.2.5",
+    "@types/cors": "^2.8.18",
+    "@types/pg": "^8.15.4",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "@vitejs/plugin-react": "^4.5.1",
+    "drizzle-kit": "^0.31.1",
+    "tsx": "^4.19.4",
+    "vite": "^6.3.5",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }
