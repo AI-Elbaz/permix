@@ -265,23 +265,25 @@ const protectedMiddleware = orpcPermix.use(async ({ context, next }) => {
 })
 ```
 
-### Type Safety
+### Dynamic Data-Based Permissions
 
-oRPC with Permix provides full type safety for your context and input parameters:
+You can check permissions based on the specific data being accessed:
 
 ```ts
 const router = orpcPermix.router({
-  createPost: protectedMiddleware
-    .use(permix.checkMiddleware('post', 'create'))
-    .input(z.object({
-      userId: z.string()
-    }))
-    .handler(({ context, input }) => {
-      // TypeScript will ensure type safety for both context and input
-      const userId = input.userId
-      const currentUser = context.user.id
+  updatePost: protectedMiddleware
+    .handler(async ({ input, context }) => {
+      const post = await getPostById(input.postId)
 
-      return { success: true }
+      // Check if user can update this specific post
+      if (context.permix.check('post', 'update', post)) {
+        // Update post logic
+        return { success: true }
+      }
+
+      throw new ORPCError('FORBIDDEN', {
+        message: 'You cannot update this specific post'
+      })
     })
 })
 ```
