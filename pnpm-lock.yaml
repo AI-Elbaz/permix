@@ -69,14 +69,17 @@ importers:
         specifier: 15.3.4
         version: 15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       permix:
-        specifier: 2.1.4
-        version: 2.1.4(@orpc/server@1.4.0)(@trpc/server@11.0.3(typescript@5.8.3))(express@5.1.0)(hono@4.7.6)(react@19.1.0)(vue@3.5.13(typescript@5.8.3))
+        specifier: 2.1.5
+        version: 2.1.5(@orpc/server@1.4.0)(@trpc/server@11.0.3(typescript@5.8.3))(express@5.1.0)(hono@4.7.6)(react@19.1.0)(vue@3.5.13(typescript@5.8.3))
       react:
         specifier: ^19.1.0
         version: 19.1.0
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      shiki:
+        specifier: ^3.7.0
+        version: 3.7.0
       twoslash:
         specifier: ^0.3.1
         version: 0.3.1(typescript@5.8.3)
@@ -106,7 +109,7 @@ importers:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
       express:
-        specifier: '>=4'
+        specifier: '>=5'
         version: 5.1.0
       hono:
         specifier: '>=4'
@@ -4928,8 +4931,8 @@ packages:
     resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
     engines: {node: '>= 14.16'}
 
-  permix@2.1.4:
-    resolution: {integrity: sha512-pg8X7yGVwTnmETvzxnFxE43qF18R61JfVeyGQMtQyyBIgPjKD4FY/Rd5/brSuZ3I/DbhxaG1Qa4Jza6gHQLbbg==}
+  permix@2.1.5:
+    resolution: {integrity: sha512-4SNfSV9ngcOWimF5BVh3/dFHcM7ntQx+zntPj5iF5ha9aMkBhUEOrYE5GMaFncCw43xJgXdTKxMBchKcGm2E+A==}
     engines: {node: '>=18'}
     peerDependencies:
       '@orpc/server': '>=0'
@@ -7798,7 +7801,7 @@ snapshots:
 
   '@testing-library/dom@10.4.0':
     dependencies:
-      '@babel/code-frame': 7.26.2
+      '@babel/code-frame': 7.27.1
       '@babel/runtime': 7.27.0
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
@@ -10964,7 +10967,7 @@ snapshots:
 
   pathval@2.0.0: {}
 
-  permix@2.1.4(@orpc/server@1.4.0)(@trpc/server@11.0.3(typescript@5.8.3))(express@5.1.0)(hono@4.7.6)(react@19.1.0)(vue@3.5.13(typescript@5.8.3)):
+  permix@2.1.5(@orpc/server@1.4.0)(@trpc/server@11.0.3(typescript@5.8.3))(express@5.1.0)(hono@4.7.6)(react@19.1.0)(vue@3.5.13(typescript@5.8.3)):
     optionalDependencies:
       '@orpc/server': 1.4.0
       '@trpc/server': 11.0.3(typescript@5.8.3)
