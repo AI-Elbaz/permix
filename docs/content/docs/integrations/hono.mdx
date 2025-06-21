@@ -42,7 +42,7 @@ const permix = createPermix<{
 }>()
 
 // Set up the middleware with your permission rules
-app.use('*', permix.setupMiddleware(({ c }) => {
+app.use(permix.setupMiddleware(({ c }) => {
   // You can access c.get('user') or other properties to determine permissions
   const user = c.get('user')
   const isAdmin = user?.role === 'admin'
@@ -143,7 +143,7 @@ const userTemplate = permix.template({
 })
 
 // Use templates in your middleware
-app.use('*', permix.setupMiddleware(({ c }) => {
+app.use(permix.setupMiddleware(({ c }) => {
   const user = c.get('user')
 
   if (user?.role === 'admin') {
@@ -204,7 +204,7 @@ The `onForbidden` handler receives:
 You can use async functions in your permission setup:
 
 ```ts
-app.use('*', permix.setupMiddleware(async ({ c }) => {
+app.use(permix.setupMiddleware(async ({ c }) => {
   // Fetch user permissions from database
   const user = c.get('user')
   const userPermissions = await getUserPermissions(user.id)

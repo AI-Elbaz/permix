@@ -69,8 +69,8 @@ importers:
         specifier: 15.3.4
         version: 15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       permix:
-        specifier: 2.1.5
-        version: 2.1.5(@orpc/server@1.4.0)(@trpc/server@11.0.3(typescript@5.8.3))(express@5.1.0)(hono@4.7.6)(react@19.1.0)(vue@3.5.13(typescript@5.8.3))
+        specifier: workspace:*
+        version: link:../permix
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -108,6 +108,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
+      elysia:
+        specifier: '>=1'
+        version: 1.3.5(exact-mirror@0.1.2(@sinclair/typebox@0.34.35))(file-type@21.0.0)(typescript@5.8.3)
       express:
         specifier: '>=5'
         version: 5.1.0
@@ -4930,30 +4933,6 @@ packages:
   pathval@2.0.0:
     resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
     engines: {node: '>= 14.16'}
-
-  permix@2.1.5:
-    resolution: {integrity: sha512-4SNfSV9ngcOWimF5BVh3/dFHcM7ntQx+zntPj5iF5ha9aMkBhUEOrYE5GMaFncCw43xJgXdTKxMBchKcGm2E+A==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      '@orpc/server': '>=0'
-      '@trpc/server': '>=10'
-      express: '>=4'
-      hono: '>=4'
-      react: '>=18'
-      vue: '>=3'
-    peerDependenciesMeta:
-      '@orpc/server':
-        optional: true
-      '@trpc/server':
-        optional: true
-      express:
-        optional: true
-      hono:
-        optional: true
-      react:
-        optional: true
-      vue:
-        optional: true
 
   pg-cloudflare@1.2.6:
     resolution: {integrity: sha512-uxmJAnmIgmYgnSFzgOf2cqGQBzwnRYcrEgXuFjJNEkpedEIPBSEzxY7ph4uA9k1mI+l/GR0HjPNS6FKNZe8SBQ==}
@@ -10966,15 +10945,6 @@ snapshots:
   pathe@2.0.3: {}
 
   pathval@2.0.0: {}
-
-  permix@2.1.5(@orpc/server@1.4.0)(@trpc/server@11.0.3(typescript@5.8.3))(express@5.1.0)(hono@4.7.6)(react@19.1.0)(vue@3.5.13(typescript@5.8.3)):
-    optionalDependencies:
-      '@orpc/server': 1.4.0
-      '@trpc/server': 11.0.3(typescript@5.8.3)
-      express: 5.1.0
-      hono: 4.7.6
-      react: 19.1.0
-      vue: 3.5.13(typescript@5.8.3)
 
   pg-cloudflare@1.2.6:
     optional: true
