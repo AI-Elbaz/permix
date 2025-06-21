@@ -1,14 +1,14 @@
 ---
-title: Hono
-description: Learn how to use Permix with Hono
+title: Elysia
+description: Learn how to use Permix with Elysia
 ---
 
 ## Overview
 
-Permix provides middleware for Hono that allows you to easily check permissions in your routes. The middleware can be created using the `createPermix` function.
+Permix provides integration for Elysia that allows you to easily check permissions in your routes. The integration can be created using the `createPermix` function.
 
 <Callout>
-Before getting started with Hono integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+Before getting started with Elysia integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -17,11 +17,11 @@ Before getting started with Hono integration, make sure you've completed the ini
 
 ## Setup
 
-Here's a basic example of how to use the Permix middleware with Hono:
+Here's a basic example of how to use the Permix middleware with Elysia:
 
 ```ts twoslash
-import { Hono } from 'hono'
-import { createPermix } from 'permix/hono'
+import { Elysia } from 'elysia'
+import { createPermix } from 'permix/elysia'
 
 interface Post {
   id: string
@@ -29,9 +29,6 @@ interface Post {
   title: string
   content: string
 }
-
-// Initialize Hono
-const app = new Hono()
 
 // Create your Permix instance
 const permix = createPermix<{
@@ -41,25 +38,26 @@ const permix = createPermix<{
   }
 }>()
 
-// Set up the middleware with your permission rules
-app.use(permix.setupMiddleware(({ c }) => {
-  // You can access c.get('user') or other properties to determine permissions
-  const user = c.get('user')
-  const isAdmin = user?.role === 'admin'
+// Initialize Elysia
+const app = new Elysia()
+  // Derive your permission rules
+  .derive(({ headers }) => {
+    // You can access body or other properties to determine permissions
+    const isAuthorized = !!headers.authorization?.slice(7)
 
-  return {
-    post: {
-      create: true,
-      read: true,
-      update: isAdmin,
-      delete: isAdmin
-    }
-  }
-}))
+    return permix.derive({
+      post: {
+        create: true,
+        read: true,
+        update: isAuthorized,
+        delete: isAuthorized
+      }
+    })
+  })
 ```
 
 <Callout>
-The middleware preserves full type safety from your Permix definition, ensuring your permission checks are type-safe.
+The derive preserves full type safety from your Permix definition, ensuring your permission checks are type-safe.
 </Callout>
 
 </Step>
@@ -68,24 +66,30 @@ The middleware preserves full type safety from your Permix definition, ensuring 
 
 ## Checking Permissions
 
-Use the `checkMiddleware` function in your Hono routes to check permissions:
+Use the `checkHandler` function in your Elysia routes to check permissions:
 
 ```ts
-app.post('/posts', permix.checkMiddleware('post', 'create'), (c) => {
+app.post('/posts', () => {
   // Create post logic here
-  return c.json({ success: true })
+  return { success: true }
+}, {
+  beforeHandle: permix.checkHandler('post', 'create')
 })
 
 // Check multiple actions
-app.put('/posts/:id', permix.checkMiddleware('post', ['read', 'update']), (c) => {
+app.put('/posts/:id', () => {
   // Update post logic here
-  return c.json({ success: true })
+  return { success: true }
+}, {
+  beforeHandle: permix.checkHandler('post', ['read', 'update'])
 })
 
 // Check all actions
-app.delete('/posts/:id', permix.checkMiddleware('post', 'all'), (c) => {
+app.delete('/posts/:id', () => {
   // Delete post logic here
-  return c.json({ success: true })
+  return { success: true }
+}, {
+  beforeHandle: permix.checkHandler('post', 'all')
 })
 ```
 
@@ -95,18 +99,16 @@ app.delete('/posts/:id', permix.checkMiddleware('post', 'all'), (c) => {
 
 ## Accessing Permix Directly
 
-You can access the Permix instance directly in your route handlers using the `get` function:
+You can access the Permix instance directly in your route handlers using the context:
 
 ```ts
-app.get('/posts', (c) => {
-  const permix = permix.get(c)
-
+app.get('/posts', ({ permix }) => {
   // Check permissions manually
   if (permix.check('post', 'read')) {
     // User has permission to read posts
-    return c.json({ posts: getAllPosts() })
+    return { posts: getAllPosts() }
   } else {
-    return c.json({ error: 'You do not have permission to read posts' }, 403)
+    return { error: 'You do not have permission to read posts' }
   }
 })
 ```
@@ -143,15 +145,15 @@ const userTemplate = permix.template({
 })
 
 // Use templates in your middleware
-app.use(permix.setupMiddleware(({ c }) => {
-  const user = c.get('user')
+app.derive(({ headers }) => {
+  const user = await getUserFromDb(headers.authorization.slice(7))
 
-  if (user?.role === 'admin') {
-    return adminTemplate
-  }
-
-  return userTemplate
-}))
+  return permix.derive(
+    user?.role === 'admin'
+      ? adminTemplate
+      : userTemplate
+  )
+})
 ```
 
 </Step>
@@ -166,8 +168,9 @@ By default, the middleware returns a 403 Forbidden response. You can customize t
 
 ```ts
 const permix = createPermix<Definition>({
-  onForbidden: ({ c }) => {
-    return c.json({ error: 'Custom forbidden message' }, 403)
+  onForbidden: ({ context }) => {
+    context.set.status = 403
+    return { error: 'Custom forbidden message' }
   }
 })
 ```
@@ -178,22 +181,24 @@ You can also provide a handler that returns different responses based on the ent
 
 ```ts
 const permix = createPermix<Definition>({
-  onForbidden: ({ c, entity, actions }) => {
+  onForbidden: ({ context, entity, actions }) => {
+    context.set.status = 403
+
     if (entity === 'post' && actions.includes('create')) {
-      return c.json({
+      return {
         error: `You don't have permission to ${actions.join('/')} a ${entity}`
-      }, 403)
+      }
     }
 
-    return c.json({
+    return {
       error: 'You do not have permission to perform this action'
-    }, 403)
+    }
   }
 })
 ```
 
 The `onForbidden` handler receives:
-- `c`: Hono Context object
+- `context`: Elysia Context object
 - `entity`: The entity that was checked
 - `actions`: Array of actions that were checked
 
@@ -204,20 +209,20 @@ The `onForbidden` handler receives:
 You can use async functions in your permission setup:
 
 ```ts
-app.use(permix.setupMiddleware(async ({ c }) => {
+app.derive(async ({ headers }) => {
   // Fetch user permissions from database
-  const user = c.get('user')
-  const userPermissions = await getUserPermissions(user.id)
+  const userId = headers.authorization?.slice(7)
+  const userPermissions = await getUserPermissions(userId)
 
-  return {
+  return permix.derive({
     post: {
       create: userPermissions.canCreatePosts,
       read: userPermissions.canReadPosts,
       update: userPermissions.canUpdatePosts,
       delete: userPermissions.canDeletePosts
     }
-  }
-}))
+  })
+})
 ```
 
 ### Dynamic Data-Based Permissions
@@ -225,18 +230,16 @@ app.use(permix.setupMiddleware(async ({ c }) => {
 You can check permissions based on the specific data being accessed:
 
 ```ts
-app.put('/posts/:id', async (c) => {
-  const postId = c.req.param('id')
+app.put('/posts/:id', async ({ params, permix }) => {
+  const postId = params.id
   const post = await getPostById(postId)
-
-  const permix = permix.get(c)
 
   // Check if user can update this specific post
   if (permix.check('post', 'update', post)) {
     // Update post logic
-    return c.json({ success: true })
+    return { success: true }
   } else {
-    return c.json({ error: 'You cannot update this post' }, 403)
+    return { error: 'You cannot update this post' }
   }
 })
 ```

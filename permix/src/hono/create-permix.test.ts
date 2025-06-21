@@ -41,7 +41,7 @@ describe('createPermix', () => {
   it('should allow access when permission is granted', async () => {
     const app = new Hono()
 
-    app.use('*', permix.setupMiddleware(() => ({
+    app.use(permix.setupMiddleware(() => ({
       post: {
         create: true,
         read: false,

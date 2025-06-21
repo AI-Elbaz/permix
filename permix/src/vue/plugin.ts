@@ -1,9 +1,13 @@
-import type { Plugin } from 'vue'
-import type { Permix } from '../core'
+import type { InjectionKey, Plugin, Ref } from 'vue'
+import type { Permix, PermixRules } from '../core'
 import { ref } from 'vue'
 import { getRules, validatePermix } from '../core/create-permix'
 
-export const PERMIX_CONTEXT_KEY = 'vue-permix'
+export const PERMIX_CONTEXT_KEY = Symbol('vue-permix') as InjectionKey<Ref<{
+  permix: Permix<any>
+  state: PermixRules<any>
+  isReady: boolean
+}>>
 
 /**
  * Vue plugin that provides the Permix context to your application.

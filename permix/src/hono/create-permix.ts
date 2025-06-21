@@ -2,6 +2,7 @@ import type { Context, MiddlewareHandler } from 'hono'
 import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
+import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
@@ -63,16 +64,18 @@ export function createPermix<Definition extends PermixDefinition>(
   }
 
   function setupMiddleware(callback: (context: { c: Context }) => PermixRules<Definition> | Promise<PermixRules<Definition>>): MiddlewareHandler {
-    return async (c, next) => {
+    return createMiddleware(async (c, next) => {
       const permix = createPermixCore<Definition>()
       permix.setup(await callback({ c }))
+
       c.set(permixSymbol, permix)
+
       await next()
-    }
+    })
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>): MiddlewareHandler {
-    return async (c, next) => {
+    return createMiddleware(async (c, next) => {
       try {
         const permix = getPermix(c)
 
@@ -87,7 +90,7 @@ export function createPermix<Definition extends PermixDefinition>(
       catch {
         return await onForbidden({ c, ...createCheckContext(...params) })
       }
-    }
+    })
   }
 
   return {

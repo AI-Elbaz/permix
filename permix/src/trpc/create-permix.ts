@@ -1,6 +1,5 @@
 import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
-import type { MaybePromise } from '../core/utils'
 import { initTRPC, TRPCError } from '@trpc/server'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
@@ -28,19 +27,8 @@ export function createPermix<Definition extends PermixDefinition>(
 ) {
   const plugin = initTRPC.context<{ permix: Pick<PermixCore<Definition>, 'check' | 'checkAsync'> }>().create()
 
-  function setupMiddleware<TContext extends object>(callback: (params: { ctx: TContext }) => MaybePromise<PermixRules<Definition>>) {
-    return plugin.middleware(async (params) => {
-      const permix = createPermixCore<Definition>()
-
-      permix.setup(await callback({ ctx: params.ctx as TContext }))
-
-      return params.next({
-        ctx: {
-          ...params.ctx,
-          permix: pick(permix, ['check', 'checkAsync']),
-        },
-      })
-    })
+  function setup(rules: PermixRules<Definition>) {
+    return pick(createPermixCore<Definition>(rules), ['check', 'checkAsync'])
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
@@ -79,7 +67,7 @@ export function createPermix<Definition extends PermixDefinition>(
   }
 
   return {
-    setupMiddleware,
+    setup,
     checkMiddleware,
   }
 }

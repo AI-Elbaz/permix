@@ -1,5 +1,4 @@
-import type { Ref } from 'vue'
-import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { Permix, PermixDefinition } from '../core/create-permix'
 import { computed, inject } from 'vue'
 import { checkWithRules, validatePermix } from '../core/create-permix'
 import { PERMIX_CONTEXT_KEY } from './plugin'
@@ -11,11 +10,7 @@ function usePermixContext() {
     throw new Error('[Permix]: Looks like you forgot to install the plugin')
   }
 
-  return context as Ref<{
-    permix: Permix<any>
-    isReady: boolean
-    state: PermixRules<any>
-  }>
+  return context
 }
 
 /**

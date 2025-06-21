@@ -49,19 +49,25 @@ const permix = createPermix<{
 }>()
 
 // Create a protected procedure with Permix
-const protectedProcedure = t.procedure.use(permix.setupMiddleware<Context>(({ ctx }) => {
+const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   // You can access ctx.user or other properties to determine permissions
   const isAdmin = ctx.user.role === 'admin'
 
-  return {
+  const p = permix.setup({
     post: {
       create: true,
       read: true,
       update: isAdmin,
       delete: isAdmin
     }
-  }
-}))
+  })
+
+  return next({
+    ctx: {
+      permix: p,
+    },
+  })
+})
 ```
 
 <Callout>
@@ -169,13 +175,19 @@ const userTemplate = permix.template({
 })
 
 // Use templates in your middleware
-const protectedProcedure = t.procedure.use(permix.setupMiddleware(({ ctx }) => {
-  if (ctx.user.role === 'admin') {
-    return adminTemplate
-  }
+const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  const p = permix.setup(
+    ctx.user.role === 'admin'
+      ? adminTemplate
+      : userTemplate
+  )
 
-  return userTemplate
-}))
+  return next({
+    ctx: {
+      permix: p,
+    },
+  })
+})
 ```
 
 </Step>
@@ -231,19 +243,25 @@ The `forbiddenError` handler receives:
 You can use async functions in your permission setup:
 
 ```ts
-const protectedProcedure = t.procedure.use(permix.setupMiddleware(async ({ ctx }) => {
+const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   // Fetch user permissions from database
   const userPermissions = await getUserPermissions(ctx.user.id)
 
-  return {
+  const p = permix.setup({
     post: {
       create: userPermissions.canCreatePosts,
       read: userPermissions.canReadPosts,
       update: userPermissions.canUpdatePosts,
       delete: userPermissions.canDeletePosts
     }
-  }
-}))
+  })
+
+  return next({
+    ctx: {
+      permix: p,
+    },
+  })
+})
 ```
 
 ### Dynamic Data-Based Permissions

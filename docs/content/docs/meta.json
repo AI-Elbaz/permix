@@ -20,6 +20,7 @@
     "integrations/orpc",
     "integrations/express",
     "integrations/hono",
+    "integrations/elysia",
     "---Examples---",
     "[role-based](https://github.com/letstri/permix/tree/main/examples/role-based)",
     "[enum-based](https://github.com/letstri/permix/tree/main/examples/enum-based)",
