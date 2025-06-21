@@ -5,7 +5,7 @@ const withMDX = createMDX()
 
 const config: NextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ['twoslash', 'typescript'],
+  serverExternalPackages: ['permix', 'twoslash', 'typescript'],
 }
 
 export default withMDX(config)
