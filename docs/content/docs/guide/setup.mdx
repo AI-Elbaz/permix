@@ -42,6 +42,42 @@ permix.setup({
 You can also use `enum` based permissions. See [Enum-based](https://github.com/letstri/permix/tree/main/examples/enum-based) for more information.
 </Callout>
 
+## Initial
+
+You can set up initial rules directly when creating a Permix instance by passing them as the first parameter to `createPermix`.
+
+```ts twoslash
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'create' | 'read'
+  }
+  comment: {
+    action: 'create' | 'read' | 'update'
+  }
+}>({
+  post: {
+    create: true,
+    read: true,
+  },
+  comment: {
+    create: false,
+    read: true,
+    update: true,
+  },
+})
+
+// The instance is immediately ready to use
+permix.check('post', 'create') // true
+
+permix.isReady() // true
+```
+
+<Callout>
+When using initial rules, the Permix instance is immediately ready to use without calling `setup` first.
+</Callout>
+
 ## Type-Based
 
 When creating a Permix instance, you can define entities that will be used in the `setup` method for each related entity. This allows you to check permissions for specific data entities. So instead of `boolean` you can use functions to check permissions.
