@@ -38,16 +38,24 @@ describe('createPermix', () => {
   it('should check with ctx', async () => {
     const router = t.router({
       createPost: t.procedure
-        .use(permix.setupMiddleware(() => ({
-          post: {
-            create: true,
-            read: true,
-            update: true,
-          },
-          user: {
-            delete: true,
-          },
-        })))
+        .use(({ next }) => {
+          const p = permix.setup({
+            post: {
+              create: true,
+              read: true,
+              update: true,
+            },
+            user: {
+              delete: true,
+            },
+          })
+
+          return next({
+            ctx: {
+              permix: p,
+            },
+          })
+        })
         .use(permix.checkMiddleware('post', 'create'))
         .query(({ ctx }) => {
           return { success: ctx.permix.check('post', 'create') }
@@ -73,16 +81,25 @@ describe('createPermix', () => {
   })
 
   it('should allow access when permission is defined', async () => {
-    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
-      post: {
-        create: true,
-        read: true,
-        update: true,
-      },
-      user: {
-        delete: true,
-      },
-    })))
+    const protectedProcedure = t.procedure
+      .use(({ next }) => {
+        const p = permix.setup({
+          post: {
+            create: true,
+            read: true,
+            update: true,
+          },
+          user: {
+            delete: true,
+          },
+        })
+
+        return next({
+          ctx: {
+            permix: p,
+          },
+        })
+      })
 
     const router = t.router({
       createPost: protectedProcedure
@@ -98,16 +115,25 @@ describe('createPermix', () => {
   })
 
   it('should allow access by context', async () => {
-    const protectedMiddleware = t.procedure.use(permix.setupMiddleware<Context>(({ ctx }) => ({
-      post: {
-        create: ctx.user.id === '1',
-        read: ctx.user.id === '1',
-        update: ctx.user.id === '1',
-      },
-      user: {
-        delete: ctx.user.id === '1',
-      },
-    })))
+    const protectedMiddleware = t.procedure
+      .use(({ ctx, next }) => {
+        const p = permix.setup({
+          post: {
+            create: ctx.user.id === '1',
+            read: ctx.user.id === '1',
+            update: ctx.user.id === '1',
+          },
+          user: {
+            delete: ctx.user.id === '1',
+          },
+        })
+
+        return next({
+          ctx: {
+            permix: p,
+          },
+        })
+      })
 
     const router = t.router({
       createPost: protectedMiddleware
@@ -124,16 +150,25 @@ describe('createPermix', () => {
   })
 
   it('should deny access when permission is not granted', async () => {
-    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
-      post: {
-        create: false,
-        read: false,
-        update: false,
-      },
-      user: {
-        delete: false,
-      },
-    })))
+    const protectedProcedure = t.procedure
+      .use(({ next }) => {
+        const p = permix.setup({
+          post: {
+            create: false,
+            read: false,
+            update: false,
+          },
+          user: {
+            delete: false,
+          },
+        })
+
+        return next({
+          ctx: {
+            permix: p,
+          },
+        })
+      })
 
     const router = t.router({
       createPost: protectedProcedure
@@ -156,16 +191,25 @@ describe('createPermix', () => {
       forbiddenError: () => customError,
     })
 
-    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
-      post: {
-        create: false,
-        read: false,
-        update: false,
-      },
-      user: {
-        delete: false,
-      },
-    })))
+    const protectedProcedure = t.procedure
+      .use(({ next }) => {
+        const p = permix.setup({
+          post: {
+            create: false,
+            read: false,
+            update: false,
+          },
+          user: {
+            delete: false,
+          },
+        })
+
+        return next({
+          ctx: {
+            permix: p,
+          },
+        })
+      })
 
     const router = t.router({
       createPost: protectedProcedure
@@ -195,16 +239,25 @@ describe('createPermix', () => {
       },
     })
 
-    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
-      post: {
-        create: false,
-        read: false,
-        update: false,
-      },
-      user: {
-        delete: false,
-      },
-    })))
+    const protectedProcedure = t.procedure
+      .use(({ next }) => {
+        const p = permix.setup({
+          post: {
+            create: false,
+            read: false,
+            update: false,
+          },
+          user: {
+            delete: false,
+          },
+        })
+
+        return next({
+          ctx: {
+            permix: p,
+          },
+        })
+      })
 
     const router = t.router({
       createPost: protectedProcedure
@@ -225,16 +278,25 @@ describe('createPermix', () => {
       forbiddenError: { message: 'Invalid error' },
     })
 
-    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
-      post: {
-        create: false,
-        read: false,
-        update: false,
-      },
-      user: {
-        delete: false,
-      },
-    })))
+    const protectedProcedure = t.procedure
+      .use(({ next }) => {
+        const p = permix.setup({
+          post: {
+            create: false,
+            read: false,
+            update: false,
+          },
+          user: {
+            delete: false,
+          },
+        })
+
+        return next({
+          ctx: {
+            permix: p,
+          },
+        })
+      })
 
     const router = t.router({
       createPost: protectedProcedure
@@ -250,16 +312,25 @@ describe('createPermix', () => {
   })
 
   it('should chain multiple permissions', async () => {
-    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
-      post: {
-        create: true,
-        read: true,
-        update: true,
-      },
-      user: {
-        delete: true,
-      },
-    })))
+    const protectedProcedure = t.procedure
+      .use(({ next }) => {
+        const p = permix.setup({
+          post: {
+            create: true,
+            read: true,
+            update: true,
+          },
+          user: {
+            delete: true,
+          },
+        })
+
+        return next({
+          ctx: {
+            permix: p,
+          },
+        })
+      })
 
     const router = t.router({
       createAndReadPost: protectedProcedure
@@ -274,16 +345,25 @@ describe('createPermix', () => {
   })
 
   it('should save types for context and input', async () => {
-    const protectedProcedure = t.procedure.use(permix.setupMiddleware(() => ({
-      post: {
-        create: true,
-        read: true,
-        update: true,
-      },
-      user: {
-        delete: true,
-      },
-    })))
+    const protectedProcedure = t.procedure
+      .use(({ next }) => {
+        const p = permix.setup({
+          post: {
+            create: true,
+            read: true,
+            update: true,
+          },
+          user: {
+            delete: true,
+          },
+        })
+
+        return next({
+          ctx: {
+            permix: p,
+          },
+        })
+      })
 
     const router = t.router({
       createAndReadPost: protectedProcedure
