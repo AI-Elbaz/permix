@@ -34,15 +34,15 @@ export type PermixRules<Definition extends PermixDefinition = PermixDefinition> 
   };
 }
 
-export function checkWithRules<Definition extends PermixDefinition, K extends keyof Definition>(state: PermixRules<Definition> | null, ...params: CheckFunctionParams<Definition, K>) {
-  const [entity, action, data] = params
-
+export function checkWithRules<Definition extends PermixDefinition, K extends keyof Definition>(state: PermixRules<Definition> | null, ...[entity, action, data]: CheckFunctionParams<Definition, K>) {
   if (!state) {
-    throw new Error('[Permix]: Rules wasn\'t provided. Please setup Permix instance again.')
+    console.error('[Permix]: Rules wasn\'t provided. Please setup permissions and try again.')
+    return false
   }
 
   if (!state[entity]) {
-    throw new Error('[Permix]: Incorrect entity name. Please check the name of your validation entity.')
+    console.error(`[Permix]: Incorrect entity name "${String(entity)}". Please check the name of your validation entity.`)
+    return false
   }
 
   const entityObj = state[entity]

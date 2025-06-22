@@ -85,8 +85,7 @@
   },
   "scripts": {
     "prepublishOnly": "run-p test build && pnpm run scripts:copy-readme",
-    "build": "run-p build:unbuild",
-    "build:unbuild": "unbuild",
+    "build": "unbuild",
     "test": "vitest run",
     "check-types": "tsc --noEmit",
     "scripts:copy-readme": "tsx ./scripts/copy-readme"
