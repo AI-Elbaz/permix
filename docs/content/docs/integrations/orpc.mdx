@@ -67,7 +67,6 @@ const protectedMiddleware = orpcPermix.use(({ context, next }) => {
 
   return next({
     context: {
-      ...context,
       permix: p
     }
   })
@@ -184,7 +183,6 @@ const protectedMiddleware = orpcPermix.use(({ context, next }) => {
 
   return next({
     context: {
-      ...context,
       permix: p
     }
   })
@@ -258,7 +256,6 @@ const protectedMiddleware = orpcPermix.use(async ({ context, next }) => {
 
   return next({
     context: {
-      ...context,
       permix: p
     }
   })

@@ -16,6 +16,6 @@ export function dehydrate<Permissions extends PermixDefinition>(permix: Permix<P
 export function hydrate<Permissions extends PermixDefinition>(permix: Permix<Permissions>, state: DehydratedState<Permissions>) {
   validatePermix(permix)
 
-  permix._.setState(permix._.parseSerializableState(state))
+  permix._.setRules(permix._.parseSerializableState(state))
   permix._.hooks.callHook('hydrate')
 }

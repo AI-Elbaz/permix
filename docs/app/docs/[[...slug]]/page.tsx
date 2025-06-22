@@ -1,6 +1,6 @@
-import { Popup, PopupContent, PopupTrigger } from 'fumadocs-twoslash/ui'
-import { Step, Steps } from 'fumadocs-ui/components/steps'
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import * as PopupComponents from 'fumadocs-twoslash/ui'
+import * as StepsComponents from 'fumadocs-ui/components/steps'
+import * as TabsComponents from 'fumadocs-ui/components/tabs'
 import defaultMdxComponents from 'fumadocs-ui/mdx'
 import {
   DocsBody,
@@ -16,6 +16,7 @@ export default async function Page(props: {
 }) {
   const params = await props.params
   const page = source.getPage(params.slug)
+
   if (!page)
     notFound()
 
@@ -29,13 +30,9 @@ export default async function Page(props: {
         <MDX
           components={{
             ...defaultMdxComponents,
-            Steps,
-            Step,
-            Tabs,
-            Tab,
-            Popup,
-            PopupContent,
-            PopupTrigger,
+            ...TabsComponents,
+            ...StepsComponents,
+            ...PopupComponents,
           }}
         />
       </DocsBody>

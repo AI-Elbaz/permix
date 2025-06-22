@@ -21,14 +21,18 @@ export const permix = createPermix<PermissionsDefinition>({
 })
 
 export const router = t.router
-export const publicProcedure = t.procedure.use(permix.setupMiddleware(() => {
+export const publicProcedure = t.procedure.use(({ next }) => {
   // Imagine this is a middleware that gets the user from the request
   const user = {
     role: 'admin' as const,
   }
 
-  return getRules(user.role)
-}))
+  return next({
+    ctx: {
+      permix: permix.setup(getRules(user.role)),
+    },
+  })
+})
 
 export const appRouter = router({
   userList: publicProcedure
