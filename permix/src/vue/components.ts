@@ -3,7 +3,7 @@ import type { Permix, PermixDefinition } from '../core/create-permix'
 import type { CheckFunctionObject } from '../core/params'
 import { usePermix } from './composables'
 
-export interface CheckProps<Definition extends PermixDefinition, K extends keyof Definition> extends CheckFunctionObject<Definition, K> {
+export type CheckProps<Definition extends PermixDefinition, K extends keyof Definition> = CheckFunctionObject<Definition, K> & {
   reverse?: boolean
 }
 

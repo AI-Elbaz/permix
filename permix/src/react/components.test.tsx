@@ -90,7 +90,7 @@ describe('components', () => {
 
     permix.setup({
       post: {
-        edit: post => post.authorId === '1',
+        edit: post => post?.authorId === '1',
       },
     })
 

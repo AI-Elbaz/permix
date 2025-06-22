@@ -11,11 +11,13 @@ export function createHooks<Definition extends PermixDefinition>() {
 }
 
 export type PermixDefinition<T extends Record<string, {
-  dataType?: unknown
   action: string
+  dataType?: unknown
+  dataRequired?: boolean
 }> = Record<string, {
-  dataType?: unknown
   action: string
+  dataType?: unknown
+  dataRequired?: boolean
 }>> = T
 
 const permixSymbol = Symbol('permix')
@@ -30,7 +32,11 @@ export type PermixRules<Definition extends PermixDefinition = PermixDefinition> 
   [Key in keyof Definition]: {
     [Action in Definition[Key]['action']]:
       | boolean
-      | ((data: Definition[Key]['dataType']) => boolean);
+      | (
+        Definition[Key]['dataRequired'] extends true
+          ? ((data: Definition[Key]['dataType']) => boolean)
+          : ((data: Definition[Key]['dataType'] | undefined) => boolean)
+      );
   };
 }
 
@@ -54,7 +60,7 @@ export function checkWithRules<Definition extends PermixDefinition, K extends ke
 
   return actionValues.every((action) => {
     if (typeof action === 'function') {
-      return action(data) ?? false
+      return Boolean(action(data))
     }
 
     return action ?? false
@@ -313,13 +319,13 @@ export function createPermix<Definition extends PermixDefinition>(initial?: Perm
   }
 
   const permix = {
-    check(entity, action, data) {
-      return checkWithRules(rules, entity, action, data)
+    check(...args) {
+      return checkWithRules(rules, ...args)
     },
-    async checkAsync(entity, action, data) {
+    async checkAsync(...args) {
       await setupPromise
 
-      return checkWithRules(rules, entity, action, data)
+      return checkWithRules(rules, ...args)
     },
     setup(rules) {
       if (!isRulesValid(rules)) {

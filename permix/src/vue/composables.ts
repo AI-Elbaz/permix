@@ -25,9 +25,9 @@ export function usePermix<T extends PermixDefinition>(
 
   const context = usePermixContext()
 
-  const check: typeof permix.check = (entity, action, data) => {
+  const check: typeof permix.check = (...args) => {
     validatePermix(context.value.permix)
-    return checkWithRules(context.value.state!, entity, action, data)
+    return checkWithRules(context.value.state!, ...args)
   }
 
   return { check, isReady: computed(() => context.value.isReady) }

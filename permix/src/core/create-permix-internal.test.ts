@@ -52,8 +52,8 @@ describe('createPermixInternal', () => {
   })
 
   it('should return JSON permissions with setup', () => {
-    function validatePost(post: { id: string }) {
-      return post.id === '1'
+    function validatePost(post?: { id: string }) {
+      return post?.id === '1'
     }
 
     permix.setup({

@@ -43,7 +43,7 @@ describe('permix react', () => {
 
     permix.setup({
       post: {
-        create: post => post.id === '1',
+        create: post => post?.id === '1',
         read: false,
       },
     })
@@ -72,7 +72,7 @@ describe('permix react', () => {
 
     permix.setup({
       post: {
-        create: post => post.id === '2',
+        create: post => post?.id === '2',
         read: true,
       },
     })

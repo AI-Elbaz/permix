@@ -1,6 +1,7 @@
 import type { Permix, PermixDefinition } from '../core'
 import type { PermixStateJSON } from '../core/create-permix'
 import type { CheckFunctionObject } from '../core/params'
+import type { PermixContext } from './hooks'
 import * as React from 'react'
 import { hydrate } from '../core'
 import { getRules, validatePermix } from '../core/create-permix'
@@ -17,14 +18,14 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 }: { children: React.ReactNode, permix: Permix<Permissions> }) {
   validatePermix(permix)
 
-  const [context, setContext] = React.useState({
+  const [context, setContext] = React.useState<PermixContext<Permissions>>({
     permix,
     isReady: permix.isReady(),
-    state: getRules(permix),
+    rules: getRules(permix),
   })
 
   React.useEffect(() => {
-    const setup = permix.hook('setup', () => setContext(c => ({ ...c, state: getRules(permix) })))
+    const setup = permix.hook('setup', () => setContext(c => ({ ...c, rules: getRules(permix) })))
     const ready = permix.hook('ready', () => setContext(c => ({ ...c, isReady: permix.isReady() })))
 
     return () => {
@@ -51,7 +52,7 @@ export function PermixHydrate({ children, state }: { children: React.ReactNode, 
   return children
 }
 
-export interface CheckProps<Permissions extends PermixDefinition, K extends keyof Permissions> extends CheckFunctionObject<Permissions, K> {
+export type CheckProps<Permissions extends PermixDefinition, K extends keyof Permissions> = CheckFunctionObject<Permissions, K> & {
   children: React.ReactNode
   otherwise?: React.ReactNode
   reverse?: boolean

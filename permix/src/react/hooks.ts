@@ -2,11 +2,13 @@ import type { Permix, PermixDefinition, PermixRules } from '../core/create-permi
 import * as React from 'react'
 import { checkWithRules, getRules, validatePermix } from '../core/create-permix'
 
-export const Context = React.createContext<{
-  permix: Permix<any>
+export interface PermixContext<T extends PermixDefinition> {
+  permix: Permix<T>
   isReady: boolean
-  state: PermixRules<any>
-}>(null!)
+  rules: PermixRules<T>
+}
+
+export const Context = React.createContext<PermixContext<any>>(null!)
 
 export function usePermixContext() {
   const context = React.useContext(Context)
@@ -29,13 +31,13 @@ export function usePermix<T extends PermixDefinition>(
 ) {
   validatePermix(permix)
 
-  const { permix: permixContext, isReady, state } = usePermixContext()
+  const { permix: permixContext, isReady, rules } = usePermixContext()
 
   validatePermix(permixContext)
 
-  const check: typeof permix.check = React.useCallback((entity, action, data) => {
-    return checkWithRules(state ?? getRules(permixContext), entity, action, data)
-  }, [permixContext, state])
+  const check: typeof permix.check = React.useCallback((...args) => {
+    return checkWithRules(rules ?? getRules(permixContext), ...args)
+  }, [permixContext, rules])
 
   return { check, isReady }
 }

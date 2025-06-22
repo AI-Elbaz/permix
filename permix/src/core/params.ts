@@ -1,16 +1,27 @@
 import type { PermixDefinition } from './create-permix'
 
-export type CheckFunctionParams<Definition extends PermixDefinition, K extends keyof Definition> = [
-  entity: K,
-  action: 'all' | Definition[K]['action'] | Definition[K]['action'][],
-  data?: Definition[K]['dataType'],
-]
+export type CheckFunctionParams<Definition extends PermixDefinition, K extends keyof Definition> = Definition[K]['dataRequired'] extends true
+  ? [
+      entity: K,
+      action: 'all' | Definition[K]['action'] | Definition[K]['action'][],
+      data: Definition[K]['dataType'],
+    ] : [
+      entity: K,
+      action: 'all' | Definition[K]['action'] | Definition[K]['action'][],
+      data?: Definition[K]['dataType'],
+    ]
 
-export interface CheckFunctionObject<Definition extends PermixDefinition, K extends keyof Definition> {
-  entity: K
-  action: 'all' | Definition[K]['action'] | Definition[K]['action'][]
-  data?: Definition[K]['dataType']
-}
+export type CheckFunctionObject<Definition extends PermixDefinition, K extends keyof Definition> = Definition[K]['dataRequired'] extends true
+  ? {
+      entity: K
+      action: 'all' | Definition[K]['action'] | Definition[K]['action'][]
+      data: Definition[K]['dataType']
+    }
+  : {
+      entity: K
+      action: 'all' | Definition[K]['action'] | Definition[K]['action'][]
+      data?: Definition[K]['dataType']
+    }
 
 export interface CheckContext<Definition extends PermixDefinition> {
   entity: keyof Definition

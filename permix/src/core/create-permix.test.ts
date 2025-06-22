@@ -117,10 +117,59 @@ describe('createPermix', () => {
     expect(permix.check('user', 'create')).toBe(false)
   })
 
-  it('should validate permission as function', () => {
+  it('should validate permission for entity', () => {
     permix.setup({
       post: {
-        create: post => post.authorId === '1',
+        create: post => post?.authorId === '1',
+        read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    const postWhereAuthorIdIs1 = { authorId: '1' } as Post
+    const postWhereAuthorIdIs2 = { authorId: '2' } as Post
+
+    expect(permix.check('post', 'create', postWhereAuthorIdIs1)).toBe(true)
+    expect(permix.check('post', 'create', postWhereAuthorIdIs2)).toBe(false)
+    expect(permix.check('post', 'create')).toBe(false)
+  })
+
+  it('should validate permission for required entity', () => {
+    const permix = createPermix<{
+      post: {
+        dataType: Post
+        dataRequired: true
+        action: 'create' | 'read'
+      }
+    }>()
+
+    permix.setup({
+      post: {
+        create: post => post?.authorId === '1',
+        read: true,
+      },
+      comment: {
+        create: true,
+        read: true,
+        update: true,
+      },
+    })
+
+    const postWhereAuthorIdIs = { authorId: '1' } as Post
+
+    // @ts-expect-error data is required
+    expect(permix.check('post', 'create')).toBe(false)
+    expect(permix.check('post', 'create', postWhereAuthorIdIs)).toBe(true)
+  })
+
+  it('should validate permission for entity as required', () => {
+    permix.setup({
+      post: {
+        create: post => post?.authorId === '1',
         read: true,
       },
       comment: {
