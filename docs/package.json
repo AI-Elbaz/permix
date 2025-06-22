@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "prebuild": "cd ../permix && pnpm run build",
     "build": "next build",
+    "predeploy": "cd ../permix && pnpm run build",
     "dev": "next dev --turbopack",
     "start": "next start",
     "postinstall": "fumadocs-mdx"
@@ -17,7 +19,7 @@
     "fumadocs-twoslash": "^3.1.4",
     "fumadocs-ui": "15.5.3",
     "next": "15.3.4",
-    "permix": "^3.0.0",
+    "permix": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "shiki": "^3.7.0",
@@ -34,6 +36,7 @@
     "autoprefixer": "^10.4.21",
     "elysia": ">=1",
     "express": ">=5",
+    "fastify": ">=5",
     "hono": ">=4",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.10",

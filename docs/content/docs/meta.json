@@ -21,6 +21,7 @@
     "integrations/express",
     "integrations/hono",
     "integrations/elysia",
+    "integrations/fastify",
     "---Examples---",
     "[role-based](https://github.com/letstri/permix/tree/main/examples/role-based)",
     "[enum-based](https://github.com/letstri/permix/tree/main/examples/enum-based)",
