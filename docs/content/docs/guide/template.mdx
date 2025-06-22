@@ -42,7 +42,7 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
   post: {
     create: true,
     read: true,
-    update: post => post.authorId === userId
+    update: post => post?.authorId === userId
   }
 }))
 
@@ -82,8 +82,8 @@ const editorPermissions = permix.template({
   post: {
     create: true,
     read: true,
-    update: post => !post.published,
-    delete: post => !post.published
+    update: post => !post?.published,
+    delete: post => !post?.published
   }
 })
 
@@ -91,7 +91,7 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
   post: {
     create: false,
     read: true,
-    update: post => post.authorId === userId,
+    update: post => post?.authorId === userId,
     delete: false
   }
 }))
@@ -133,7 +133,7 @@ function userPermissions(userId: string, role: 'admin' | 'user'): PermixRules<De
     post: {
       create: role === 'admin',
       read: true,
-      update: role === 'admin' ? true : (post) => post.authorId === userId,
+      update: role === 'admin' ? true : (post) => post?.authorId === userId,
       delete: role === 'admin'
     }
   }

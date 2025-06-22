@@ -32,7 +32,7 @@ const permix = createPermix<{
 permix.setup({
   post: {
     create: true,
-    read: post => post.isPublic
+    read: post => !!post?.isPublic
   }
 })
 

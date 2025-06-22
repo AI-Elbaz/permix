@@ -68,7 +68,7 @@ const permix = createPermix<{
 permix.setup({
   post: {
     create: true,
-    edit: post => post.author === 'John Doe'
+    edit: post => post?.author === 'John Doe'
 //        ^^^^
   }
 })

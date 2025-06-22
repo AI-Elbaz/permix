@@ -114,6 +114,48 @@ permix.setup({
 })
 ```
 
+### Required
+
+By default `dataType` providing optional type to callbacks but you can make it required by adding `dataRequired: true`.
+
+```ts twoslash
+import { createPermix } from 'permix'
+
+interface Post {
+  id: string
+  authorId: string
+}
+
+interface Comment {
+  id: string
+  postId: string
+}
+
+const permix = createPermix<{
+  post: {
+    dataType: Post
+    dataRequired: true
+    action: 'update'
+  }
+  comment: {
+    dataType: Comment
+    action: 'update'
+  }
+}>()
+
+// @noErrors
+permix.setup({
+  post: {
+    update: post => !!post.authorId
+//           ^?
+  }
+  comment: {
+    update: comment => !!comment.postId
+//           ^?
+  }
+})
+```
+
 ### unknown
 
 If you cannot define entity types in the Permix instance, the types will be `unknown` by default, but you can still define them later in the `setup` method.
@@ -137,6 +179,50 @@ permix.setup({
     update: (comment: { authorId: string }) => comment.authorId === user.id
   }
 })
+```
+
+## Dynamic
+
+You can use async functions to fetch permissions from external sources and then set them up.
+
+<Callout>
+See the [template](/docs/guide/template) for more examples and patterns.
+</Callout>
+
+```ts
+import { createPermix } from 'permix'
+
+const permix = createPermix<{
+  post: {
+    action: 'create' | 'read' | 'update' | 'delete'
+  }
+  comment: {
+    action: 'create' | 'read' | 'update' | 'delete'
+  }
+}>()
+
+// Fetch permissions from API
+async function loadUserPermissions(userId: string) {
+  const permissions = await getPermissionsFromAnyPlace()
+
+  permix.setup({
+    post: {
+      create: permissions.includes('post:create'),
+      read: permissions.includes('post:read'),
+      update: permissions.includes('post:update'),
+      delete: permissions.includes('post:delete'),
+    },
+    comment: {
+      create: permissions.includes('comment:create'),
+      read: permissions.includes('comment:read'),
+      update: permissions.includes('comment:update'),
+      delete: permissions.includes('comment:delete'),
+    },
+  })
+}
+
+// Usage
+await loadUserPermissions('user-123')
 ```
 
 ## Getting Rules
