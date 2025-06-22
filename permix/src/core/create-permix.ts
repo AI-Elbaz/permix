@@ -37,8 +37,12 @@ export type PermixRules<Definition extends PermixDefinition = PermixDefinition> 
 export function checkWithRules<Definition extends PermixDefinition, K extends keyof Definition>(state: PermixRules<Definition> | null, ...params: CheckFunctionParams<Definition, K>) {
   const [entity, action, data] = params
 
-  if (!state || !state[entity]) {
-    return false
+  if (!state) {
+    throw new Error('[Permix]: Rules wasn\'t provided. Please setup Permix instance again.')
+  }
+
+  if (!state[entity]) {
+    throw new Error('[Permix]: Incorrect entity name. Please check the name of your validation entity.')
   }
 
   const entityObj = state[entity]
