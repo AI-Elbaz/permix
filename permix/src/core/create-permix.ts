@@ -221,10 +221,10 @@ export interface PermixInternal<Definition extends PermixDefinition> extends Per
      *
      * @example
      * ```ts
-     * permix._.setState({ post: { create: true, delete: post => !post.isPublished } })
+     * permix._.setRules({ post: { create: true, delete: post => !post.isPublished } })
      * ```
      */
-    setState: (state: PermixRules<Definition>) => void
+    setRules: (rules: PermixRules<Definition>) => void
 
     /**
      * Get current permissions in JSON serializable format.
@@ -358,7 +358,7 @@ export function createPermix<Definition extends PermixDefinition>(initial?: Perm
       getRules: () => {
         return rules!
       },
-      setState: (r) => {
+      setRules: (r) => {
         rules = r
       },
       getSerializableState: () => {
