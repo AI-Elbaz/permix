@@ -13,6 +13,7 @@ export default defineBuildConfig({
     './src/hono/index.ts',
     './src/node/index.ts',
     './src/elysia/index.ts',
+    './src/fastify/index.ts',
   ],
   declaration: true,
   hooks: {
