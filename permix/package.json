@@ -69,6 +69,10 @@
     "./elysia": {
       "types": "./dist/elysia/index.d.ts",
       "import": "./dist/elysia/index.mjs"
+    },
+    "./fastify": {
+      "types": "./dist/fastify/index.d.ts",
+      "import": "./dist/fastify/index.mjs"
     }
   },
   "main": "./dist/core/index.mjs",
@@ -92,6 +96,8 @@
     "@trpc/server": ">=10",
     "elysia": ">=1",
     "express": ">=4",
+    "fastify": ">=5",
+    "fastify-plugin": ">=5",
     "hono": ">=4",
     "react": ">=18",
     "vue": ">=3"
@@ -107,6 +113,12 @@
       "optional": true
     },
     "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "fastify-plugin": {
       "optional": true
     },
     "hono": {
