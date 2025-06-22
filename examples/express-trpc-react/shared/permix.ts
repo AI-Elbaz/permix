@@ -1,5 +1,4 @@
-import type { PermixDefinition } from 'permix'
-import { templator } from 'permix'
+import type { PermixDefinition, PermixRules } from 'permix'
 
 export type PermissionsDefinition = PermixDefinition<{
   user: {
@@ -7,27 +6,25 @@ export type PermissionsDefinition = PermixDefinition<{
   }
 }>
 
-const template = templator<PermissionsDefinition>()
-
-const adminPermissions = template({
+const adminPermissions: PermixRules<PermissionsDefinition> = {
   user: {
     read: true,
     create: true,
   },
-})
+}
 
-const userPermissions = template({
+const userPermissions: PermixRules<PermissionsDefinition> = {
   user: {
     read: true,
     create: false,
   },
-})
+}
 
 export function getRules(role: 'admin' | 'user') {
   const rolesMap = {
-    admin: () => adminPermissions(),
-    user: () => userPermissions(),
+    admin: adminPermissions,
+    user: userPermissions,
   }
 
-  return rolesMap[role]()
+  return rolesMap[role]
 }
