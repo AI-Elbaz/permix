@@ -113,16 +113,16 @@ function setupPermissions() {
 You can define permission templates outside of the Permix instance using the `PermixRules` type. This is useful when you want to organize your permission logic in separate files:
 
 ```ts twoslash
-import type { PermixRules } from 'permix'
+import type { PermixRules, PermixDefinition } from 'permix'
 import { createPermix } from 'permix'
 
 // Define your Permix definition type
-type Definition = {
+type Definition = PermixDefinition<{
   post: {
     dataType: { id: string; authorId: string }
     action: 'create' | 'read' | 'update' | 'delete'
   }
-}
+}>
 
 // It can be in separate file and imported here
 const permix = createPermix<Definition>()
