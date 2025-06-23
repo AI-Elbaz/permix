@@ -1,11 +1,8 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "jsx": "preserve",
-    "module": "ES2022",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
-  }
+  "references": [
+    { "path": "./tsconfig.base.json" },
+    { "path": "./tsconfig.react.json" },
+    { "path": "./tsconfig.solid.json" }
+  ],
+  "files": []
 }

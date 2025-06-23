@@ -14,6 +14,7 @@ export default defineBuildConfig({
     './src/node/index.ts',
     './src/elysia/index.ts',
     './src/fastify/index.ts',
+    './src/solid/index.ts',
   ],
   declaration: true,
   hooks: {
