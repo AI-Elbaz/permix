@@ -69,7 +69,7 @@ permix.setup({
   post: {
     create: true,
     edit: post => post?.author === 'John Doe'
-//        ^^^^
+//        ^?
   }
 })
 
@@ -79,8 +79,56 @@ const somePost: Post = {
   content: 'Hello World'
 }
 
-const canEdit = permix.check('post', 'edit', somePost)
+const canEdit = permix.check('post', 'edit') // false
+const canEditWithPost = permix.check('post', 'edit', somePost) // true
 ```
+
+#### `dataRequired`
+
+<Callout>
+Not required, defaults to `false`.
+</Callout>
+
+By default, when you define a `dataType`, the data parameter in permission checks is optional. You can make it required by setting `dataRequired: true`. This ensures that permission checks for that entity must always include the data parameter.
+
+```ts twoslash title="/lib/permix.ts"
+import { createPermix } from 'permix'
+
+interface Post {
+  id: string
+  author: string
+  content: string
+}
+
+const permix = createPermix<{
+  post: {
+    dataType: Post
+    dataRequired: true
+//  ^^^^^^^^^^^^
+    action: 'create' | 'edit'
+  }
+}>()
+
+permix.setup({
+  post: {
+    create: true,
+    edit: post => post.author === 'John Doe'
+//        ^?
+  }
+})
+
+const somePost: Post = {
+  id: '1',
+  author: 'John Doe',
+  content: 'Hello World'
+}
+
+// @errors: 2554
+const canCreate = permix.check('post', 'create')
+const canEdit = permix.check('post', 'edit', somePost) // ✅ Valid
+```
+
+When `dataRequired` is `true`, TypeScript will enforce that you must pass the data parameter when checking permissions for that entity. This is useful when your permission logic always depends on the entity data and you want to prevent accidental calls without the required data.
 
 #### `PermixDefinition`
 
@@ -123,16 +171,6 @@ const permix = createPermix()
 // @noErrors
 permix.
 //     ^|
-
-
-
-
-
-
-
-
-
-
 ```
 
 ## JavaScript
