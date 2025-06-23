@@ -26,9 +26,7 @@ export function usePermixContext() {
  * @link https://permix.letstri.dev/docs/integrations/react
  */
 
-export function usePermix<T extends PermixDefinition>(
-  permix: Permix<T>,
-) {
+export function usePermix<T extends PermixDefinition>(permix: Permix<T>) {
   validatePermix(permix)
 
   const { permix: permixContext, isReady, rules } = usePermixContext()

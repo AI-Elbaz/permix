@@ -36,7 +36,7 @@ export function createPermix<Definition extends PermixDefinition>(
       if (!ctx.permix) {
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: '[Permix] Instance not found. Please use the `setupMiddleware` function.',
+          message: '[Permix] Instance not found. Please use the `setup` function.',
         })
       }
 
@@ -51,7 +51,7 @@ export function createPermix<Definition extends PermixDefinition>(
           : forbiddenError
 
         if (!(error instanceof TRPCError)) {
-          console.error('forbiddenError is not TRPCError')
+          console.error('[Permix]: forbiddenError is not TRPCError')
 
           throw new TRPCError({
             code: 'FORBIDDEN',

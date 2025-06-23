@@ -24,14 +24,14 @@ export function createPermix<Definition extends PermixDefinition>(
     }),
   }: PermixOptions<Definition> = {},
 ) {
-  const plugin = os.$context()
+  const plugin = os.$context<{ permix: Pick<PermixCore<Definition>, 'check' | 'checkAsync'> }>()
 
   function setup(rules: PermixRules<Definition>) {
     return pick(createPermixCore<Definition>(rules), ['check', 'checkAsync'])
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {
-    return plugin.$context<{ permix: Pick<PermixCore<Definition>, 'check' | 'checkAsync'> }>().middleware(async ({ context, next }) => {
+    return plugin.middleware(async ({ context, next }) => {
       if (!context.permix) {
         throw new Error('[Permix] Instance not found. Please use the `setupMiddleware` function.')
       }
@@ -47,7 +47,7 @@ export function createPermix<Definition extends PermixDefinition>(
           : forbiddenError
 
         if (!(error instanceof ORPCError)) {
-          console.error('forbiddenError is not ORPCError')
+          console.error('[Permix]: forbiddenError is not ORPCError')
 
           throw new ORPCError('FORBIDDEN', {
             message: 'You do not have permission to perform this action',
