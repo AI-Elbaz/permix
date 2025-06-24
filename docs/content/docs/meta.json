@@ -29,6 +29,7 @@
     "[feature-flags](https://github.com/letstri/permix/tree/main/examples/feature-flags)",
     "[react](https://github.com/letstri/permix/tree/main/examples/react)",
     "[vue](https://github.com/letstri/permix/tree/main/examples/vue)",
+    "[solid](https://github.com/letstri/permix/tree/main/examples/solid)",
     "[express](https://github.com/letstri/permix/tree/main/examples/express)",
     "[express-trpc-react](https://github.com/letstri/permix/tree/main/examples/express-trpc-react)"
   ]

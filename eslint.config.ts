@@ -31,10 +31,11 @@ export default antfu(
     },
   },
   {
-    files: ['permix/src/solid/*.ts?(x)'],
+    files: ['permix/src/solid/*.ts?(x)', 'examples/solid/**/*.ts?(x)'],
     rules: {
       'react/no-context-provider': 'off',
       'react-refresh/only-export-components': 'off',
+      'react/no-missing-key': 'off',
     },
   },
 )
