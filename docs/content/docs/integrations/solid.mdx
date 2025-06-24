@@ -1,0 +1,138 @@
+---
+title: Solid
+description: Learn how to use Permix with Solid applications
+---
+
+## Overview
+
+Permix provides official Solid integration through the `PermixProvider` component and `usePermix` hook. This allows you to manage permissions reactively in your Solid app.
+
+<Callout>
+Before getting started with Solid integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+</Callout>
+
+<Steps>
+
+<Step>
+
+## Setup
+
+First, wrap your application with the `PermixProvider`:
+
+```tsx title="App.tsx"
+import { PermixProvider } from 'permix/solid'
+import { permix } from './lib/permix'
+
+function App() {
+  return (
+    <PermixProvider permix={permix}>
+      <YourApp />
+    </PermixProvider>
+  )
+}
+```
+
+<Callout>
+Remember to always pass the same Permix instance to both the `PermixProvider` and `usePermix` hook to maintain type safety.
+</Callout>
+
+</Step>
+
+<Step>
+
+## Hook
+
+For checking permissions in your components, you can use the `usePermix` hook. And to avoid importing the hook and Permix instance in every component, you can create a custom utility:
+
+```tsx title="hooks/use-permissions.ts"
+import { usePermix } from 'permix/solid'
+import { permix } from '../lib/permix'
+
+export function usePermissions() {
+  return usePermix(permix)
+}
+```
+
+</Step>
+
+<Step>
+
+## Components
+
+If you prefer using components, you can import the `createComponents` function from `permix/solid` and create checking components:
+
+```ts title="lib/permix.ts"
+import { createComponents } from 'permix/solid'
+
+// ...
+
+export const { Check } = createComponents(permix)
+```
+
+And then you can use the `Check` component in your components:
+
+```tsx title="page.tsx"
+export default function Page() {
+  return (
+    <Check
+      entity="entity"
+      action="action"
+      data={data}
+      otherwise={<p>Will show this if a user doesn't have permission</p>} // Will show this if a user doesn't have permission
+      reverse // Will flip the logic of the permission check
+    >
+      Will show this if a user has permission
+    </Check>
+  )
+}
+```
+
+</Step>
+
+<Step>
+
+## Usage
+
+Use the `usePermix` hook and checking components in your components:
+
+```tsx title="page.tsx"
+import { usePermix } from 'permix/solid'
+import { permix } from './lib/permix'
+import { Check } from './lib/permix-components'
+
+export default function Page() {
+  const post = usePost()
+  const { check, isReady } = usePermix(permix)
+
+  if (!isReady()) {
+    return <div>Loading permissions...</div>
+  }
+
+  const canEdit = () => check('post', 'edit', post)
+
+  return (
+    <div>
+      {canEdit() ? (
+        <button>Edit Post</button>
+      ) : (
+        <p>You don't have permission to edit this post</p>
+      )}
+      <Check entity="post" action="create">
+        Can I create a post inside the Check component?
+      </Check>
+    </div>
+  )
+}
+```
+
+</Step>
+
+<Step>
+
+## Example
+
+You can find the example of the Solid integration [here](https://github.com/letstri/permix/tree/main/examples/solid).
+
+</Step>
+
+</Steps>

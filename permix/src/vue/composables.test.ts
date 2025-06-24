@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createApp, defineComponent, onBeforeMount, onMounted, ref } from 'vue'

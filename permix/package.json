@@ -73,6 +73,10 @@
     "./fastify": {
       "types": "./dist/fastify/index.d.ts",
       "import": "./dist/fastify/index.mjs"
+    },
+    "./solid": {
+      "types": "./dist/solid/index.d.ts",
+      "import": "./dist/solid/index.mjs"
     }
   },
   "main": "./dist/core/index.mjs",
@@ -87,7 +91,7 @@
     "prepublishOnly": "run-p test build && pnpm run scripts:copy-readme",
     "build": "unbuild",
     "test": "vitest run",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsc --build",
     "scripts:copy-readme": "tsx ./scripts/copy-readme"
   },
   "peerDependencies": {
@@ -99,6 +103,7 @@
     "fastify-plugin": ">=5",
     "hono": ">=4",
     "react": ">=18",
+    "solid-js": ">=1",
     "vue": ">=3"
   },
   "peerDependenciesMeta": {
@@ -126,11 +131,18 @@
     "react": {
       "optional": true
     },
+    "solid-js": {
+      "optional": true
+    },
     "vue": {
       "optional": true
     }
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@solidjs/testing-library": "^0.8.10",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/express": "^5.0.3",
@@ -140,11 +152,13 @@
     "@vitejs/plugin-react": "^4.6.0",
     "@vitest/coverage-v8": "3.2.4",
     "@vue/test-utils": "^2.4.6",
+    "babel-preset-solid": "^1.9.6",
     "happy-dom": "^18.0.1",
     "supertest": "^7.1.1",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "unbuild": "^3.5.0",
+    "vite-plugin-solid": "^2.11.6",
     "vitest": "^3.2.4",
     "vue": "^3.5.13",
     "zod": "^3.25.67"
