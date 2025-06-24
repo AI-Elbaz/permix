@@ -18,11 +18,11 @@ export function PermixProvider<Permissions extends PermixDefinition>({
 }: { children: React.ReactNode, permix: Permix<Permissions> }) {
   validatePermix(permix)
 
-  const [context, setContext] = React.useState<PermixContext<Permissions>>({
+  const [context, setContext] = React.useState<PermixContext<Permissions>>(() => ({
     permix,
     isReady: permix.isReady(),
     rules: getRules(permix),
-  })
+  }))
 
   React.useEffect(() => {
     const setup = permix.hook('setup', () => setContext(c => ({ ...c, rules: getRules(permix) })))

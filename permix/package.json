@@ -88,11 +88,11 @@
     "node": ">=18"
   },
   "scripts": {
-    "prepublishOnly": "run-p test build && pnpm run scripts:copy-readme",
+    "prepublishOnly": "run-s check-types test build scripts:copy-readme",
     "build": "unbuild",
     "test": "vitest run",
     "check-types": "tsc --build",
-    "scripts:copy-readme": "tsx ./scripts/copy-readme"
+    "scripts:copy-readme": "node ./scripts/copy-readme.js"
   },
   "peerDependencies": {
     "@orpc/server": ">=0",
@@ -150,17 +150,16 @@
     "@types/react": "^19.1.8",
     "@types/supertest": "^6.0.3",
     "@vitejs/plugin-react": "^4.6.0",
-    "@vitest/coverage-v8": "3.2.4",
+    "@vitest/coverage-v8": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
     "babel-preset-solid": "^1.9.6",
     "happy-dom": "^18.0.1",
     "supertest": "^7.1.1",
-    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "unbuild": "^3.5.0",
     "vite-plugin-solid": "^2.11.7",
     "vitest": "^3.2.4",
-    "vue": "^3.5.13",
+    "vue": "^3.5.17",
     "zod": "^3.25.67"
   }
 }
