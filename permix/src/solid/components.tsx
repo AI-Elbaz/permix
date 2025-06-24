@@ -17,7 +17,7 @@ import { Context, usePermix, usePermixContext } from './hooks'
 export function PermixProvider<Permissions extends PermixDefinition>(props: {
   children: JSX.Element
   permix: Permix<Permissions>
-}) {
+}): JSX.Element {
   validatePermix(props.permix)
 
   const [context, setContext] = createStore<PermixContext<Permissions>>({
