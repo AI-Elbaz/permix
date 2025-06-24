@@ -16,7 +16,7 @@
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.2",
     "express": "^5.1.0",
-    "permix": "^3.0.0",
+    "permix": "workspace:*",
     "pg": "^8.16.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

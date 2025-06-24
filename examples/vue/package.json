@@ -9,11 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "permix": "^3.0.0",
+    "permix": "workspace:*",
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.4",
+    "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
