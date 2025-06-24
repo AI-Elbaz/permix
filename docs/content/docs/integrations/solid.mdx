@@ -104,23 +104,26 @@ export default function Page() {
   const post = usePost()
   const { check, isReady } = usePermix(permix)
 
-  if (!isReady()) {
-    return <div>Loading permissions...</div>
-  }
-
   const canEdit = () => check('post', 'edit', post)
 
   return (
-    <div>
-      {canEdit() ? (
-        <button>Edit Post</button>
-      ) : (
-        <p>You don't have permission to edit this post</p>
-      )}
-      <Check entity="post" action="create">
-        Can I create a post inside the Check component?
-      </Check>
-    </div>
+    <>
+      {!isReady()
+        ? <div>Loading permissions...</div>
+        : (
+          <div>
+            {canEdit() ? (
+              <button>Edit Post</button>
+            ) : (
+              <p>You don't have permission to edit this post</p>
+            )}
+            <Check entity="post" action="create">
+              Can I create a post inside the Check component?
+            </Check>
+          </div>
+        )
+      }
+    </>
   )
 }
 ```
