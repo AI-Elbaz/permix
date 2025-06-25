@@ -1,5 +1,4 @@
 ```tsx
-// Init wherever you want
 import { createPermix } from 'permix'
 
 interface Post {
@@ -7,6 +6,7 @@ interface Post {
   published: boolean
 }
 
+// Create the permix instance
 export const permix = createPermix<{
   post: {
     dataType: Post
