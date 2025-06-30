@@ -24,10 +24,10 @@ export function createPermix<Definition extends PermixDefinition>(
     }),
   }: PermixOptions<Definition> = {},
 ) {
-  const plugin = os.$context<{ permix: Pick<PermixCore<Definition>, 'check' | 'checkAsync'> }>()
+  const plugin = os.$context<{ permix: Pick<PermixCore<Definition>, 'check'> }>()
 
   function setup(rules: PermixRules<Definition>) {
-    return pick(createPermixCore<Definition>(rules), ['check', 'checkAsync'])
+    return pick(createPermixCore<Definition>(rules), ['check'])
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {

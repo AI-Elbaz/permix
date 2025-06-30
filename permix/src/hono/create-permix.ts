@@ -29,7 +29,7 @@ export interface Permix<Definition extends PermixDefinition> {
   /**
    * Get the Permix instance
    */
-  get: (c: Context) => Pick<PermixCore<Definition>, 'check' | 'checkAsync'>
+  get: (c: Context) => Pick<PermixCore<Definition>, 'check'>
   /**
    * Check the middleware
    */
@@ -54,7 +54,7 @@ export function createPermix<Definition extends PermixDefinition>(
         throw new Error('Not found')
       }
 
-      return pick(permix, ['check', 'checkAsync'])
+      return pick(permix, ['check'])
     }
     catch {
       throw new HTTPException(500, {
@@ -65,8 +65,7 @@ export function createPermix<Definition extends PermixDefinition>(
 
   function setupMiddleware(callback: (context: { c: Context }) => PermixRules<Definition> | Promise<PermixRules<Definition>>): MiddlewareHandler {
     return createMiddleware(async (c, next) => {
-      const permix = createPermixCore<Definition>()
-      permix.setup(await callback({ c }))
+      const permix = createPermixCore<Definition>(await callback({ c }))
 
       c.set(permixSymbol, permix)
 

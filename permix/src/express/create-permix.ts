@@ -28,7 +28,7 @@ export interface Permix<Definition extends PermixDefinition> {
   /**
    * Get the Permix instance
    */
-  get: (req: Request, res: Response) => Pick<PermixCore<Definition>, 'check' | 'checkAsync'>
+  get: (req: Request, res: Response) => Pick<PermixCore<Definition>, 'check'>
   /**
    * Check the middleware
    */
@@ -55,7 +55,7 @@ export function createPermix<Definition extends PermixDefinition>(
         throw new Error('Not found')
       }
 
-      return pick(permix, ['check', 'checkAsync'])
+      return pick(permix, ['check'])
     }
     catch {
       res.status(500).json({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' })

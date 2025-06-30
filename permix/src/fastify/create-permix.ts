@@ -29,7 +29,7 @@ export interface Permix<Definition extends PermixDefinition> {
   /**
    * Get the Permix instance
    */
-  get: (request: FastifyRequest, reply: FastifyReply) => Pick<PermixCore<Definition>, 'check' | 'checkAsync'>
+  get: (request: FastifyRequest, reply: FastifyReply) => Pick<PermixCore<Definition>, 'check'>
   /**
    * Check the middleware
    */
@@ -56,7 +56,7 @@ export function createPermix<Definition extends PermixDefinition>(
         throw new Error('Not found')
       }
 
-      return pick(permix, ['check', 'checkAsync'])
+      return pick(permix, ['check'])
     }
     catch {
       reply.status(500).send({ error: '[Permix]: Instance not found. Please register the `plugin` function.' })

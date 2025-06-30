@@ -70,9 +70,7 @@ export function createPermix<Definition extends PermixDefinition>(
 
   function setupMiddleware(callback: (context: MiddlewareContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     return async (context: MiddlewareContext) => {
-      const permix = createPermixCore<Definition>()
-
-      permix.setup(await callback(context))
+      const permix = createPermixCore<Definition>(await callback(context))
 
       ;(context.req as any)[permixSymbol] = permix
     }

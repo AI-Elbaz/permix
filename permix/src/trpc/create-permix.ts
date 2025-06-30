@@ -25,10 +25,10 @@ export function createPermix<Definition extends PermixDefinition>(
     }),
   }: PermixOptions<Definition> = {},
 ) {
-  const plugin = initTRPC.context<{ permix: Pick<PermixCore<Definition>, 'check' | 'checkAsync'> }>().create()
+  const plugin = initTRPC.context<{ permix: Pick<PermixCore<Definition>, 'check'> }>().create()
 
   function setup(rules: PermixRules<Definition>) {
-    return pick(createPermixCore<Definition>(rules), ['check', 'checkAsync'])
+    return pick(createPermixCore<Definition>(rules), ['check'])
   }
 
   function checkMiddleware<K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) {

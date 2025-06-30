@@ -21,11 +21,11 @@ export interface Permix<Definition extends PermixDefinition> {
   /**
    * Setup the middleware
    */
-  derive: (rules: PermixRules<Definition>) => { permix: Pick<PermixCore<Definition>, 'check' | 'checkAsync'> }
+  derive: (rules: PermixRules<Definition>) => { permix: Pick<PermixCore<Definition>, 'check'> }
   /**
    * Check the middleware
    */
-  checkHandler: <K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) => (context: Context & { permix: Pick<PermixCore<Definition>, 'check' | 'checkAsync'> }) => MaybePromise<void>
+  checkHandler: <K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) => (context: Context & { permix: Pick<PermixCore<Definition>, 'check'> }) => MaybePromise<void>
 }
 
 /**
