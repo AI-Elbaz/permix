@@ -10,17 +10,17 @@
     "drizzle:migrate": "cd server && drizzle-kit migrate"
   },
   "dependencies": {
-    "@trpc/client": "^11.4.2",
-    "@trpc/server": "^11.4.2",
+    "@trpc/client": "^11.4.3",
+    "@trpc/server": "^11.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
+    "dotenv": "^17.1.0",
     "drizzle-orm": "^0.44.2",
     "express": "^5.1.0",
     "permix": "workspace:*",
-    "pg": "^8.16.2",
+    "pg": "^8.16.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "zod": "^3.25.67"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -29,9 +29,9 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
-    "drizzle-kit": "^0.31.2",
+    "drizzle-kit": "^0.31.4",
     "tsx": "^4.20.3",
-    "vite": "^6.3.5",
+    "vite": "^7.0.3",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }
