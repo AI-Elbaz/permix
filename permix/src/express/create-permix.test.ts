@@ -156,4 +156,32 @@ describe('createPermix', () => {
     expect(response.status).toBe(500)
     expect(response.body).toEqual({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' })
   })
+
+  it('should work with template', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
+      user: {
+        delete: true,
+      },
+    })
+
+    const app = express()
+
+    app.use(permix.setupMiddleware(() => template()))
+
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (req, res) => {
+      res.json({ success: true })
+    })
+
+    const response = await request(app)
+      .post('/posts')
+      .send({ title: 'Test Post' })
+
+    expect(response.status).toBe(200)
+    expect(response.body).toEqual({ success: true })
+  })
 })

@@ -193,4 +193,25 @@ describe('createPermix', () => {
     const text = await res.text()
     expect(text).toContain('[Permix] Instance not found. Please use the `setupMiddleware` function.')
   })
+
+  it('should work with template', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
+      user: {
+        delete: true,
+      },
+    })
+
+    const app = new Hono()
+
+    app.use(permix.setupMiddleware(() => template()))
+
+    app.post('/posts', permix.checkMiddleware('post', 'create'), (c) => {
+      return c.json({ success: true })
+    })
+  })
 })

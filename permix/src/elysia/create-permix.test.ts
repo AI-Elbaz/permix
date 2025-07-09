@@ -175,4 +175,34 @@ describe('createPermix', () => {
     const body = await response.json()
     expect(body).toEqual({ success: true })
   })
+
+  it('should work with template', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
+      user: {
+        delete: true,
+      },
+    })
+
+    const app = new Elysia()
+      .derive(() => permix.derive(template()))
+      .post('/posts', () => ({
+        success: true,
+      }), {
+        beforeHandle: permix.checkHandler('post', 'create'),
+      })
+
+    const response = await app.handle(new Request('http://localhost/posts', {
+      method: 'POST',
+      body: JSON.stringify({ title: 'Test Post' }),
+    }))
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body).toEqual({ success: true })
+  })
 })

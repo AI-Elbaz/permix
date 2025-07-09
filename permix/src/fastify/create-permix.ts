@@ -5,6 +5,7 @@ import type { MaybePromise } from '../core/utils'
 import fp from 'fastify-plugin'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
+import { createTemplate } from '../core/template'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix')
@@ -21,21 +22,6 @@ export interface PermixOptions<T extends PermixDefinition> {
   onForbidden?: (params: CheckContext<T> & MiddlewareContext) => MaybePromise<void>
 }
 
-export interface Permix<Definition extends PermixDefinition> {
-  /**
-   * Register the plugin
-   */
-  plugin: (callback: (context: MiddlewareContext) => MaybePromise<PermixRules<Definition>>) => FastifyPluginAsync
-  /**
-   * Get the Permix instance
-   */
-  get: (request: FastifyRequest, reply: FastifyReply) => Pick<PermixCore<Definition>, 'check'>
-  /**
-   * Check the middleware
-   */
-  checkHandler: <K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) => RouteHandler
-}
-
 /**
  * Create a middleware function that checks permissions for Fastify routes.
  *
@@ -47,7 +33,7 @@ export function createPermix<Definition extends PermixDefinition>(
       reply.status(403).send({ error: 'Forbidden' })
     },
   }: PermixOptions<Definition> = {},
-): Permix<Definition> {
+) {
   function getPermix(request: FastifyRequest, reply: FastifyReply) {
     try {
       const permix = request.getDecorator(permixSymbol) as PermixCore<Definition> | undefined
@@ -96,9 +82,14 @@ export function createPermix<Definition extends PermixDefinition>(
     }
   }
 
+  function template<T = void>(...params: Parameters<typeof createTemplate<T, Definition>>) {
+    return createTemplate<T, Definition>(...params)
+  }
+
   return {
     plugin,
-    get: getPermix,
     checkHandler,
+    template,
+    get: getPermix,
   }
 }

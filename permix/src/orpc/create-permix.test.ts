@@ -473,4 +473,40 @@ describe('createPermix', () => {
       },
     })
   })
+
+  it('should work with template', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
+      user: {
+        delete: true,
+      },
+    })
+
+    const router = orpcPermix.router({
+      createPost: orpcPermix
+        .use(({ next }) => {
+          const p = permix.setup(template())
+
+          return next({
+            context: {
+              permix: p,
+            },
+          })
+        })
+        .use(permix.checkMiddleware('post', 'create'))
+        .handler(({ context }) => {
+          return { success: context.permix.check('post', 'create') }
+        }),
+    })
+
+    const result = await new RPCHandler(router).handle(createRequest('/createPost'), {
+      context: { user: { id: '1' } },
+    })
+    expect(result.response?.status).toEqual(200)
+    expect(await result.response?.json()).toEqual({ json: { success: true } })
+  })
 })

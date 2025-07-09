@@ -6,6 +6,7 @@ import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
+import { createTemplate } from '../core/template'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix') as unknown as string
@@ -21,21 +22,6 @@ export interface PermixOptions<T extends PermixDefinition> {
   onForbidden?: (params: CheckContext<T> & { c: Context }) => MaybePromise<Response>
 }
 
-export interface Permix<Definition extends PermixDefinition> {
-  /**
-   * Setup the middleware
-   */
-  setupMiddleware: (callback: (context: MiddlewareContext) => MaybePromise<PermixRules<Definition>>) => MiddlewareHandler
-  /**
-   * Get the Permix instance
-   */
-  get: (c: Context) => Pick<PermixCore<Definition>, 'check'>
-  /**
-   * Check the middleware
-   */
-  checkMiddleware: <K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) => MiddlewareHandler
-}
-
 /**
  * Create a middleware function that checks permissions for Hono routes.
  *
@@ -45,7 +31,7 @@ export function createPermix<Definition extends PermixDefinition>(
   {
     onForbidden = ({ c }) => c.json({ error: 'Forbidden' }, 403),
   }: PermixOptions<Definition> = {},
-): Permix<Definition> {
+) {
   function getPermix(c: Context) {
     try {
       const permix = c.get(permixSymbol) as PermixCore<Definition> | undefined
@@ -92,9 +78,14 @@ export function createPermix<Definition extends PermixDefinition>(
     })
   }
 
+  function template<T = void>(...params: Parameters<typeof createTemplate<T, Definition>>) {
+    return createTemplate<T, Definition>(...params)
+  }
+
   return {
     setupMiddleware,
-    get: getPermix,
     checkMiddleware,
+    template,
+    get: getPermix,
   }
 }

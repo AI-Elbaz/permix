@@ -4,6 +4,7 @@ import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
+import { createTemplate } from '../core/template'
 import { pick } from '../utils'
 
 const permixSymbol = Symbol('permix')
@@ -20,21 +21,6 @@ export interface PermixOptions<T extends PermixDefinition> {
   onForbidden?: (params: CheckContext<T> & MiddlewareContext) => MaybePromise<void>
 }
 
-export interface Permix<Definition extends PermixDefinition> {
-  /**
-   * Setup the middleware
-   */
-  setupMiddleware: (callback: (context: MiddlewareContext) => MaybePromise<PermixRules<Definition>>) => Handler
-  /**
-   * Get the Permix instance
-   */
-  get: (req: Request, res: Response) => Pick<PermixCore<Definition>, 'check'>
-  /**
-   * Check the middleware
-   */
-  checkMiddleware: <K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) => Handler
-}
-
 /**
  * Create a middleware function that checks permissions for Express routes.
  *
@@ -46,7 +32,7 @@ export function createPermix<Definition extends PermixDefinition>(
       res.status(403).json({ error: 'Forbidden' })
     },
   }: PermixOptions<Definition> = {},
-): Permix<Definition> {
+) {
   function getPermix(req: Request, res: Response) {
     try {
       const permix = (req as any)[permixSymbol] as PermixCore<Definition> | undefined
@@ -97,9 +83,14 @@ export function createPermix<Definition extends PermixDefinition>(
     }
   }
 
+  function template<T = void>(...params: Parameters<typeof createTemplate<T, Definition>>) {
+    return createTemplate<T, Definition>(...params)
+  }
+
   return {
     setupMiddleware,
-    get: getPermix,
     checkMiddleware,
+    template,
+    get: getPermix,
   }
 }

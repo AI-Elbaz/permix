@@ -1,5 +1,6 @@
 import type { CheckFunctionParams } from './params'
 import { createHooks as hooks } from './hooks'
+import { createTemplate } from './template'
 import { isRulesValid } from './utils'
 
 export function createHooks<Definition extends PermixDefinition>() {
@@ -189,7 +190,7 @@ export interface Permix<Definition extends PermixDefinition> {
    * permix.setup(adminPermissions)
    * ```
    */
-  template: <T = void>(rules: PermixRules<Definition> | ((param: T) => PermixRules<Definition>)) => (param: T) => PermixRules<Definition>
+  template: <T = void>(...params: Parameters<typeof createTemplate<T, Definition>>) => ReturnType<typeof createTemplate<T, Definition>>
 
   /**
    * Check if the setup was called.
@@ -336,27 +337,7 @@ export function createPermix<Definition extends PermixDefinition>(initial?: Perm
     },
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
-    template(rules) {
-      function validate(p: PermixRules<Definition>) {
-        if (!isRulesValid(p)) {
-          throw new Error('[Permix]: Permissions in template are not valid.')
-        }
-      }
-
-      if (typeof rules === 'function') {
-        return (param) => {
-          const p = rules(param)
-
-          validate(p)
-
-          return p
-        }
-      }
-
-      validate(rules)
-
-      return () => rules
-    },
+    template: createTemplate,
     isReady: () => isReady,
     isReadyAsync: async () => {
       await setupPromise

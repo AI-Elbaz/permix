@@ -170,4 +170,35 @@ describe('createPermix', () => {
     expect(response.statusCode).toBe(500)
     expect(response.json()).toEqual({ error: '[Permix]: Instance not found. Please register the `plugin` function.' })
   })
+
+  it('should work with template', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
+      user: {
+        delete: true,
+      },
+    })
+
+    const fastify = Fastify()
+
+    await fastify.register(permix.plugin(() => template()))
+
+    fastify.post('/posts', {
+      preHandler: permix.checkHandler('post', 'create'),
+    }, (request, reply) => {
+      reply.send({ success: true })
+    })
+
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/posts',
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual({ success: true })
+  })
 })
