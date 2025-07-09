@@ -18,4 +18,12 @@ export function hydrate<Permissions extends PermixDefinition>(permix: Permix<Per
 
   permix._.setRules(permix._.parseSerializableState(state))
   permix._.hooks.callHook('hydrate')
+
+  const timeout = setTimeout(() => {
+    console.error('[Permix]: You should call `setup` immediately after hydration to fully restore Permix state. https://permix.letstri.dev/docs/guide/hydration')
+  }, 1000)
+
+  permix.hook('setup', () => {
+    clearTimeout(timeout)
+  })
 }

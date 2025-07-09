@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import type { PermixDefinition } from '.'
+import { describe, expect, it, vi } from 'vitest'
 import { createPermix, dehydrate, hydrate } from '.'
 
 describe('hydration', () => {
@@ -162,5 +163,66 @@ describe('hydration', () => {
     expect(() => {
       dehydrate(permix)
     }).toThrow('[Permix]: To dehydrate Permix, `setup` must be called first.')
+  })
+
+  it('should dehydrate and hydrate permissions state correctly', () => {
+    type Definition = PermixDefinition<{
+      post: {
+        action: 'create' | 'read'
+      }
+    }>
+
+    const permixServer = createPermix<Definition>()
+
+    permixServer.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    const dehydrated = dehydrate(permixServer)
+
+    const permixClient = createPermix<Definition>()
+
+    hydrate(permixClient, dehydrated)
+
+    expect(permixClient.check('post', 'create')).toBe(true)
+    expect(permixClient.check('post', 'read')).toBe(false)
+  })
+
+  it('should throw if dehydrate is called before setup', () => {
+    type Definition = PermixDefinition<{
+      post: {
+        action: 'create' | 'read'
+      }
+    }>
+
+    const permix = createPermix<Definition>()
+    expect(() => dehydrate(permix)).toThrow()
+  })
+
+  it('should call hydrate hook on hydration', () => {
+    type Definition = PermixDefinition<{
+      post: {
+        action: 'create' | 'read'
+      }
+    }>
+
+    const permixServer = createPermix<Definition>()
+
+    permixServer.setup({
+      post: { create: true, read: false },
+    })
+
+    const dehydrated = dehydrate(permixServer)
+
+    const permixClient = createPermix<Definition>()
+
+    const hookFn = vi.fn()
+    permixClient.hook('hydrate', hookFn)
+    hydrate(permixClient, dehydrated)
+
+    expect(hookFn).toHaveBeenCalled()
   })
 })
