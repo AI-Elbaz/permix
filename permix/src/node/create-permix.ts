@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
@@ -37,7 +37,7 @@ export function createPermix<Definition extends PermixDefinition>(
 ) {
   function getPermix(req: IncomingMessage, res: ServerResponse<IncomingMessage>) {
     try {
-      const permix = (req as any)[permixSymbol] as PermixCore<Definition> | undefined
+      const permix = (req as any)[permixSymbol] as Permix<Definition> | undefined
 
       if (!permix) {
         throw new Error('Not found')
@@ -55,9 +55,7 @@ export function createPermix<Definition extends PermixDefinition>(
 
   function setupMiddleware(callback: (context: MiddlewareContext) => PermixRules<Definition> | Promise<PermixRules<Definition>>) {
     return async (context: MiddlewareContext) => {
-      const permix = createPermixCore<Definition>(await callback(context))
-
-      ;(context.req as any)[permixSymbol] = permix
+      (context.req as any)[permixSymbol] = createPermixCore<Definition>(await callback(context))
     }
   }
 

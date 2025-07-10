@@ -1,4 +1,4 @@
-import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import { ORPCError, os } from '@orpc/server'
 import { createPermix as createPermixCore } from '../core/create-permix'
@@ -25,7 +25,7 @@ export function createPermix<Definition extends PermixDefinition>(
     }),
   }: PermixOptions<Definition> = {},
 ) {
-  const plugin = os.$context<{ permix: Pick<PermixCore<Definition>, 'check'> }>()
+  const plugin = os.$context<{ permix: Pick<Permix<Definition>, 'check'> }>()
 
   function setup(rules: PermixRules<Definition>) {
     return pick(createPermixCore<Definition>(rules), ['check'])

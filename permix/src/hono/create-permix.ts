@@ -1,5 +1,5 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
 import { createMiddleware } from 'hono/factory'
@@ -34,7 +34,7 @@ export function createPermix<Definition extends PermixDefinition>(
 ) {
   function getPermix(c: Context) {
     try {
-      const permix = c.get(permixSymbol) as PermixCore<Definition> | undefined
+      const permix = c.get(permixSymbol) as Permix<Definition> | undefined
 
       if (!permix) {
         throw new Error('Not found')
@@ -51,9 +51,7 @@ export function createPermix<Definition extends PermixDefinition>(
 
   function setupMiddleware(callback: (context: { c: Context }) => PermixRules<Definition> | Promise<PermixRules<Definition>>): MiddlewareHandler {
     return createMiddleware(async (c, next) => {
-      const permix = createPermixCore<Definition>(await callback({ c }))
-
-      c.set(permixSymbol, permix)
+      c.set(permixSymbol, createPermixCore<Definition>(await callback({ c })))
 
       await next()
     })

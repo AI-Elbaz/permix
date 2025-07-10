@@ -1,5 +1,5 @@
 import type { Handler, Request, Response } from 'express'
-import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
 import { createPermix as createPermixCore } from '../core/create-permix'
@@ -35,7 +35,7 @@ export function createPermix<Definition extends PermixDefinition>(
 ) {
   function getPermix(req: Request, res: Response) {
     try {
-      const permix = (req as any)[permixSymbol] as PermixCore<Definition> | undefined
+      const permix = (req as any)[permixSymbol] as Permix<Definition> | undefined
 
       if (!permix) {
         throw new Error('Not found')
@@ -51,11 +51,7 @@ export function createPermix<Definition extends PermixDefinition>(
 
   function setupMiddleware(callback: (context: MiddlewareContext) => MaybePromise<PermixRules<Definition>>): Handler {
     return async (req, res, next) => {
-      const permix = createPermixCore<Definition>()
-
-      permix.setup(await callback({ req, res }))
-
-      ;(req as any)[permixSymbol] = permix
+      (req as any)[permixSymbol] = createPermixCore<Definition>(await callback({ req, res }))
 
       return next()
     }

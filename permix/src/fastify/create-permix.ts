@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest, RouteHandler } from 'fastify'
-import type { Permix as PermixCore, PermixDefinition, PermixRules } from '../core/create-permix'
+import type { Permix, PermixDefinition, PermixRules } from '../core/create-permix'
 import type { CheckContext, CheckFunctionParams } from '../core/params'
 import type { MaybePromise } from '../core/utils'
 import fp from 'fastify-plugin'
@@ -36,7 +36,7 @@ export function createPermix<Definition extends PermixDefinition>(
 ) {
   function getPermix(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const permix = request.getDecorator(permixSymbol) as PermixCore<Definition> | undefined
+      const permix = request.getDecorator(permixSymbol) as Permix<Definition> | undefined
 
       if (!permix) {
         throw new Error('Not found')
@@ -52,12 +52,10 @@ export function createPermix<Definition extends PermixDefinition>(
 
   function plugin(callback: (context: MiddlewareContext) => MaybePromise<PermixRules<Definition>>): FastifyPluginAsync {
     return fp(async (fastify) => {
-      const permix = createPermixCore<Definition>()
-
       fastify.decorateRequest(permixSymbol, null)
 
       fastify.addHook('onRequest', async (request, reply) => {
-        permix.setup(await callback({ request, reply }))
+        const permix = createPermixCore<Definition>(await callback({ request, reply }))
         request.setDecorator(permixSymbol, permix)
       })
     }, {
