@@ -213,7 +213,9 @@ const permix = createPermix<{
   post: {
     action: 'create' | 'edit'
   }
-}>({
+}>()
+
+permix.setup({
   post: {
     create: true,
     edit: false
