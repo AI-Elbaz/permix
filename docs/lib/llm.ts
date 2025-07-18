@@ -18,7 +18,7 @@ export async function getLLMText(page: InferPageType<typeof source>) {
   })
 
   return `# ${page.data.title}
-URL: ${page.url}
+URL: https://permix.letstri.dev${page.url}
 
 ${page.data.description}
 

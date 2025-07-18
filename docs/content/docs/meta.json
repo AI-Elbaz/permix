@@ -31,6 +31,9 @@
     "[vue](https://github.com/letstri/permix/tree/main/examples/vue)",
     "[solid](https://github.com/letstri/permix/tree/main/examples/solid)",
     "[express](https://github.com/letstri/permix/tree/main/examples/express)",
-    "[express-trpc-react](https://github.com/letstri/permix/tree/main/examples/express-trpc-react)"
+    "[express-trpc-react](https://github.com/letstri/permix/tree/main/examples/express-trpc-react)",
+    "---LLMs---",
+    "[llms.txt](/llms.txt)",
+    "[llms-full.txt](/llms-full.txt)"
   ]
 }
