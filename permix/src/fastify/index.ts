@@ -1,1 +1,1 @@
-export { createPermix, type PermixOptions } from './create-permix'
+export { createPermix, type MiddlewareContext, type PermixOptions } from './create-permix'
