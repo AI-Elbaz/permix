@@ -3,6 +3,7 @@ import type { CheckContext, CheckFunctionParams } from '../core/params'
 import { initTRPC, TRPCError } from '@trpc/server'
 import { createPermix as createPermixCore } from '../core/create-permix'
 import { createCheckContext } from '../core/params'
+import { createTemplate } from '../core/template'
 import { pick } from '../utils'
 
 export interface PermixOptions<T extends PermixDefinition> {
@@ -66,8 +67,13 @@ export function createPermix<Definition extends PermixDefinition>(
     })
   }
 
+  function template<T = void>(...params: Parameters<typeof createTemplate<T, Definition>>) {
+    return createTemplate<T, Definition>(...params)
+  }
+
   return {
     setup,
     checkMiddleware,
+    template,
   }
 }
