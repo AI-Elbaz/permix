@@ -201,4 +201,42 @@ describe('createPermix', () => {
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({ success: true })
   })
+
+  it('should dehydrate permissions', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+
+    const fastify = Fastify()
+    await fastify.register(permix.plugin(() => template()))
+
+    fastify.get('/dehydrate', (request, reply) => {
+      const p = permix.get(request, reply)
+      reply.send(p.dehydrate())
+    })
+
+    const response = await fastify.inject({
+      method: 'GET',
+      url: '/dehydrate',
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+  })
 })

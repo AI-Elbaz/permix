@@ -214,4 +214,38 @@ describe('createPermix', () => {
       return c.json({ success: true })
     })
   })
+
+  it('should dehydrate permissions', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+
+    const app = new Hono()
+    app.use(permix.setupMiddleware(() => template()))
+
+    app.get('/dehydrate', (c) => {
+      const p = permix.get(c)
+      return c.json(p.dehydrate())
+    })
+
+    const res = await app.request('/dehydrate')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+  })
 })

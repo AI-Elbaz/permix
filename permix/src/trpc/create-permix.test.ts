@@ -388,4 +388,79 @@ describe('createPermix', () => {
       inputUserId: 1,
     })
   })
+
+  it('should work with template', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: true,
+        update: true,
+      },
+      user: {
+        delete: true,
+      },
+    })
+
+    const protectedProcedure = t.procedure
+      .use(({ next }) => {
+        const p = permix.setup(template())
+        return next({
+          ctx: {
+            permix: p,
+          },
+        })
+      })
+
+    const router = t.router({
+      createPost: protectedProcedure
+        .use(permix.checkMiddleware('post', 'create'))
+        .query(({ ctx }) => {
+          return { success: ctx.permix.check('post', 'create') }
+        }),
+    })
+
+    const result = await t.createCallerFactory(router)({ user: { id: '1' } }).createPost()
+    expect(result).toEqual({ success: true })
+  })
+
+  it('should dehydrate permissions', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+
+    const router = t.router({
+      dehydrate: t.procedure
+        .use(({ next }) => {
+          const p = permix.setup(template())
+          return next({
+            ctx: {
+              permix: p,
+            },
+          })
+        })
+        .query(({ ctx }) => {
+          return ctx.permix.dehydrate()
+        }),
+    })
+
+    const result = await t.createCallerFactory(router)({ user: { id: '1' } }).dehydrate()
+
+    expect(result).toEqual({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+  })
 })

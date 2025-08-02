@@ -184,4 +184,39 @@ describe('createPermix', () => {
     expect(response.status).toBe(200)
     expect(response.body).toEqual({ success: true })
   })
+
+  it('should dehydrate permissions', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+
+    const app = express()
+    app.use(permix.setupMiddleware(() => template()))
+
+    app.get('/dehydrate', (req, res) => {
+      const p = permix.get(req, res)
+      res.json(p.dehydrate())
+    })
+
+    const response = await request(app).get('/dehydrate')
+
+    expect(response.status).toBe(200)
+    expect(response.body).toEqual({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+  })
 })

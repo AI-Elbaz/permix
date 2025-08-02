@@ -205,4 +205,36 @@ describe('createPermix', () => {
     const body = await response.json()
     expect(body).toEqual({ success: true })
   })
+
+  it('should dehydrate permissions', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+
+    const app = new Elysia()
+      .derive(() => permix.derive(template()))
+      .get('/dehydrate', ({ permix }) => permix.dehydrate())
+
+    const response = await app.handle(new Request('http://localhost/dehydrate'))
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body).toEqual({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+  })
 })

@@ -211,4 +211,38 @@ describe('createPermix', () => {
     expect(p.check('post', 'create')).toBe(true)
     expect(p.check('post', 'read')).toBe(true)
   })
+
+  it('should dehydrate permissions', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+
+    const setupMiddleware = permix.setupMiddleware(() => template())
+
+    const req = createMockRequest()
+    const res = createMockResponse()
+
+    await setupMiddleware({ req, res })
+
+    const p = permix.get(req, res)
+    const dehydrated = p.dehydrate()
+
+    expect(dehydrated).toEqual({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+  })
 })

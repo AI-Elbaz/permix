@@ -509,4 +509,32 @@ describe('createPermix', () => {
     expect(result.response?.status).toEqual(200)
     expect(await result.response?.json()).toEqual({ json: { success: true } })
   })
+
+  it('should dehydrate permissions', async () => {
+    const template = permix.template({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+
+    const p = permix.setup(template())
+
+    const dehydrated = p.dehydrate()
+
+    expect(dehydrated).toEqual({
+      post: {
+        create: true,
+        read: false,
+        update: true,
+      },
+      user: {
+        delete: false,
+      },
+    })
+  })
 })
