@@ -1,6 +1,6 @@
 import type { PermixDefinition } from '.'
 import { describe, expect, it, vi } from 'vitest'
-import { createPermix, dehydrate, hydrate } from '.'
+import { createPermix } from '.'
 
 describe('hydration', () => {
   it('should hydrate permissions from JSON state', () => {
@@ -11,7 +11,7 @@ describe('hydration', () => {
       }
     }>()
 
-    hydrate(permix, {
+    permix.hydrate({
       post: {
         create: true,
         read: false,
@@ -29,7 +29,7 @@ describe('hydration', () => {
       }
     }>()
 
-    hydrate(permix, {
+    permix.hydrate({
       post: {
         // @ts-expect-error - invalid action
         invalid: true,
@@ -47,7 +47,7 @@ describe('hydration', () => {
       }
     }>()
 
-    hydrate(permix, {
+    permix.hydrate({
       post: {
         create: true,
         read: true,
@@ -73,7 +73,7 @@ describe('hydration', () => {
       }
     }>()
 
-    hydrate(permix, {
+    permix.hydrate({
       post: {
         create: true,
         read: true,
@@ -83,7 +83,7 @@ describe('hydration', () => {
 
     expect(permix.check('post', 'all')).toBe(true)
 
-    hydrate(permix, {
+    permix.hydrate({
       post: {
         create: true,
         read: false,
@@ -108,7 +108,7 @@ describe('hydration', () => {
       },
     })
 
-    const dehydratedState = dehydrate(permix)
+    const dehydratedState = permix.dehydrate()
 
     expect(dehydratedState).toEqual({
       post: {
@@ -117,7 +117,7 @@ describe('hydration', () => {
       },
     })
 
-    hydrate(permix, dehydratedState)
+    permix.hydrate(dehydratedState)
 
     expect(permix.check('post', 'create')).toBe(true)
     expect(permix.check('post', 'read')).toBe(false)
@@ -140,11 +140,11 @@ describe('hydration', () => {
 
     setup()
 
-    const dehydratedState = dehydrate(permix)
+    const dehydratedState = permix.dehydrate()
 
     expect(dehydratedState).toEqual({ post: { create: false } })
 
-    hydrate(permix, dehydratedState)
+    permix.hydrate(dehydratedState)
 
     expect(permix.check('post', 'create')).toBe(false)
 
@@ -161,7 +161,7 @@ describe('hydration', () => {
     }>()
 
     expect(() => {
-      dehydrate(permix)
+      permix.dehydrate()
     }).toThrow('[Permix]: To dehydrate Permix, `setup` must be called first.')
   })
 
@@ -181,11 +181,11 @@ describe('hydration', () => {
       },
     })
 
-    const dehydrated = dehydrate(permixServer)
+    const dehydrated = permixServer.dehydrate()
 
     const permixClient = createPermix<Definition>()
 
-    hydrate(permixClient, dehydrated)
+    permixClient.hydrate(dehydrated)
 
     expect(permixClient.check('post', 'create')).toBe(true)
     expect(permixClient.check('post', 'read')).toBe(false)
@@ -199,7 +199,7 @@ describe('hydration', () => {
     }>
 
     const permix = createPermix<Definition>()
-    expect(() => dehydrate(permix)).toThrow()
+    expect(() => permix.dehydrate()).toThrow()
   })
 
   it('should call hydrate hook on hydration', () => {
@@ -215,13 +215,13 @@ describe('hydration', () => {
       post: { create: true, read: false },
     })
 
-    const dehydrated = dehydrate(permixServer)
+    const dehydrated = permixServer.dehydrate()
 
     const permixClient = createPermix<Definition>()
 
     const hookFn = vi.fn()
     permixClient.hook('hydrate', hookFn)
-    hydrate(permixClient, dehydrated)
+    permixClient.hydrate(dehydrated)
 
     expect(hookFn).toHaveBeenCalled()
   })

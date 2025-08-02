@@ -32,11 +32,11 @@ export function createPermix<Definition extends PermixDefinition>(
   }: PermixOptions<Definition> = {},
 ) {
   const derive = (rules: PermixRules<Definition>) => ({
-    permix: pick(createPermixCore<Definition>(rules), ['check']),
+    permix: pick(createPermixCore<Definition>(rules), ['check', 'dehydrate']),
   })
 
   const checkHandler = <K extends keyof Definition>(...params: CheckFunctionParams<Definition, K>) => {
-    return async (context: Context & { permix: Pick<Permix<Definition>, 'check'> }) => {
+    return async (context: Context & { permix: Pick<Permix<Definition>, 'check' | 'dehydrate'> }) => {
       if (!context.permix) {
         throw new Error('[Permix]: Instance not found. Please use the `setupMiddleware` function.')
       }

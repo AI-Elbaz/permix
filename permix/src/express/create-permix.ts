@@ -41,7 +41,7 @@ export function createPermix<Definition extends PermixDefinition>(
         throw new Error('Not found')
       }
 
-      return pick(permix, ['check'])
+      return pick(permix, ['check', 'dehydrate'])
     }
     catch {
       res.status(500).json({ error: '[Permix]: Instance not found. Please use the `setupMiddleware` function.' })

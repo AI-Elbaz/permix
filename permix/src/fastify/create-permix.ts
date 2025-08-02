@@ -42,7 +42,7 @@ export function createPermix<Definition extends PermixDefinition>(
         throw new Error('Not found')
       }
 
-      return pick(permix, ['check'])
+      return pick(permix, ['check', 'dehydrate'])
     }
     catch {
       reply.status(500).send({ error: '[Permix]: Instance not found. Please register the `plugin` function.' })

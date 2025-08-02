@@ -40,7 +40,7 @@ export function createPermix<Definition extends PermixDefinition>(
         throw new Error('Not found')
       }
 
-      return pick(permix, ['check'])
+      return pick(permix, ['check', 'dehydrate'])
     }
     catch {
       throw new HTTPException(500, {

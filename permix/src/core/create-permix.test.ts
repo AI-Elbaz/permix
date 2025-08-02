@@ -462,4 +462,48 @@ describe('validatePermix', () => {
 
     expect(permix.isReady()).toBe(true)
   })
+
+  it('should dehydrate and hydrate state correctly', () => {
+    permix.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+      comment: {
+        create: false,
+        read: true,
+        update: false,
+      },
+    })
+
+    // Dehydrate the state
+    const state = permix.dehydrate()
+
+    // Create a new instance and hydrate with the state
+    const newPermix = createPermix<Definition>()
+    // Before hydration, all checks should be false
+    expect(newPermix.check('post', 'create')).toBe(false)
+    expect(newPermix.check('post', 'read')).toBe(false)
+    expect(newPermix.check('comment', 'read')).toBe(false)
+
+    newPermix.hydrate(state)
+
+    // After hydration, checks should reflect the hydrated state
+    expect(newPermix.check('post', 'create')).toBe(true)
+    expect(newPermix.check('post', 'read')).toBe(false)
+    expect(newPermix.check('comment', 'create')).toBe(false)
+    expect(newPermix.check('comment', 'read')).toBe(true)
+    expect(newPermix.check('comment', 'update')).toBe(false)
+
+    // After hydration, isReady should still be false until setup is called
+    expect(newPermix.isReady()).toBe(false)
+
+    // Now call setup to fully restore state
+    newPermix.setup(state)
+
+    expect(newPermix.isReady()).toBe(true)
+    expect(newPermix.check('post', 'create')).toBe(true)
+    expect(newPermix.check('post', 'read')).toBe(false)
+    expect(newPermix.check('comment', 'read')).toBe(true)
+  })
 })

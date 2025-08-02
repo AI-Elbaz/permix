@@ -158,6 +158,8 @@ export interface Permix<Definition extends PermixDefinition> {
   /**
    * Similar to `hook`, but will be called only once.
    *
+   * @link https://permix.letstri.dev/docs/guide/events
+   *
    * @returns Function to remove the hook
    *
    * @example
@@ -195,6 +197,8 @@ export interface Permix<Definition extends PermixDefinition> {
   /**
    * Check if the setup was called.
    *
+   * @link https://permix.letstri.dev/docs/guide/ready
+   *
    * @example
    * ```ts
    * const isReady = permix.isReady()
@@ -204,8 +208,40 @@ export interface Permix<Definition extends PermixDefinition> {
 
   /**
    * Similar to `isReady`, but returns a Promise that resolves once `setup` is called.
+   *
+   * @link https://permix.letstri.dev/docs/guide/ready
+   *
+   * @example
+   * ```ts
+   * const isReady = await permix.isReadyAsync()
+   * ```
    */
   isReadyAsync: () => Promise<boolean>
+
+  /**
+   * Dehydrate the Permix instance.
+   *
+   * @link https://permix.letstri.dev/docs/guide/hydration
+   *
+   * @example
+   * ```ts
+   * const state = permix.dehydrate()
+   * ```
+   */
+  dehydrate: () => PermixStateJSON<Definition>
+
+  /**
+   * Hydrate the Permix instance.
+   *
+   * @link https://permix.letstri.dev/docs/guide/hydration
+   *
+   * @example
+   * ```ts
+   * const state = permix.dehydrate()
+   * permix.hydrate(state)
+   * ```
+   */
+  hydrate: (state: PermixStateJSON<Definition>) => void
 }
 
 export interface PermixInternal<Definition extends PermixDefinition> extends Permix<Definition> {
@@ -236,22 +272,6 @@ export interface PermixInternal<Definition extends PermixDefinition> extends Per
      * ```
      */
     setRules: (rules: PermixRules<Definition>) => void
-
-    /**
-     * Get current permissions in JSON serializable format.
-     *
-     * @example
-     * ```ts
-     * permix.setup({
-     *   post: { create: true, delete: post => !post.isPublished }
-     * })
-     * const permissions = permix.getSerializableState()
-     * // returns { post: { create: true, delete: false } }
-     * ```
-     */
-    getSerializableState: () => PermixStateJSON<Definition>
-
-    parseSerializableState: (state: PermixStateJSON<Definition>) => PermixRules<Definition>
 
     hooks: ReturnType<typeof createHooks<Definition>>
 
@@ -344,6 +364,49 @@ export function createPermix<Definition extends PermixDefinition>(initial?: Perm
 
       return isReady
     },
+    dehydrate: () => {
+      if (!isSetupCalled) {
+        throw new Error('[Permix]: To dehydrate Permix, `setup` must be called first.')
+      }
+
+      const processedSetup = {} as PermixStateJSON<Definition>
+
+      for (const entity in rules) {
+        processedSetup[entity] = {} as any
+        for (const action in rules[entity]) {
+          const value = rules[entity][action]
+
+          processedSetup[entity][action] = typeof value === 'function' ? false : value as boolean
+        }
+      }
+
+      return processedSetup
+    },
+    hydrate: (state: PermixStateJSON<Definition>) => {
+      const parsedRules = {} as PermixRules<Definition>
+
+      for (const entity in state) {
+        parsedRules[entity] = {} as any
+
+        for (const action in state[entity]) {
+          const value = state[entity][action]
+
+          parsedRules[entity][action] = value
+        }
+      }
+
+      hooks.callHook('hydrate')
+
+      const timeout = setTimeout(() => {
+        console.error('[Permix]: You should call `setup` immediately after hydration to fully restore Permix state. https://permix.letstri.dev/docs/guide/hydration')
+      }, 1000)
+
+      hooks.hook('setup', () => {
+        clearTimeout(timeout)
+      })
+
+      rules = parsedRules
+    },
     _: {
       isSetupCalled: () => isSetupCalled,
       getRules: () => {
@@ -351,35 +414,6 @@ export function createPermix<Definition extends PermixDefinition>(initial?: Perm
       },
       setRules: (r) => {
         rules = r
-      },
-      getSerializableState: () => {
-        const processedSetup = {} as PermixStateJSON<Definition>
-
-        for (const entity in rules) {
-          processedSetup[entity] = {} as any
-          for (const action in rules[entity]) {
-            const value = rules[entity][action]
-
-            processedSetup[entity][action] = typeof value === 'function' ? false : value as boolean
-          }
-        }
-
-        return processedSetup
-      },
-      parseSerializableState: (state: PermixStateJSON<Definition>) => {
-        const parsedState = {} as PermixRules<Definition>
-
-        for (const entity in state) {
-          parsedState[entity] = {} as any
-
-          for (const action in state[entity]) {
-            const value = state[entity][action]
-
-            parsedState[entity][action] = value
-          }
-        }
-
-        return parsedState
       },
       hooks,
       [permixSymbol]: true,
