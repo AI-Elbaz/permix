@@ -5,21 +5,21 @@ description: Learn how to hydrate and dehydrate permissions in your application
 
 ## Overview
 
-Hydration is the process of converting server-side state into client-side state. In Permix, hydration allows you to serialize permissions on the server and restore them partially on the client.
+Hydration is the process of converting server-side state into client-side state. In Permix, hydration allows you to serialize permissions on the server and restore them on the client.
 
 <Callout type="warn">
-Note that function-based permissions will be converted to `false` during dehydration since functions cannot be serialized to JSON. That's why you should call `setup` method on the client side immediately after hydration.
+Note that function-based permissions will be converted to `false` during dehydration since functions cannot be serialized to JSON. You should call `setup` method on the client side after hydration to fully restore function-based permissions.
 </Callout>
 
 ## Usage
 
-Permix provides two methods for handling hydration:
+Permix provides two instance methods for handling hydration:
 
-- `dehydrate` - Converts the current permissions state into a JSON-serializable format
-- `hydrate` - Restores permissions from a previously dehydrated state
+- `dehydrate()` - Converts the current permissions state into a JSON-serializable format
+- `hydrate(state)` - Restores permissions from a previously dehydrated state
 
 ```ts twoslash
-import { createPermix, dehydrate, hydrate } from 'permix'
+import { createPermix } from 'permix'
 
 const permix = createPermix<{
   post: {
@@ -37,11 +37,11 @@ permix.setup({
 })
 
 // Dehydrate permissions to JSON
-const state = dehydrate(permix)
+const state = permix.dehydrate()
 // Result: { post: { create: true, read: false } }
 
 // Later, hydrate permissions from the state
-hydrate(permix, state)
+permix.hydrate(state)
 ```
 
 ## Server-Side Rendering
@@ -51,7 +51,7 @@ Hydration is particularly useful in server-side rendering scenarios where you wa
 ```ts twoslash
 // Express server
 import express from 'express'
-import { createPermix, dehydrate } from 'permix'
+import { createPermix } from 'permix'
 
 const app = express()
 const permix = createPermix<{
@@ -70,7 +70,7 @@ app.get('/', (req, res) => {
   })
 
   // Dehydrate permissions for client
-  const dehydratedState = dehydrate(permix)
+  const dehydratedState = permix.dehydrate()
 
   // Send HTML with embedded permissions data
   res.send(`
@@ -85,15 +85,21 @@ app.get('/', (req, res) => {
         <div id="app"></div>
         <script type="module">
           // Client-side code
-          import { createPermix, hydrate } from 'https://cdn.jsdelivr.net/npm/permix/+esm'
+          import { createPermix } from 'https://cdn.jsdelivr.net/npm/permix/+esm'
 
           const permix = createPermix();
 
           // Hydrate permissions from server data
-          hydrate(permix, window.__INITIAL_PERMISSIONS__);
+          permix.hydrate(window.__INITIAL_PERMISSIONS__);
 
           // After hydration, you should call setup again
-          // on the client side to fully restore permissions
+          // on the client side to fully restore function-based permissions
+          permix.setup({
+            post: {
+              create: true,
+              read: post => !!post?.isPublic
+            }
+          })
         </script>
       </body>
     </html>
