@@ -7,6 +7,7 @@ export default antfu(
     rules: {
       'node/prefer-global/process': 'off',
       'react/no-use-context': 'off',
+      'style/indent': 'off', // temp due to bug
     },
     ignores: ['**/.source/**'],
   },
