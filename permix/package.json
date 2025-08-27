@@ -92,7 +92,7 @@
     "build": "unbuild",
     "test": "vitest run",
     "check-types": "tsc --build",
-    "scripts:copy-readme": "node ./scripts/copy-readme.js"
+    "scripts:copy-readme": "node ./scripts/copy-readme.ts"
   },
   "peerDependencies": {
     "@orpc/server": ">=0",

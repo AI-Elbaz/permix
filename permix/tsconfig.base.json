@@ -10,6 +10,6 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts", "*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "*.ts"],
   "exclude": ["src/react/*.ts", "src/react/*.tsx", "src/solid/*.ts", "src/solid/*.tsx"]
 }
