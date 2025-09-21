@@ -10,7 +10,7 @@ const config: NextConfig = {
     return [
       {
         source: '/docs/:path*.mdx',
-        destination: '/llms.mdx/:path*',
+        destination: 'https://raw.githubusercontent.com/letstri/permix/refs/heads/main/docs/content/docs/:path*.mdx',
       },
     ]
   },
